@@ -1,0 +1,90 @@
+/*
+ * Copyright (c) 2025 JRatatui Contributors
+ * SPDX-License-Identifier: MIT
+ */
+package io.github.jratatui.widgets.canvas.shapes;
+
+import io.github.jratatui.style.Color;
+import io.github.jratatui.widgets.canvas.Context;
+import io.github.jratatui.widgets.canvas.Marker;
+import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+class LineTest {
+
+    @Test
+    void constructor_creates_line() {
+        var line = new Line(0, 0, 10, 10, Color.RED);
+
+        assertThat(line.x1()).isEqualTo(0);
+        assertThat(line.y1()).isEqualTo(0);
+        assertThat(line.x2()).isEqualTo(10);
+        assertThat(line.y2()).isEqualTo(10);
+        assertThat(line.color()).isEqualTo(Color.RED);
+    }
+
+    @Test
+    void of_creates_line() {
+        var line = Line.of(5, 10, 15, 20, Color.BLUE);
+
+        assertThat(line.x1()).isEqualTo(5);
+        assertThat(line.y1()).isEqualTo(10);
+        assertThat(line.x2()).isEqualTo(15);
+        assertThat(line.y2()).isEqualTo(20);
+        assertThat(line.color()).isEqualTo(Color.BLUE);
+    }
+
+    @Test
+    void draw_horizontal_line() {
+        var ctx = new Context(10, 10, new double[] {0, 10}, new double[] {0, 10}, Marker.DOT);
+        var line = new Line(0, 5, 10, 5, Color.GREEN);
+
+        line.draw(new io.github.jratatui.widgets.canvas.Painter(ctx));
+
+        // Line should have painted points
+        var layers = ctx.allLayers();
+        assertThat(layers).isNotEmpty();
+    }
+
+    @Test
+    void draw_vertical_line() {
+        var ctx = new Context(10, 10, new double[] {0, 10}, new double[] {0, 10}, Marker.DOT);
+        var line = new Line(5, 0, 5, 10, Color.YELLOW);
+
+        line.draw(new io.github.jratatui.widgets.canvas.Painter(ctx));
+
+        var layers = ctx.allLayers();
+        assertThat(layers).isNotEmpty();
+    }
+
+    @Test
+    void draw_diagonal_line() {
+        var ctx = new Context(10, 10, new double[] {0, 10}, new double[] {0, 10}, Marker.DOT);
+        var line = new Line(0, 0, 10, 10, Color.CYAN);
+
+        line.draw(new io.github.jratatui.widgets.canvas.Painter(ctx));
+
+        var layers = ctx.allLayers();
+        assertThat(layers).isNotEmpty();
+    }
+
+    @Test
+    void draw_point_line() {
+        // Line with same start and end points
+        var ctx = new Context(10, 10, new double[] {0, 10}, new double[] {0, 10}, Marker.DOT);
+        var line = new Line(5, 5, 5, 5, Color.MAGENTA);
+
+        line.draw(new io.github.jratatui.widgets.canvas.Painter(ctx));
+        // Should not throw
+    }
+
+    @Test
+    void draw_line_outside_bounds() {
+        var ctx = new Context(10, 10, new double[] {0, 10}, new double[] {0, 10}, Marker.DOT);
+        var line = new Line(-10, -10, 20, 20, Color.WHITE);
+
+        line.draw(new io.github.jratatui.widgets.canvas.Painter(ctx));
+        // Should clip and not throw
+    }
+}

@@ -1,0 +1,78 @@
+/*
+ * Copyright (c) 2025 JRatatui Contributors
+ * SPDX-License-Identifier: MIT
+ */
+package io.github.jratatui.widgets.canvas.shapes;
+
+import io.github.jratatui.style.Color;
+import io.github.jratatui.widgets.canvas.Context;
+import io.github.jratatui.widgets.canvas.Marker;
+import io.github.jratatui.widgets.canvas.Painter;
+import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+class RectangleTest {
+
+    @Test
+    void constructor_creates_rectangle() {
+        var rect = new Rectangle(10, 20, 30, 40, Color.RED);
+
+        assertThat(rect.x()).isEqualTo(10);
+        assertThat(rect.y()).isEqualTo(20);
+        assertThat(rect.width()).isEqualTo(30);
+        assertThat(rect.height()).isEqualTo(40);
+        assertThat(rect.color()).isEqualTo(Color.RED);
+    }
+
+    @Test
+    void of_creates_rectangle() {
+        var rect = Rectangle.of(5, 10, 15, 20, Color.BLUE);
+
+        assertThat(rect.x()).isEqualTo(5);
+        assertThat(rect.y()).isEqualTo(10);
+        assertThat(rect.width()).isEqualTo(15);
+        assertThat(rect.height()).isEqualTo(20);
+        assertThat(rect.color()).isEqualTo(Color.BLUE);
+    }
+
+    @Test
+    void draw_rectangle() {
+        var ctx = new Context(20, 20, new double[] {0, 20}, new double[] {0, 20}, Marker.DOT);
+        var rect = new Rectangle(5, 5, 10, 10, Color.GREEN);
+
+        rect.draw(new Painter(ctx));
+
+        var layers = ctx.allLayers();
+        assertThat(layers).isNotEmpty();
+    }
+
+    @Test
+    void draw_small_rectangle() {
+        var ctx = new Context(10, 10, new double[] {0, 10}, new double[] {0, 10}, Marker.DOT);
+        var rect = new Rectangle(2, 2, 2, 2, Color.YELLOW);
+
+        rect.draw(new Painter(ctx));
+
+        var layers = ctx.allLayers();
+        assertThat(layers).isNotEmpty();
+    }
+
+    @Test
+    void draw_rectangle_at_origin() {
+        var ctx = new Context(10, 10, new double[] {0, 10}, new double[] {0, 10}, Marker.DOT);
+        var rect = new Rectangle(0, 0, 5, 5, Color.CYAN);
+
+        rect.draw(new Painter(ctx));
+        // Should not throw
+    }
+
+    @Test
+    void draw_rectangle_partial_visible() {
+        var ctx = new Context(10, 10, new double[] {0, 10}, new double[] {0, 10}, Marker.DOT);
+        var rect = new Rectangle(-5, -5, 10, 10, Color.MAGENTA);
+
+        rect.draw(new Painter(ctx));
+        // Should clip and not throw
+    }
+}
