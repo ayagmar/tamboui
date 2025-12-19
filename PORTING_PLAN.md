@@ -548,7 +548,7 @@ public class Terminal<B extends Backend> implements AutoCloseable {
 | `Paragraph` | Stateless | ✅ Done | Multi-line styled/wrapped text |
 | `List` | Stateful | ✅ Done | Scrollable items with selection |
 | `TextInput` | Stateful | ✅ Done | Single-line text input (JRatatui addition) |
-| `Clear` | Stateless | ❌ TODO | Clears area (for layering widgets) |
+| `Clear` | Stateless | ✅ Done | Clears area (for layering widgets) |
 | `Gauge` | Stateless | ✅ Done | Progress percentage display |
 | `LineGauge` | Stateless | ✅ Done | Progress as line |
 | `Sparkline` | Stateless | ❌ TODO | Single dataset sparkline visualization |
@@ -1553,11 +1553,11 @@ class BlockTest {
 - [x] Alternate screen
 - [x] Mouse capture support
 
-### Phase 6: Basic Widgets 🔶 PARTIAL
+### Phase 6: Basic Widgets ✅ COMPLETE
 - [x] `Widget` and `StatefulWidget` interfaces
 - [x] `Block` (borders, titles, padding)
 - [x] `Paragraph` (text wrapping, alignment)
-- [ ] `Clear`
+- [x] `Clear`
 
 ### Phase 7: Interactive Widgets ✅ COMPLETE
 - [x] `List` with `ListState`
@@ -1589,7 +1589,7 @@ class BlockTest {
 
 **Test Summary:**
 - jratatui-core: 81 tests passing
-- jratatui-widgets: 165 tests passing
+- jratatui-widgets: 173 tests passing
 
 ### Phase 11: Polish & Documentation ❌ TODO
 - [ ] Comprehensive Javadoc
