@@ -1,0 +1,28 @@
+name: Tests
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [ ubuntu-latest ]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: graalvm/setup-graalvm@v1
+        with:
+          distribution: 'graalvm'
+          java-version: '25'
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: gradle/actions/wrapper-validation@v4
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Execute Gradle build
+        run: ./gradlew check
