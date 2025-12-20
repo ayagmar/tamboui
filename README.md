@@ -249,8 +249,30 @@ try (var backend = new JLineBackend()) {
 ### Building the Project
 
 ```bash
-./gradlew build
+./gradlew assemble
 ```
+
+### Running Tests
+
+```bash
+./gradlew test
+```
+
+### Publishing to Local Maven Repository
+
+```bash
+./gradlew publishToMavenLocal
+```
+
+### Publishing to the build directory
+
+This method is preferred to publishing to Maven local to see what will actually be published:
+
+```bash
+./gradlew publishAllPublicationsToBuildRepository
+```
+
+Then look into `build/repo` for the generated artifacts.
 
 ### Running Demos
 
