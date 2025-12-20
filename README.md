@@ -25,7 +25,7 @@ Glimt brings the immediate-mode TUI paradigm from Rust to the Java ecosystem. It
 | `glimt-widgets` | All widget implementations (see below) |
 | `glimt-jline` | JLine 3 terminal backend |
 | `glimt-tui` | High-level TUI framework with TuiRunner, event handling, and key helpers |
-| `glimt-dsl` | Fluent DSL for declarative UI construction with components and focus management |
+| `glimt-toolkit` | Fluent DSL for declarative UI construction with components and focus management |
 | `glimt-picocli` | Optional PicoCLI integration for CLI argument parsing |
 | `demos/*` | Demo applications showcasing widgets and features |
 
@@ -123,14 +123,14 @@ public class MyApp extends TuiCommand {
 
 ### Using the DSL (Declarative)
 
-The `glimt-dsl` module provides a fluent DSL for declarative UI construction:
+The `glimt-toolkit` module provides a fluent DSL for declarative UI construction:
 
 ```java
-import static io.github.glimt.dsl.Dsl.*;
-import io.github.glimt.dsl.app.DslApp;
-import io.github.glimt.dsl.element.Element;
+import static ink.glimt.toolkit.Toolkit.*;
+import ink.glimt.toolkit.app.ToolkitApp;
+import ink.glimt.toolkit.element.Element;
 
-public class HelloDsl extends DslApp {
+public class HelloDsl extends ToolkitApp {
 
     @Override
     protected Element render() {
@@ -297,7 +297,7 @@ To run as a native executable:
 ./demos/sparkline-demo/build/native/nativeCompile/sparkline-demo
 ```
 
-Replace `sparkline-demo` with the name of any other demo (e.g., `basic-demo`, `tui-demo`, `dsl-demo`).
+Replace `sparkline-demo` with the name of any other demo (e.g., `basic-demo`, `tui-demo`, `toolkit-demo`).
 
 ## Widgets
 
@@ -327,7 +327,7 @@ All standard ratatui widgets are implemented:
 |------|-------------|
 | `basic-demo` | Interactive list with text input |
 | `tui-demo` | Showcases TuiRunner with keyboard, mouse, and animation |
-| `dsl-demo` | Widget Playground showcasing DSL with draggable panels |
+| `toolkit-demo` | Widget Playground showcasing DSL with draggable panels |
 | `jtop-demo` | System monitor (like "top") using the DSL |
 | `picocli-demo` | PicoCLI integration with CLI options |
 | `gauge-demo` | Progress bars and line gauges |

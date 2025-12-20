@@ -6,7 +6,7 @@ include(
     "glimt-jline",
     "glimt-tui",
     "glimt-picocli",
-    "glimt-dsl"
+    "glimt-toolkit"
 )
 
 File("demos").listFiles()?.forEach {

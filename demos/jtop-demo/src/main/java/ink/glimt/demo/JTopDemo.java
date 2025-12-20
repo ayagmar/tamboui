@@ -4,13 +4,13 @@
  */
 package ink.glimt.demo;
 
-import ink.glimt.dsl.app.DslRunner;
+import ink.glimt.toolkit.app.ToolkitRunner;
 import ink.glimt.style.Color;
 import ink.glimt.tui.TuiConfig;
 
 import java.time.Duration;
 
-import static ink.glimt.dsl.Dsl.*;
+import static ink.glimt.toolkit.Toolkit.*;
 
 /**
  * JTop - A "top" alternative built with Glimt DSL.
@@ -37,7 +37,7 @@ public class JTopDemo {
         // Create stateful component outside the render supplier
         var systemMonitor = new SystemMonitor();
 
-        try (var runner = DslRunner.create(config)) {
+        try (var runner = ToolkitRunner.create(config)) {
             runner.run(() -> column(
                 panel(() -> row(
                     text(" JTop - System Monitor ").bold().cyan(),

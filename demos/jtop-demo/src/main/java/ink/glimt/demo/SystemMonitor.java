@@ -4,9 +4,9 @@
  */
 package ink.glimt.demo;
 
-import ink.glimt.dsl.element.Element;
-import ink.glimt.dsl.element.RenderContext;
-import ink.glimt.dsl.event.EventResult;
+import ink.glimt.toolkit.element.Element;
+import ink.glimt.toolkit.element.RenderContext;
+import ink.glimt.toolkit.event.EventResult;
 import ink.glimt.layout.Constraint;
 import ink.glimt.layout.Layout;
 import ink.glimt.layout.Rect;
@@ -18,7 +18,7 @@ import ink.glimt.tui.event.KeyEvent;
 import java.time.Duration;
 import java.util.ArrayList;
 
-import static ink.glimt.dsl.Dsl.*;
+import static ink.glimt.toolkit.Toolkit.*;
 
 /**
  * UI component that displays system metrics.
