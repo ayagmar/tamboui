@@ -15,6 +15,7 @@ import ink.glimt.tui.event.MouseEvent;
 import ink.glimt.tui.event.MouseEventKind;
 
 import java.util.ArrayList;
+import java.util.IdentityHashMap;
 import java.util.List;
 
 /**
@@ -34,7 +35,7 @@ public final class EventRouter {
 
     private final FocusManager focusManager;
     private final List<Element> elements = new ArrayList<>();
-    private final java.util.IdentityHashMap<Element, Rect> elementAreas = new java.util.IdentityHashMap<>();
+    private final IdentityHashMap<Element, Rect> elementAreas = new IdentityHashMap<>();
 
     // Drag state
     private Element draggingElement;

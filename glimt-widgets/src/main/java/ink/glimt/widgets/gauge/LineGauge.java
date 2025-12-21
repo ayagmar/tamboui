@@ -12,8 +12,6 @@ import ink.glimt.text.Line;
 import ink.glimt.text.Span;
 import ink.glimt.widgets.Widget;
 
-import java.util.Optional;
-
 /**
  * A progress indicator that renders as a horizontal line.
  * <p>
@@ -47,7 +45,7 @@ public final class LineGauge implements Widget {
     public static final LineSet DOUBLE = new LineSet("═", "═");
 
     private final double ratio;
-    private final Optional<Line> label;
+    private final Line label;
     private final Style style;
     private final Style filledStyle;
     private final Style unfilledStyle;
@@ -55,7 +53,7 @@ public final class LineGauge implements Widget {
 
     private LineGauge(Builder builder) {
         this.ratio = builder.ratio;
-        this.label = Optional.ofNullable(builder.label);
+        this.label = builder.label;
         this.style = builder.style;
         this.filledStyle = builder.filledStyle;
         this.unfilledStyle = builder.unfilledStyle;
@@ -93,9 +91,8 @@ public final class LineGauge implements Widget {
         int startX = area.left();
 
         // Render label if present
-        if (label.isPresent()) {
-            Line labelLine = label.get();
-            startX = buffer.setLine(startX, y, labelLine);
+        if (label != null) {
+            startX = buffer.setLine(startX, y, label);
         }
 
         // Calculate gauge width (remaining space)

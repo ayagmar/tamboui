@@ -8,6 +8,8 @@ import ink.glimt.style.Color;
 import ink.glimt.text.Span;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 class ContextTest {
@@ -53,7 +55,7 @@ class ContextTest {
 
         ctx.draw(new ink.glimt.widgets.canvas.shapes.Line(0, 0, 10, 10, Color.RED));
 
-        java.util.List<ink.glimt.style.Color[][]> layers = ctx.allLayers();
+        List<Color[][]> layers = ctx.allLayers();
         assertThat(layers).hasSize(1);
     }
 
@@ -97,7 +99,7 @@ class ContextTest {
         ctx.layer();
         ctx.draw(new ink.glimt.widgets.canvas.shapes.Line(5, 5, 10, 10, Color.BLUE));
 
-        java.util.List<ink.glimt.style.Color[][]> layers = ctx.allLayers();
+        List<Color[][]> layers = ctx.allLayers();
         assertThat(layers).hasSize(2);
     }
 
@@ -111,7 +113,7 @@ class ContextTest {
         ctx.layer();
         ctx.draw(new ink.glimt.widgets.canvas.shapes.Line(0, 5, 10, 5, Color.GREEN));
 
-        java.util.List<ink.glimt.style.Color[][]> layers = ctx.allLayers();
+        List<Color[][]> layers = ctx.allLayers();
         assertThat(layers).hasSize(3);
     }
 }

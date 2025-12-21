@@ -28,6 +28,7 @@ import org.jline.terminal.Terminal.Signal;
 import org.jline.utils.NonBlockingReader;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -193,7 +194,7 @@ public class TableDemo {
         ).style(Style.EMPTY.fg(Color.YELLOW));
 
         // Create data rows with alternating colors
-        List<Row> rows = new java.util.ArrayList<>();
+        List<Row> rows = new ArrayList<>();
         for (int i = 0; i < DATA.size(); i++) {
             String[] data = DATA.get(i);
             Style rowStyle = i % 2 == 0 ? Style.EMPTY : Style.EMPTY.bg(Color.indexed(236));

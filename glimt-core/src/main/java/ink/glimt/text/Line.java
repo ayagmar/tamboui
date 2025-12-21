@@ -12,6 +12,7 @@ import static ink.glimt.util.CollectionUtil.listCopyOf;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -21,35 +22,35 @@ import java.util.stream.Collectors;
 public final class Line {
 
     private final List<Span> spans;
-    private final Optional<Alignment> alignment;
+    private final Alignment alignment;
 
-    public Line(List<Span> spans, Optional<Alignment> alignment) {
+    public Line(List<Span> spans, Alignment alignment) {
         this.spans = listCopyOf(spans);
-        this.alignment = alignment != null ? alignment : Optional.empty();
+        this.alignment = alignment;
     }
 
     public static Line empty() {
-        return new Line(listCopyOf(), Optional.empty());
+        return new Line(listCopyOf(), null);
     }
 
     public static Line from(String text) {
-        return new Line(listCopyOf(Span.raw(text)), Optional.empty());
+        return new Line(listCopyOf(Span.raw(text)), null);
     }
 
     public static Line from(Span span) {
-        return new Line(listCopyOf(span), Optional.empty());
+        return new Line(listCopyOf(span), null);
     }
 
     public static Line from(Span... spans) {
-        return new Line(Arrays.asList(spans), Optional.empty());
+        return new Line(Arrays.asList(spans), null);
     }
 
     public static Line from(List<Span> spans) {
-        return new Line(spans, Optional.empty());
+        return new Line(spans, null);
     }
 
     public static Line styled(String text, Style style) {
-        return new Line(listCopyOf(Span.styled(text, style)), Optional.empty());
+        return new Line(listCopyOf(Span.styled(text, style)), null);
     }
 
     /**
@@ -64,7 +65,7 @@ public final class Line {
     }
 
     public Line alignment(Alignment alignment) {
-        return new Line(spans, Optional.of(alignment));
+        return new Line(spans, alignment);
     }
 
     public Line left() {
@@ -144,7 +145,7 @@ public final class Line {
     }
 
     public Optional<Alignment> alignment() {
-        return alignment;
+        return Optional.ofNullable(alignment);
     }
 
     @Override
@@ -156,14 +157,12 @@ public final class Line {
             return false;
         }
         Line line = (Line) o;
-        return spans.equals(line.spans) && alignment.equals(line.alignment);
+        return spans.equals(line.spans) && Objects.equals(alignment, line.alignment);
     }
 
     @Override
     public int hashCode() {
-        int result = spans.hashCode();
-        result = 31 * result + alignment.hashCode();
-        return result;
+        return Objects.hash(spans, alignment);
     }
 
     @Override

@@ -4,6 +4,8 @@
  */
 package ink.glimt.widgets.list;
 
+import java.util.List;
+
 /**
  * State for a List widget, tracking selection and scroll offset.
  */
@@ -60,7 +62,7 @@ public final class ListState {
     /**
      * Scrolls the list to ensure the selected item is visible.
      */
-    public void scrollToSelected(int visibleHeight, java.util.List<ListItem> items) {
+    public void scrollToSelected(int visibleHeight, List<ListItem> items) {
         if (selected == null || items.isEmpty()) {
             return;
         }

@@ -4,6 +4,8 @@
  */
 package ink.glimt.widgets.table;
 
+import java.util.List;
+
 /**
  * State for a {@link Table} widget.
  * <p>
@@ -110,7 +112,7 @@ public final class TableState {
      * @param visibleRows the number of rows visible in the display area
      * @param rows the list of rows
      */
-    public void scrollToSelected(int visibleRows, java.util.List<Row> rows) {
+    public void scrollToSelected(int visibleRows, List<Row> rows) {
         if (selected == null || rows.isEmpty()) {
             return;
         }

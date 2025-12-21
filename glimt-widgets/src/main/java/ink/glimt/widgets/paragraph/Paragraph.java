@@ -17,7 +17,6 @@ import ink.glimt.widgets.block.Block;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * A paragraph widget for displaying styled text.
@@ -25,7 +24,7 @@ import java.util.Optional;
 public final class Paragraph implements Widget {
 
     private final Text text;
-    private final Optional<Block> block;
+    private final Block block;
     private final Style style;
     private final Alignment alignment;
     private final Wrap wrap;
@@ -33,7 +32,7 @@ public final class Paragraph implements Widget {
 
     private Paragraph(Builder builder) {
         this.text = builder.text;
-        this.block = Optional.ofNullable(builder.block);
+        this.block = builder.block;
         this.style = builder.style;
         this.alignment = builder.alignment;
         this.wrap = builder.wrap;
@@ -71,9 +70,9 @@ public final class Paragraph implements Widget {
 
         // Render block if present
         Rect textArea = area;
-        if (block.isPresent()) {
-            block.get().render(area, buffer);
-            textArea = block.get().inner(area);
+        if (block != null) {
+            block.render(area, buffer);
+            textArea = block.inner(area);
         }
 
         if (textArea.isEmpty()) {

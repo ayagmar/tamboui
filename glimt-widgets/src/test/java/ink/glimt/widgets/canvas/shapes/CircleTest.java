@@ -10,6 +10,8 @@ import ink.glimt.widgets.canvas.Marker;
 import ink.glimt.widgets.canvas.Painter;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 class CircleTest {
@@ -41,7 +43,7 @@ class CircleTest {
 
         circle.draw(new Painter(ctx));
 
-        java.util.List<ink.glimt.style.Color[][]> layers = ctx.allLayers();
+        List<Color[][]> layers = ctx.allLayers();
         assertThat(layers).isNotEmpty();
     }
 
@@ -52,7 +54,7 @@ class CircleTest {
 
         circle.draw(new Painter(ctx));
 
-        java.util.List<ink.glimt.style.Color[][]> layers = ctx.allLayers();
+        List<Color[][]> layers = ctx.allLayers();
         assertThat(layers).isNotEmpty();
     }
 
@@ -63,7 +65,7 @@ class CircleTest {
 
         circle.draw(new Painter(ctx));
 
-        java.util.List<ink.glimt.style.Color[][]> layers = ctx.allLayers();
+        List<Color[][]> layers = ctx.allLayers();
         assertThat(layers).isNotEmpty();
     }
 

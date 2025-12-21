@@ -6,6 +6,7 @@ package ink.glimt.text;
 
 import ink.glimt.layout.Alignment;
 import ink.glimt.style.Color;
+import ink.glimt.style.Style;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
 
@@ -26,7 +27,7 @@ class LineTest {
     void fromSpans() {
         Line line = Line.from(
             Span.raw("Hello "),
-            Span.styled("World", ink.glimt.style.Style.EMPTY.fg(Color.RED))
+            Span.styled("World", Style.EMPTY.fg(Color.RED))
         );
         assertThat(line.spans()).hasSize(2);
     }

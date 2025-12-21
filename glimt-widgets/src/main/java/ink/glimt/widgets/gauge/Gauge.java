@@ -13,8 +13,6 @@ import ink.glimt.text.Span;
 import ink.glimt.widgets.Widget;
 import ink.glimt.widgets.block.Block;
 
-import java.util.Optional;
-
 /**
  * A progress bar widget that renders a bar filled according to the progress value.
  * <p>
@@ -48,16 +46,16 @@ public final class Gauge implements Widget {
     };
 
     private final double ratio;
-    private final Optional<Line> label;
-    private final Optional<Block> block;
+    private final Line label;
+    private final Block block;
     private final Style style;
     private final Style gaugeStyle;
     private final boolean useUnicode;
 
     private Gauge(Builder builder) {
         this.ratio = builder.ratio;
-        this.label = Optional.ofNullable(builder.label);
-        this.block = Optional.ofNullable(builder.block);
+        this.label = builder.label;
+        this.block = builder.block;
         this.style = builder.style;
         this.gaugeStyle = builder.gaugeStyle;
         this.useUnicode = builder.useUnicode;
@@ -92,9 +90,9 @@ public final class Gauge implements Widget {
 
         // Render block if present
         Rect gaugeArea = area;
-        if (block.isPresent()) {
-            block.get().render(area, buffer);
-            gaugeArea = block.get().inner(area);
+        if (block != null) {
+            block.render(area, buffer);
+            gaugeArea = block.inner(area);
         }
 
         if (gaugeArea.isEmpty()) {
@@ -126,10 +124,13 @@ public final class Gauge implements Widget {
         }
 
         // Render label centered
-        Line labelLine = label.orElseGet(() -> {
+        Line labelLine;
+        if (label != null) {
+            labelLine = label;
+        } else {
             int percent = (int) (ratio * 100);
-            return Line.from(percent + "%");
-        });
+            labelLine = Line.from(percent + "%");
+        }
 
         int labelWidth = labelLine.width();
         int labelX = gaugeArea.left() + (totalWidth - labelWidth) / 2;

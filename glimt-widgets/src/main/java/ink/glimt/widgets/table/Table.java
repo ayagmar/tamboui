@@ -19,7 +19,6 @@ import static ink.glimt.util.CollectionUtil.listCopyOf;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * A table widget for displaying data in rows and columns.
@@ -52,9 +51,9 @@ public final class Table implements StatefulWidget<TableState> {
 
     private final List<Row> rows;
     private final List<Constraint> widths;
-    private final Optional<Row> header;
-    private final Optional<Row> footer;
-    private final Optional<Block> block;
+    private final Row header;
+    private final Row footer;
+    private final Block block;
     private final Style style;
     private final Style rowHighlightStyle;
     private final String highlightSymbol;
@@ -64,9 +63,9 @@ public final class Table implements StatefulWidget<TableState> {
     private Table(Builder builder) {
         this.rows = listCopyOf(builder.rows);
         this.widths = listCopyOf(builder.widths);
-        this.header = Optional.ofNullable(builder.header);
-        this.footer = Optional.ofNullable(builder.footer);
-        this.block = Optional.ofNullable(builder.block);
+        this.header = builder.header;
+        this.footer = builder.footer;
+        this.block = builder.block;
         this.style = builder.style;
         this.rowHighlightStyle = builder.rowHighlightStyle;
         this.highlightSymbol = builder.highlightSymbol;
@@ -96,9 +95,9 @@ public final class Table implements StatefulWidget<TableState> {
 
         // Render block if present
         Rect tableArea = area;
-        if (block.isPresent()) {
-            block.get().render(area, buffer);
-            tableArea = block.get().inner(area);
+        if (block != null) {
+            block.render(area, buffer);
+            tableArea = block.inner(area);
         }
 
         if (tableArea.isEmpty() || widths.isEmpty()) {
@@ -121,11 +120,11 @@ public final class Table implements StatefulWidget<TableState> {
         // Ensure selected row is visible
         if (state.selected() != null) {
             int visibleHeight = tableArea.height();
-            if (header.isPresent()) {
-                visibleHeight -= header.get().totalHeight();
+            if (header != null) {
+                visibleHeight -= header.totalHeight();
             }
-            if (footer.isPresent()) {
-                visibleHeight -= footer.get().totalHeight();
+            if (footer != null) {
+                visibleHeight -= footer.totalHeight();
             }
             state.scrollToSelected(visibleHeight, rows);
         }
@@ -133,21 +132,21 @@ public final class Table implements StatefulWidget<TableState> {
         int y = tableArea.top();
 
         // Render header
-        if (header.isPresent()) {
-            y = renderRow(buffer, tableArea, y, header.get(), columnWidths, highlightWidth, false, Style.EMPTY);
+        if (header != null) {
+            y = renderRow(buffer, tableArea, y, header, columnWidths, highlightWidth, false, Style.EMPTY);
         }
 
         // Calculate available height for data rows
         int dataHeight = tableArea.bottom() - y;
-        if (footer.isPresent()) {
-            dataHeight -= footer.get().totalHeight();
+        if (footer != null) {
+            dataHeight -= footer.totalHeight();
         }
 
         // Render data rows
         int offset = state.offset();
         int currentOffset = 0;
 
-        for (int i = 0; i < rows.size() && y < tableArea.top() + tableArea.height() - (footer.isPresent() ? footer.get().totalHeight() : 0); i++) {
+        for (int i = 0; i < rows.size() && y < tableArea.top() + tableArea.height() - (footer != null ? footer.totalHeight() : 0); i++) {
             Row row = rows.get(i);
             int rowHeight = row.totalHeight();
 
@@ -170,9 +169,9 @@ public final class Table implements StatefulWidget<TableState> {
         }
 
         // Render footer at the bottom
-        if (footer.isPresent()) {
-            int footerY = tableArea.bottom() - footer.get().totalHeight();
-            renderRow(buffer, tableArea, footerY, footer.get(), columnWidths, highlightWidth, false, Style.EMPTY);
+        if (footer != null) {
+            int footerY = tableArea.bottom() - footer.totalHeight();
+            renderRow(buffer, tableArea, footerY, footer, columnWidths, highlightWidth, false, Style.EMPTY);
         }
     }
 

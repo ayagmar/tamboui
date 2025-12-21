@@ -4,6 +4,7 @@
  */
 package ink.glimt.toolkit;
 
+import ink.glimt.toolkit.element.Element;
 import ink.glimt.toolkit.elements.BarChartElement;
 import ink.glimt.toolkit.elements.CalendarElement;
 import ink.glimt.toolkit.elements.CanvasElement;
@@ -448,7 +449,7 @@ class ToolkitTest {
         @Test
         @DisplayName("lazy(Supplier) creates lazy element")
         void lazyElement() {
-            ink.glimt.toolkit.element.Element element = lazy(() -> text("Dynamic"));
+            Element element = lazy(() -> text("Dynamic"));
             assertThat(element).isNotNull();
         }
 

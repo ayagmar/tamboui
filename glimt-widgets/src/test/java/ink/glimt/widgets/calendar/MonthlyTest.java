@@ -5,6 +5,7 @@
 package ink.glimt.widgets.calendar;
 
 import ink.glimt.buffer.Buffer;
+import ink.glimt.buffer.Cell;
 import ink.glimt.layout.Rect;
 import ink.glimt.style.Color;
 import ink.glimt.style.Style;
@@ -56,7 +57,7 @@ class MonthlyTest {
         boolean hasContent = false;
         for (int y = 0; y < 8; y++) {
             for (int x = 0; x < 25; x++) {
-                ink.glimt.buffer.Cell cell = buffer.get(x, y);
+                Cell cell = buffer.get(x, y);
                 if (!cell.symbol().equals(" ") && !cell.symbol().isEmpty()) {
                     hasContent = true;
                     break;
@@ -148,8 +149,8 @@ class MonthlyTest {
         boolean foundStyledDay = false;
         for (int y = 0; y < 8; y++) {
             for (int x = 0; x < 24; x++) {
-                ink.glimt.buffer.Cell cell = buffer.get(x, y);
-                ink.glimt.buffer.Cell nextCell = buffer.get(x + 1, y);
+                Cell cell = buffer.get(x, y);
+                Cell nextCell = buffer.get(x + 1, y);
                 if (cell.symbol().equals("1") && nextCell.symbol().equals("5")) {
                     // Found "15" - check style
                     if (cell.style().fg().orElse(null) == Color.RED) {
@@ -241,7 +242,7 @@ class MonthlyTest {
         boolean foundStyledDay = false;
         for (int y = 0; y < 8; y++) {
             for (int x = 0; x < 25; x++) {
-                ink.glimt.buffer.Cell cell = buffer.get(x, y);
+                Cell cell = buffer.get(x, y);
                 if (Character.isDigit(cell.symbol().charAt(0))) {
                     if (cell.style().fg().orElse(null) == Color.CYAN) {
                         foundStyledDay = true;

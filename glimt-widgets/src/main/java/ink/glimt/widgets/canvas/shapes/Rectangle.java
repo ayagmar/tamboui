@@ -8,6 +8,8 @@ import ink.glimt.style.Color;
 import ink.glimt.widgets.canvas.Painter;
 import ink.glimt.widgets.canvas.Shape;
 
+import java.util.Optional;
+
 /**
  * A rectangle defined by position and size.
  * <p>
@@ -63,8 +65,8 @@ public final class Rectangle implements Shape {
     }
 
     private void drawLine(Painter painter, double x1, double y1, double x2, double y2) {
-        java.util.Optional<Painter.GridPoint> p1 = painter.getPoint(x1, y1);
-        java.util.Optional<Painter.GridPoint> p2 = painter.getPoint(x2, y2);
+        Optional<Painter.GridPoint> p1 = painter.getPoint(x1, y1);
+        Optional<Painter.GridPoint> p2 = painter.getPoint(x2, y2);
 
         if (p1.isPresent() && p2.isPresent()) {
             drawBresenham(painter, p1.get().x(), p1.get().y(), p2.get().x(), p2.get().y());

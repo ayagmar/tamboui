@@ -7,6 +7,8 @@ package ink.glimt.layout;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
 
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.*;
 
 class LayoutTest {
@@ -22,7 +24,7 @@ class LayoutTest {
                 Constraint.length(50)
             );
 
-        java.util.List<Rect> rects = layout.split(area);
+        List<Rect> rects = layout.split(area);
 
         assertThat(rects).hasSize(3);
         assertThat(rects.get(0)).isEqualTo(new Rect(0, 0, 100, 20));
@@ -40,7 +42,7 @@ class LayoutTest {
                 Constraint.length(70)
             );
 
-        java.util.List<Rect> rects = layout.split(area);
+        List<Rect> rects = layout.split(area);
 
         assertThat(rects).hasSize(2);
         assertThat(rects.get(0)).isEqualTo(new Rect(0, 0, 30, 50));
@@ -57,7 +59,7 @@ class LayoutTest {
                 Constraint.percentage(75)
             );
 
-        java.util.List<Rect> rects = layout.split(area);
+        List<Rect> rects = layout.split(area);
 
         assertThat(rects).hasSize(2);
         assertThat(rects.get(0).height()).isEqualTo(25);
@@ -74,7 +76,7 @@ class LayoutTest {
                 Constraint.fill()
             );
 
-        java.util.List<Rect> rects = layout.split(area);
+        List<Rect> rects = layout.split(area);
 
         assertThat(rects).hasSize(2);
         assertThat(rects.get(0).height()).isEqualTo(20);
@@ -89,7 +91,7 @@ class LayoutTest {
             .margin(Margin.uniform(10))
             .constraints(Constraint.fill());
 
-        java.util.List<Rect> rects = layout.split(area);
+        List<Rect> rects = layout.split(area);
 
         assertThat(rects).hasSize(1);
         assertThat(rects.get(0)).isEqualTo(new Rect(10, 10, 80, 80));
@@ -106,7 +108,7 @@ class LayoutTest {
                 Constraint.length(40)
             );
 
-        java.util.List<Rect> rects = layout.split(area);
+        List<Rect> rects = layout.split(area);
 
         assertThat(rects).hasSize(2);
         assertThat(rects.get(0)).isEqualTo(new Rect(0, 0, 100, 40));
@@ -123,7 +125,7 @@ class LayoutTest {
                 Constraint.fill()
             );
 
-        java.util.List<Rect> rects = layout.split(area);
+        List<Rect> rects = layout.split(area);
 
         assertThat(rects).hasSize(2);
         assertThat(rects.get(0).height()).isGreaterThanOrEqualTo(30);
@@ -139,7 +141,7 @@ class LayoutTest {
                 Constraint.ratio(2, 3)
             );
 
-        java.util.List<Rect> rects = layout.split(area);
+        List<Rect> rects = layout.split(area);
 
         assertThat(rects).hasSize(2);
         assertThat(rects.get(0).height()).isEqualTo(33);

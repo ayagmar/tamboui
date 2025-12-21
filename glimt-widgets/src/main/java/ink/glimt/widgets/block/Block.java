@@ -12,15 +12,14 @@ import ink.glimt.style.Style;
 import ink.glimt.widgets.Widget;
 
 import java.util.EnumSet;
-import java.util.Optional;
 
 /**
  * A block is a container widget with optional borders and titles.
  */
 public final class Block implements Widget {
 
-    private final Optional<Title> title;
-    private final Optional<Title> titleBottom;
+    private final Title title;
+    private final Title titleBottom;
     private final EnumSet<Borders> borders;
     private final BorderType borderType;
     private final Style borderStyle;
@@ -28,8 +27,8 @@ public final class Block implements Widget {
     private final Padding padding;
 
     private Block(Builder builder) {
-        this.title = Optional.ofNullable(builder.title);
-        this.titleBottom = Optional.ofNullable(builder.titleBottom);
+        this.title = builder.title;
+        this.titleBottom = builder.titleBottom;
         this.borders = builder.borders;
         this.borderType = builder.borderType;
         this.borderStyle = builder.borderStyle;
@@ -98,8 +97,12 @@ public final class Block implements Widget {
         }
 
         // Draw titles
-        title.ifPresent(t -> renderTitle(t, area, buffer, true));
-        titleBottom.ifPresent(t -> renderTitle(t, area, buffer, false));
+        if (title != null) {
+            renderTitle(title, area, buffer, true);
+        }
+        if (titleBottom != null) {
+            renderTitle(titleBottom, area, buffer, false);
+        }
     }
 
     private void renderBorders(Rect area, Buffer buffer) {

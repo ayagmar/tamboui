@@ -14,6 +14,7 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -23,15 +24,15 @@ import java.util.stream.Collectors;
 public final class Text {
 
     private final List<Line> lines;
-    private final Optional<Alignment> alignment;
+    private final Alignment alignment;
 
-    public Text(List<Line> lines, Optional<Alignment> alignment) {
+    public Text(List<Line> lines, Alignment alignment) {
         this.lines = listCopyOf(lines);
-        this.alignment = alignment != null ? alignment : Optional.empty();
+        this.alignment = alignment;
     }
 
     public static Text empty() {
-        return new Text(listCopyOf(), Optional.empty());
+        return new Text(listCopyOf(), null);
     }
 
     public static Text raw(String text) {
@@ -39,7 +40,7 @@ public final class Text {
             .lines()
             .map(Line::from)
             .collect(Collectors.toList());
-        return new Text(linesList, Optional.empty());
+        return new Text(linesList, null);
     }
 
     public static Text from(String text) {
@@ -47,19 +48,19 @@ public final class Text {
     }
 
     public static Text from(Line line) {
-        return new Text(listCopyOf(line), Optional.empty());
+        return new Text(listCopyOf(line), null);
     }
 
     public static Text from(Line... lines) {
-        return new Text(Arrays.asList(lines), Optional.empty());
+        return new Text(Arrays.asList(lines), null);
     }
 
     public static Text from(List<Line> lines) {
-        return new Text(lines, Optional.empty());
+        return new Text(lines, null);
     }
 
     public static Text from(Span span) {
-        return new Text(listCopyOf(Line.from(span)), Optional.empty());
+        return new Text(listCopyOf(Line.from(span)), null);
     }
 
     public static Text styled(String text, Style style) {
@@ -67,7 +68,7 @@ public final class Text {
             .lines()
             .map(line -> Line.styled(line, style))
             .collect(Collectors.toList());
-        return new Text(linesList, Optional.empty());
+        return new Text(linesList, null);
     }
 
     /**
@@ -92,7 +93,7 @@ public final class Text {
     }
 
     public Text alignment(Alignment alignment) {
-        return new Text(lines, Optional.of(alignment));
+        return new Text(lines, alignment);
     }
 
     public Text left() {
@@ -187,7 +188,7 @@ public final class Text {
     }
 
     public Optional<Alignment> alignment() {
-        return alignment;
+        return Optional.ofNullable(alignment);
     }
 
     @Override
@@ -199,14 +200,12 @@ public final class Text {
             return false;
         }
         Text text = (Text) o;
-        return lines.equals(text.lines) && alignment.equals(text.alignment);
+        return lines.equals(text.lines) && Objects.equals(alignment, text.alignment);
     }
 
     @Override
     public int hashCode() {
-        int result = lines.hashCode();
-        result = 31 * result + alignment.hashCode();
-        return result;
+        return Objects.hash(lines, alignment);
     }
 
     @Override

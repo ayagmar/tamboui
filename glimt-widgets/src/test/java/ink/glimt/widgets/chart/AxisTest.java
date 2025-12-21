@@ -9,6 +9,7 @@ import ink.glimt.style.Color;
 import ink.glimt.style.Style;
 import ink.glimt.text.Line;
 import ink.glimt.text.Span;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
@@ -230,7 +231,7 @@ class AxisTest {
 
         List<Span> labels = axis.labels();
 
-        org.junit.jupiter.api.Assertions.assertThrows(
+        Assertions.assertThrows(
             UnsupportedOperationException.class,
             () -> labels.add(Span.raw("D"))
         );

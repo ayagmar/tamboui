@@ -13,21 +13,19 @@ import ink.glimt.terminal.Frame;
 import ink.glimt.widgets.StatefulWidget;
 import ink.glimt.widgets.block.Block;
 
-import java.util.Optional;
-
 /**
  * A text input widget for single-line text entry.
  */
 public final class TextInput implements StatefulWidget<TextInputState> {
 
-    private final Optional<Block> block;
+    private final Block block;
     private final Style style;
     private final Style cursorStyle;
     private final String placeholder;
     private final Style placeholderStyle;
 
     private TextInput(Builder builder) {
-        this.block = Optional.ofNullable(builder.block);
+        this.block = builder.block;
         this.style = builder.style;
         this.cursorStyle = builder.cursorStyle;
         this.placeholder = builder.placeholder;
@@ -49,9 +47,9 @@ public final class TextInput implements StatefulWidget<TextInputState> {
 
         // Render block if present
         Rect inputArea = area;
-        if (block.isPresent()) {
-            block.get().render(area, buffer);
-            inputArea = block.get().inner(area);
+        if (block != null) {
+            block.render(area, buffer);
+            inputArea = block.inner(area);
         }
 
         if (inputArea.isEmpty()) {
@@ -98,7 +96,7 @@ public final class TextInput implements StatefulWidget<TextInputState> {
         render(area, buffer, state);
 
         // Calculate cursor screen position
-        Rect inputArea = block.map(b -> b.inner(area)).orElse(area);
+        Rect inputArea = block != null ? block.inner(area) : area;
 
         if (inputArea.isEmpty()) {
             return;

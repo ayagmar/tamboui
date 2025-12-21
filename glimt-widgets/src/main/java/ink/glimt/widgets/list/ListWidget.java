@@ -15,7 +15,6 @@ import static ink.glimt.util.CollectionUtil.listCopyOf;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * A list widget for displaying selectable items.
@@ -23,14 +22,14 @@ import java.util.Optional;
 public final class ListWidget implements StatefulWidget<ListState> {
 
     private final List<ListItem> items;
-    private final Optional<Block> block;
+    private final Block block;
     private final Style style;
     private final Style highlightStyle;
     private final String highlightSymbol;
 
     private ListWidget(Builder builder) {
         this.items = listCopyOf(builder.items);
-        this.block = Optional.ofNullable(builder.block);
+        this.block = builder.block;
         this.style = builder.style;
         this.highlightStyle = builder.highlightStyle;
         this.highlightSymbol = builder.highlightSymbol;
@@ -55,9 +54,9 @@ public final class ListWidget implements StatefulWidget<ListState> {
 
         // Render block if present
         Rect listArea = area;
-        if (block.isPresent()) {
-            block.get().render(area, buffer);
-            listArea = block.get().inner(area);
+        if (block != null) {
+            block.render(area, buffer);
+            listArea = block.inner(area);
         }
 
         if (listArea.isEmpty() || items.isEmpty()) {

@@ -5,6 +5,7 @@
 package ink.glimt.style;
 
 import java.util.EnumSet;
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -13,30 +14,30 @@ import java.util.Optional;
  */
 public final class Style {
 
-    private final Optional<Color> fg;
-    private final Optional<Color> bg;
-    private final Optional<Color> underlineColor;
+    private final Color fg;
+    private final Color bg;
+    private final Color underlineColor;
     private final EnumSet<Modifier> addModifiers;
     private final EnumSet<Modifier> subModifiers;
 
     public static final Style EMPTY = new Style(
-        Optional.empty(),
-        Optional.empty(),
-        Optional.empty(),
+        null,
+        null,
+        null,
         EnumSet.noneOf(Modifier.class),
         EnumSet.noneOf(Modifier.class)
     );
 
     public Style(
-        Optional<Color> fg,
-        Optional<Color> bg,
-        Optional<Color> underlineColor,
+        Color fg,
+        Color bg,
+        Color underlineColor,
         EnumSet<Modifier> addModifiers,
         EnumSet<Modifier> subModifiers
     ) {
-        this.fg = fg != null ? fg : Optional.empty();
-        this.bg = bg != null ? bg : Optional.empty();
-        this.underlineColor = underlineColor != null ? underlineColor : Optional.empty();
+        this.fg = fg;
+        this.bg = bg;
+        this.underlineColor = underlineColor;
         // Defensive copy of mutable EnumSets
         this.addModifiers = EnumSet.copyOf(addModifiers);
         this.subModifiers = EnumSet.copyOf(subModifiers);
@@ -52,7 +53,7 @@ public final class Style {
     // Foreground color methods
 
     public Style fg(Color color) {
-        return new Style(Optional.of(color), bg, underlineColor, addModifiers, subModifiers);
+        return new Style(color, bg, underlineColor, addModifiers, subModifiers);
     }
 
     public Style black() {
@@ -94,7 +95,7 @@ public final class Style {
     // Background color methods
 
     public Style bg(Color color) {
-        return new Style(fg, Optional.of(color), underlineColor, addModifiers, subModifiers);
+        return new Style(fg, color, underlineColor, addModifiers, subModifiers);
     }
 
     public Style onBlack() {
@@ -132,7 +133,7 @@ public final class Style {
     // Underline color
 
     public Style underlineColor(Color color) {
-        return new Style(fg, bg, Optional.of(color), addModifiers, subModifiers);
+        return new Style(fg, bg, color, addModifiers, subModifiers);
     }
 
     // Modifier methods
@@ -222,9 +223,9 @@ public final class Style {
      * values where they are set.
      */
     public Style patch(Style other) {
-        Optional<Color> newFg = other.fg.isPresent() ? other.fg : this.fg;
-        Optional<Color> newBg = other.bg.isPresent() ? other.bg : this.bg;
-        Optional<Color> newUnderlineColor = other.underlineColor.isPresent() ? other.underlineColor : this.underlineColor;
+        Color newFg = other.fg != null ? other.fg : this.fg;
+        Color newBg = other.bg != null ? other.bg : this.bg;
+        Color newUnderlineColor = other.underlineColor != null ? other.underlineColor : this.underlineColor;
 
         EnumSet<Modifier> newAddModifiers = EnumSet.copyOf(this.addModifiers);
         newAddModifiers.removeAll(other.subModifiers);
@@ -247,15 +248,15 @@ public final class Style {
     }
 
     public Optional<Color> fg() {
-        return fg;
+        return Optional.ofNullable(fg);
     }
 
     public Optional<Color> bg() {
-        return bg;
+        return Optional.ofNullable(bg);
     }
 
     public Optional<Color> underlineColor() {
-        return underlineColor;
+        return Optional.ofNullable(underlineColor);
     }
 
     public EnumSet<Modifier> addModifiers() {
@@ -275,21 +276,16 @@ public final class Style {
             return false;
         }
         Style style = (Style) o;
-        return fg.equals(style.fg)
-            && bg.equals(style.bg)
-            && underlineColor.equals(style.underlineColor)
+        return Objects.equals(fg, style.fg)
+            && Objects.equals(bg, style.bg)
+            && Objects.equals(underlineColor, style.underlineColor)
             && addModifiers.equals(style.addModifiers)
             && subModifiers.equals(style.subModifiers);
     }
 
     @Override
     public int hashCode() {
-        int result = fg.hashCode();
-        result = 31 * result + bg.hashCode();
-        result = 31 * result + underlineColor.hashCode();
-        result = 31 * result + addModifiers.hashCode();
-        result = 31 * result + subModifiers.hashCode();
-        return result;
+        return Objects.hash(fg, bg, underlineColor, addModifiers, subModifiers);
     }
 
     @Override

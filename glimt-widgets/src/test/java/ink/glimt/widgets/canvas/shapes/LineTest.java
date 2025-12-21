@@ -7,7 +7,10 @@ package ink.glimt.widgets.canvas.shapes;
 import ink.glimt.style.Color;
 import ink.glimt.widgets.canvas.Context;
 import ink.glimt.widgets.canvas.Marker;
+import ink.glimt.widgets.canvas.Painter;
 import org.junit.jupiter.api.Test;
+
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -40,10 +43,10 @@ class LineTest {
         Context ctx = new Context(10, 10, new double[] {0, 10}, new double[] {0, 10}, Marker.DOT);
         Line line = new Line(0, 5, 10, 5, Color.GREEN);
 
-        line.draw(new ink.glimt.widgets.canvas.Painter(ctx));
+        line.draw(new Painter(ctx));
 
         // Line should have painted points
-        java.util.List<ink.glimt.style.Color[][]> layers = ctx.allLayers();
+        List<Color[][]> layers = ctx.allLayers();
         assertThat(layers).isNotEmpty();
     }
 
@@ -52,9 +55,9 @@ class LineTest {
         Context ctx = new Context(10, 10, new double[] {0, 10}, new double[] {0, 10}, Marker.DOT);
         Line line = new Line(5, 0, 5, 10, Color.YELLOW);
 
-        line.draw(new ink.glimt.widgets.canvas.Painter(ctx));
+        line.draw(new Painter(ctx));
 
-        java.util.List<ink.glimt.style.Color[][]> layers = ctx.allLayers();
+        List<Color[][]> layers = ctx.allLayers();
         assertThat(layers).isNotEmpty();
     }
 
@@ -63,9 +66,9 @@ class LineTest {
         Context ctx = new Context(10, 10, new double[] {0, 10}, new double[] {0, 10}, Marker.DOT);
         Line line = new Line(0, 0, 10, 10, Color.CYAN);
 
-        line.draw(new ink.glimt.widgets.canvas.Painter(ctx));
+        line.draw(new Painter(ctx));
 
-        java.util.List<ink.glimt.style.Color[][]> layers = ctx.allLayers();
+        List<Color[][]> layers = ctx.allLayers();
         assertThat(layers).isNotEmpty();
     }
 
@@ -75,7 +78,7 @@ class LineTest {
         Context ctx = new Context(10, 10, new double[] {0, 10}, new double[] {0, 10}, Marker.DOT);
         Line line = new Line(5, 5, 5, 5, Color.MAGENTA);
 
-        line.draw(new ink.glimt.widgets.canvas.Painter(ctx));
+        line.draw(new Painter(ctx));
         // Should not throw
     }
 
@@ -84,7 +87,7 @@ class LineTest {
         Context ctx = new Context(10, 10, new double[] {0, 10}, new double[] {0, 10}, Marker.DOT);
         Line line = new Line(-10, -10, 20, 20, Color.WHITE);
 
-        line.draw(new ink.glimt.widgets.canvas.Painter(ctx));
+        line.draw(new Painter(ctx));
         // Should clip and not throw
     }
 }

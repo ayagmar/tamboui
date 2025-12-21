@@ -15,6 +15,8 @@ import ink.glimt.style.Style;
 import ink.glimt.tui.event.KeyEvent;
 import ink.glimt.tui.event.MouseEvent;
 
+import java.util.function.BiConsumer;
+
 /**
  * Abstract base for elements that support styling and event handling.
  * Provides a fluent API for setting colors, modifiers, and event handlers.
@@ -256,7 +258,7 @@ public abstract class StyledElement<T extends StyledElement<T>> implements Eleme
      * @param onMove callback receiving (deltaX, deltaY) during drag
      * @return this element for chaining
      */
-    public T draggable(java.util.function.BiConsumer<Integer, Integer> onMove) {
+    public T draggable(BiConsumer<Integer, Integer> onMove) {
         this.draggable = true;
         this.dragHandler = new DragHandler() {
             private int lastX, lastY;

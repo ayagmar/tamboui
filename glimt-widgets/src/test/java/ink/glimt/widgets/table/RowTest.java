@@ -5,7 +5,9 @@
 package ink.glimt.widgets.table;
 
 import ink.glimt.style.Color;
+import ink.glimt.style.Modifier;
 import ink.glimt.style.Style;
+import ink.glimt.text.Text;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
 
@@ -51,7 +53,7 @@ class RowTest {
     @Test
     @DisplayName("Row height is calculated from cell content")
     void heightFromContent() {
-        Cell multiLineCell = Cell.from(ink.glimt.text.Text.from("Line1\nLine2\nLine3"));
+        Cell multiLineCell = Cell.from(Text.from("Line1\nLine2\nLine3"));
         Row row = Row.from(Cell.from("Single"), multiLineCell);
         assertThat(row.height()).isEqualTo(3);
     }
@@ -67,7 +69,7 @@ class RowTest {
     @DisplayName("Row.style sets row style")
     void withStyle() {
         Row row = Row.from("A", "B").style(Style.EMPTY.bold());
-        assertThat(row.style().addModifiers()).contains(ink.glimt.style.Modifier.BOLD);
+        assertThat(row.style().addModifiers()).contains(Modifier.BOLD);
     }
 
     @Test

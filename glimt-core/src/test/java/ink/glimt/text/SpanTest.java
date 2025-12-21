@@ -5,6 +5,7 @@
 package ink.glimt.text;
 
 import ink.glimt.style.Color;
+import ink.glimt.style.Modifier;
 import ink.glimt.style.Style;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
@@ -56,7 +57,7 @@ class SpanTest {
     @DisplayName("Span bold adds bold modifier")
     void bold() {
         Span span = Span.raw("Text").bold();
-        assertThat(span.style().addModifiers()).contains(ink.glimt.style.Modifier.BOLD);
+        assertThat(span.style().addModifiers()).contains(Modifier.BOLD);
     }
 
     @Test

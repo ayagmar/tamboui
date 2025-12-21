@@ -16,7 +16,6 @@ import static ink.glimt.util.CollectionUtil.listCopyOf;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * A horizontal set of tabs with a single tab selected.
@@ -39,7 +38,7 @@ import java.util.Optional;
 public final class Tabs implements StatefulWidget<TabsState> {
 
     private final List<Line> titles;
-    private final Optional<Block> block;
+    private final Block block;
     private final Style style;
     private final Style highlightStyle;
     private final Span divider;
@@ -48,7 +47,7 @@ public final class Tabs implements StatefulWidget<TabsState> {
 
     private Tabs(Builder builder) {
         this.titles = listCopyOf(builder.titles);
-        this.block = Optional.ofNullable(builder.block);
+        this.block = builder.block;
         this.style = builder.style;
         this.highlightStyle = builder.highlightStyle;
         this.divider = builder.divider;
@@ -99,9 +98,9 @@ public final class Tabs implements StatefulWidget<TabsState> {
 
         // Render block if present
         Rect tabsArea = area;
-        if (block.isPresent()) {
-            block.get().render(area, buffer);
-            tabsArea = block.get().inner(area);
+        if (block != null) {
+            block.render(area, buffer);
+            tabsArea = block.inner(area);
         }
 
         if (tabsArea.isEmpty() || titles.isEmpty()) {
