@@ -4,16 +4,15 @@
  */
 package ink.glimt.tui;
 
-import ink.glimt.backend.jline.JLineBackend;
 import ink.glimt.layout.Size;
+import ink.glimt.terminal.Backend;
+import ink.glimt.terminal.BackendFactory;
 import ink.glimt.terminal.Frame;
 import ink.glimt.terminal.Terminal;
 import ink.glimt.tui.event.Event;
 import ink.glimt.tui.event.EventParser;
 import ink.glimt.tui.event.ResizeEvent;
 import ink.glimt.tui.event.TickEvent;
-import org.jline.terminal.Terminal.Signal;
-import org.jline.utils.NonBlockingReader;
 
 import java.io.IOException;
 import java.time.Duration;
@@ -51,10 +50,9 @@ import java.util.function.Consumer;
  */
 public final class TuiRunner implements AutoCloseable {
 
-    private final JLineBackend backend;
-    private final Terminal<JLineBackend> terminal;
+    private final Backend backend;
+    private final Terminal<Backend> terminal;
     private final TuiConfig config;
-    private final NonBlockingReader reader;
     private final BlockingQueue<Event> eventQueue;
     private final AtomicBoolean running;
     private final AtomicBoolean cleanedUp;
@@ -64,11 +62,10 @@ public final class TuiRunner implements AutoCloseable {
     private volatile Instant lastTick;
     private volatile Size lastSize;
 
-    private TuiRunner(JLineBackend backend, Terminal<JLineBackend> terminal, TuiConfig config) {
+    private TuiRunner(Backend backend, Terminal<Backend> terminal, TuiConfig config) {
         this.backend = backend;
         this.terminal = terminal;
         this.config = config;
-        this.reader = backend.jlineTerminal().reader();
         this.eventQueue = new LinkedBlockingQueue<>();
         this.running = new AtomicBoolean(true);
         this.cleanedUp = new AtomicBoolean(false);
@@ -84,7 +81,7 @@ public final class TuiRunner implements AutoCloseable {
         }
 
         // Set up resize handler
-        backend.jlineTerminal().handle(Signal.WINCH, signal -> {
+        backend.onResize(() -> {
             try {
                 Size newSize = backend.size();
                 if (!newSize.equals(lastSize)) {
@@ -136,7 +133,7 @@ public final class TuiRunner implements AutoCloseable {
      * @throws Exception if terminal initialization fails
      */
     public static TuiRunner create(TuiConfig config) throws Exception {
-        JLineBackend backend = new JLineBackend();
+        Backend backend = BackendFactory.create();
 
         try {
             if (config.rawMode()) {
@@ -152,7 +149,7 @@ public final class TuiRunner implements AutoCloseable {
                 backend.enableMouseCapture();
             }
 
-            Terminal<JLineBackend> terminal = new Terminal<>(backend);
+            Terminal<Backend> terminal = new Terminal<>(backend);
             return new TuiRunner(backend, terminal, config);
         } catch (Exception e) {
             backend.close();
@@ -198,7 +195,7 @@ public final class TuiRunner implements AutoCloseable {
 
         // Read from terminal
         try {
-            return EventParser.readEvent(reader, (int) timeout.toMillis());
+            return EventParser.readEvent(backend, (int) timeout.toMillis());
         } catch (IOException e) {
             return null;
         }
@@ -240,14 +237,14 @@ public final class TuiRunner implements AutoCloseable {
     /**
      * Returns the underlying terminal.
      */
-    public Terminal<JLineBackend> terminal() {
+    public Terminal<Backend> terminal() {
         return terminal;
     }
 
     /**
      * Returns the underlying backend.
      */
-    public JLineBackend backend() {
+    public Backend backend() {
         return backend;
     }
 

@@ -4,12 +4,13 @@
  */
 package ink.glimt.demo;
 
-import ink.glimt.backend.jline.JLineBackend;
 import ink.glimt.layout.Constraint;
 import ink.glimt.layout.Layout;
 import ink.glimt.layout.Rect;
 import ink.glimt.style.Color;
 import ink.glimt.style.Style;
+import ink.glimt.terminal.Backend;
+import ink.glimt.terminal.BackendFactory;
 import ink.glimt.terminal.Frame;
 import ink.glimt.terminal.Terminal;
 import ink.glimt.text.Line;
@@ -22,8 +23,6 @@ import ink.glimt.widgets.block.Title;
 import ink.glimt.widgets.paragraph.Paragraph;
 import ink.glimt.widgets.tabs.Tabs;
 import ink.glimt.widgets.tabs.TabsState;
-import org.jline.terminal.Terminal.Signal;
-import org.jline.utils.NonBlockingReader;
 
 import java.io.IOException;
 import java.util.List;
@@ -90,15 +89,15 @@ public class TabsDemo {
     }
 
     public void run() throws Exception {
-        try (JLineBackend backend = new JLineBackend()) {
+        try (Backend backend = BackendFactory.create()) {
             backend.enableRawMode();
             backend.enterAlternateScreen();
             backend.hideCursor();
 
-            Terminal<JLineBackend> terminal = new Terminal<>(backend);
+            Terminal<Backend> terminal = new Terminal<>(backend);
 
             // Handle resize
-            backend.jlineTerminal().handle(Signal.WINCH, signal -> {
+            backend.onResize(() -> {
                 try {
                     terminal.draw(this::ui);
                 } catch (IOException e) {
@@ -106,19 +105,17 @@ public class TabsDemo {
                 }
             });
 
-            NonBlockingReader reader = backend.jlineTerminal().reader();
-
             // Initial draw
             terminal.draw(this::ui);
 
             // Event loop
             while (running) {
-                int c = reader.read(100);
+                int c = backend.read(100);
                 if (c == -2 || c == -1) {
                     continue;
                 }
 
-                boolean needsRedraw = handleInput(c, reader);
+                boolean needsRedraw = handleInput(c, backend);
                 if (needsRedraw) {
                     terminal.draw(this::ui);
                 }
@@ -126,13 +123,13 @@ public class TabsDemo {
         }
     }
 
-    private boolean handleInput(int c, NonBlockingReader reader) throws IOException {
+    private boolean handleInput(int c, Backend backend) throws IOException {
         // Handle escape sequences
         if (c == 27) {
-            int next = reader.peek(50);
+            int next = backend.peek(50);
             if (next == '[') {
-                reader.read();
-                int code = reader.read();
+                backend.read(50);
+                int code = backend.read(50);
                 return handleEscapeSequence(code);
             }
             return false;

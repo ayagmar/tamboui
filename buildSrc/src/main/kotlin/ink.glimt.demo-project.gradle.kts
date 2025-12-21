@@ -9,7 +9,7 @@ plugins {
 dependencies {
     implementation(project(":glimt-core"))
     implementation(project(":glimt-widgets"))
-    implementation(project(":glimt-jline"))
+    runtimeOnly(project(":glimt-jline"))
 }
 
 tasks.named<JavaExec>("run") {

@@ -4,7 +4,7 @@
  */
 package ink.glimt.tui.event;
 
-import org.jline.utils.NonBlockingReader;
+import ink.glimt.terminal.Backend;
 
 import java.io.IOException;
 
@@ -22,15 +22,15 @@ public final class EventParser {
     private EventParser() {}
 
     /**
-     * Reads and parses the next event from the reader.
+     * Reads and parses the next event from the backend.
      *
-     * @param reader  the non-blocking reader
+     * @param backend the terminal backend
      * @param timeout timeout in milliseconds for the initial read
      * @return the parsed event, or null if no event was available
      * @throws IOException if an I/O error occurs
      */
-    public static Event readEvent(NonBlockingReader reader, int timeout) throws IOException {
-        int c = reader.read(timeout);
+    public static Event readEvent(Backend backend, int timeout) throws IOException {
+        int c = backend.read(timeout);
 
         if (c == -2) {
             // Timeout - no input available
@@ -42,12 +42,12 @@ public final class EventParser {
             return null;
         }
 
-        return parseInput(c, reader);
+        return parseInput(c, backend);
     }
 
-    private static Event parseInput(int c, NonBlockingReader reader) throws IOException {
+    private static Event parseInput(int c, Backend backend) throws IOException {
         if (c == ESC) {
-            return parseEscapeSequence(reader);
+            return parseEscapeSequence(backend);
         }
 
         // Control characters
@@ -89,8 +89,8 @@ public final class EventParser {
         }
     }
 
-    private static Event parseEscapeSequence(NonBlockingReader reader) throws IOException {
-        int next = reader.peek(PEEK_TIMEOUT);
+    private static Event parseEscapeSequence(Backend backend) throws IOException {
+        int next = backend.peek(PEEK_TIMEOUT);
 
         if (next == -2 || next == -1) {
             // Standalone ESC key
@@ -98,17 +98,17 @@ public final class EventParser {
         }
 
         if (next == '[') {
-            reader.read(); // consume '['
-            return parseCSI(reader);
+            backend.read(PEEK_TIMEOUT); // consume '['
+            return parseCSI(backend);
         }
 
         if (next == 'O') {
-            reader.read(); // consume 'O'
-            return parseSS3(reader);
+            backend.read(PEEK_TIMEOUT); // consume 'O'
+            return parseSS3(backend);
         }
 
         // Alt+key
-        reader.read(); // consume the character
+        backend.read(PEEK_TIMEOUT); // consume the character
         if (next >= 'a' && next <= 'z') {
             return KeyEvent.ofChar((char) next, KeyModifiers.ALT);
         }
@@ -119,15 +119,15 @@ public final class EventParser {
         return KeyEvent.ofKey(KeyCode.UNKNOWN);
     }
 
-    private static Event parseCSI(NonBlockingReader reader) throws IOException {
-        int c = reader.read(PEEK_TIMEOUT);
+    private static Event parseCSI(Backend backend) throws IOException {
+        int c = backend.read(PEEK_TIMEOUT);
         if (c == -2 || c == -1) {
             return KeyEvent.ofKey(KeyCode.UNKNOWN);
         }
 
         // Check for mouse event (SGR extended mode: ESC [ < ...)
         if (c == '<') {
-            return parseMouseSGR(reader);
+            return parseMouseSGR(backend);
         }
 
         // Arrow keys and simple sequences
@@ -145,17 +145,17 @@ public final class EventParser {
             case 'F':
                 return KeyEvent.ofKey(KeyCode.END);
             default:
-                return parseExtendedCSI(c, reader);
+                return parseExtendedCSI(c, backend);
         }
     }
 
-    private static Event parseExtendedCSI(int first, NonBlockingReader reader) throws IOException {
+    private static Event parseExtendedCSI(int first, Backend backend) throws IOException {
         // Parse numeric parameter(s)
         StringBuilder sb = new StringBuilder();
         sb.append((char) first);
 
         int c;
-        while ((c = reader.read(PEEK_TIMEOUT)) != -2 && c != -1) {
+        while ((c = backend.read(PEEK_TIMEOUT)) != -2 && c != -1) {
             if (c >= '0' && c <= '9' || c == ';') {
                 sb.append((char) c);
             } else {
@@ -283,8 +283,8 @@ public final class EventParser {
         return KeyModifiers.of(ctrl, alt, shift);
     }
 
-    private static Event parseSS3(NonBlockingReader reader) throws IOException {
-        int c = reader.read(PEEK_TIMEOUT);
+    private static Event parseSS3(Backend backend) throws IOException {
+        int c = backend.read(PEEK_TIMEOUT);
         if (c == -2 || c == -1) {
             return KeyEvent.ofKey(KeyCode.UNKNOWN);
         }
@@ -316,14 +316,14 @@ public final class EventParser {
         }
     }
 
-    private static Event parseMouseSGR(NonBlockingReader reader) throws IOException {
+    private static Event parseMouseSGR(Backend backend) throws IOException {
         // SGR mouse format: ESC [ < Cb ; Cx ; Cy M/m
         // where Cb is button code, Cx is column, Cy is row
         // M = press/drag, m = release
 
         StringBuilder sb = new StringBuilder();
         int c;
-        while ((c = reader.read(PEEK_TIMEOUT)) != -2 && c != -1) {
+        while ((c = backend.read(PEEK_TIMEOUT)) != -2 && c != -1) {
             if (c == 'M' || c == 'm') {
                 return parseMouseParams(sb.toString(), c == 'm');
             }

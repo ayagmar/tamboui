@@ -233,10 +233,11 @@ canvas(-10, 10, -10, 10)
 For more control, use the terminal directly:
 
 ```java
-import ink.glimt.backend.jline.JLineBackend;
+import ink.glimt.terminal.Backend;
+import ink.glimt.terminal.BackendFactory;
 import ink.glimt.terminal.Terminal;
 
-try (var backend = new JLineBackend()) {
+try (var backend = BackendFactory.create()) {
     backend.enableRawMode();
     backend.enterAlternateScreen();
 
