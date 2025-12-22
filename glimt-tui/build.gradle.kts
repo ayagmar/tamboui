@@ -7,5 +7,4 @@ description = "High-level TUI application framework for Glimt"
 dependencies {
     api(projects.glimtCore)
     api(projects.glimtWidgets)
-    api(projects.glimtJline)
 }

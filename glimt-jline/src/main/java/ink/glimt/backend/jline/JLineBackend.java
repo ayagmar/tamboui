@@ -15,8 +15,10 @@ import ink.glimt.style.Style;
 import ink.glimt.terminal.Backend;
 import org.jline.terminal.Attributes;
 import org.jline.terminal.Terminal;
+import org.jline.terminal.Terminal.Signal;
 import org.jline.terminal.TerminalBuilder;
 import org.jline.utils.InfoCmp;
+import org.jline.utils.NonBlockingReader;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -32,6 +34,7 @@ public class JLineBackend implements Backend {
 
     private final Terminal terminal;
     private final PrintWriter writer;
+    private final NonBlockingReader reader;
     private Attributes savedAttributes;
     private boolean inAlternateScreen;
     private boolean mouseEnabled;
@@ -42,6 +45,7 @@ public class JLineBackend implements Backend {
             .jansi(true)
             .build();
         this.writer = terminal.writer();
+        this.reader = terminal.reader();
         this.inAlternateScreen = false;
         this.mouseEnabled = false;
     }
@@ -169,6 +173,21 @@ public class JLineBackend implements Backend {
     public void scrollDown(int lines) throws IOException {
         writer.print(CSI + lines + "T");
         writer.flush();
+    }
+
+    @Override
+    public void onResize(Runnable handler) {
+        terminal.handle(Signal.WINCH, signal -> handler.run());
+    }
+
+    @Override
+    public int read(int timeoutMs) throws IOException {
+        return reader.read(timeoutMs);
+    }
+
+    @Override
+    public int peek(int timeoutMs) throws IOException {
+        return reader.peek(timeoutMs);
     }
 
     @Override

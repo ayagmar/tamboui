@@ -4,16 +4,18 @@
  */
 package ink.glimt.demo;
 
-import ink.glimt.backend.jline.JLineBackend;
 import ink.glimt.layout.Constraint;
 import ink.glimt.layout.Layout;
 import ink.glimt.layout.Rect;
 import ink.glimt.style.Color;
 import ink.glimt.style.Style;
+import ink.glimt.terminal.Backend;
+import ink.glimt.terminal.BackendFactory;
 import ink.glimt.terminal.Frame;
 import ink.glimt.terminal.Terminal;
 import ink.glimt.text.Line;
 import ink.glimt.text.Span;
+import ink.glimt.text.Text;
 import ink.glimt.widgets.block.Block;
 import ink.glimt.widgets.block.BorderType;
 import ink.glimt.widgets.block.Borders;
@@ -21,9 +23,6 @@ import ink.glimt.widgets.block.Title;
 import ink.glimt.widgets.gauge.Gauge;
 import ink.glimt.widgets.gauge.LineGauge;
 import ink.glimt.widgets.paragraph.Paragraph;
-import ink.glimt.text.Text;
-import org.jline.terminal.Terminal.Signal;
-import org.jline.utils.NonBlockingReader;
 
 import java.io.IOException;
 import java.util.List;
@@ -42,15 +41,15 @@ public class GaugeDemo {
     }
 
     public void run() throws Exception {
-        try (JLineBackend backend = new JLineBackend()) {
+        try (Backend backend = BackendFactory.create()) {
             backend.enableRawMode();
             backend.enterAlternateScreen();
             backend.hideCursor();
 
-            Terminal<JLineBackend> terminal = new Terminal<>(backend);
+            Terminal<Backend> terminal = new Terminal<>(backend);
 
             // Handle resize
-            backend.jlineTerminal().handle(Signal.WINCH, signal -> {
+            backend.onResize(() -> {
                 try {
                     terminal.draw(this::ui);
                 } catch (IOException e) {
@@ -58,14 +57,12 @@ public class GaugeDemo {
                 }
             });
 
-            NonBlockingReader reader = backend.jlineTerminal().reader();
-
             // Initial draw
             terminal.draw(this::ui);
 
             // Event loop
             while (running) {
-                int c = reader.read(50);
+                int c = backend.read(50);
                 if (c == -2) {
                     // Timeout - update progress if auto mode
                     if (autoProgress) {

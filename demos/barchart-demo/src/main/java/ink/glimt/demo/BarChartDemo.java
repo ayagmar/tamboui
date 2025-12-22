@@ -4,13 +4,14 @@
  */
 package ink.glimt.demo;
 
-import ink.glimt.backend.jline.JLineBackend;
 import ink.glimt.layout.Constraint;
 import ink.glimt.layout.Direction;
 import ink.glimt.layout.Layout;
 import ink.glimt.layout.Rect;
 import ink.glimt.style.Color;
 import ink.glimt.style.Style;
+import ink.glimt.terminal.Backend;
+import ink.glimt.terminal.BackendFactory;
 import ink.glimt.terminal.Frame;
 import ink.glimt.terminal.Terminal;
 import ink.glimt.text.Line;
@@ -24,8 +25,6 @@ import ink.glimt.widgets.barchart.Bar;
 import ink.glimt.widgets.barchart.BarChart;
 import ink.glimt.widgets.barchart.BarGroup;
 import ink.glimt.widgets.paragraph.Paragraph;
-import org.jline.terminal.Terminal.Signal;
-import org.jline.utils.NonBlockingReader;
 
 import java.io.IOException;
 import java.util.Random;
@@ -51,14 +50,14 @@ public class BarChartDemo {
     }
 
     public void run() throws Exception {
-        try (JLineBackend backend = new JLineBackend()) {
+        try (Backend backend = BackendFactory.create()) {
             backend.enableRawMode();
             backend.enterAlternateScreen();
             backend.hideCursor();
 
-            Terminal<JLineBackend> terminal = new Terminal<>(backend);
+            Terminal<Backend> terminal = new Terminal<>(backend);
 
-            backend.jlineTerminal().handle(Signal.WINCH, signal -> {
+            backend.onResize(() -> {
                 try {
                     terminal.draw(this::ui);
                 } catch (IOException e) {
@@ -66,12 +65,10 @@ public class BarChartDemo {
                 }
             });
 
-            NonBlockingReader reader = backend.jlineTerminal().reader();
-
             while (running) {
                 terminal.draw(this::ui);
 
-                int c = reader.read(100);
+                int c = backend.read(100);
                 if (c == -2 || c == -1) {
                     continue;
                 }

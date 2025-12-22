@@ -105,6 +105,31 @@ public interface Backend extends AutoCloseable {
     }
 
     /**
+     * Registers a handler to be called when the terminal is resized.
+     *
+     * @param handler the handler to call on resize
+     */
+    void onResize(Runnable handler);
+
+    /**
+     * Reads a single character from the terminal input with timeout.
+     *
+     * @param timeoutMs timeout in milliseconds
+     * @return the character read, -1 for EOF, or -2 for timeout
+     * @throws IOException if an I/O error occurs
+     */
+    int read(int timeoutMs) throws IOException;
+
+    /**
+     * Peeks at the next character without consuming it.
+     *
+     * @param timeoutMs timeout in milliseconds
+     * @return the character peeked, -1 for EOF, or -2 for timeout
+     * @throws IOException if an I/O error occurs
+     */
+    int peek(int timeoutMs) throws IOException;
+
+    /**
      * Closes this backend and releases any resources.
      */
     @Override
