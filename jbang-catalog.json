@@ -1,0 +1,49 @@
+{
+  "aliases": {
+    "hello-world-demo": {
+      "script-ref": "demos/hello-world-demo/src/main/java/dev/tamboui/demo/HelloWorldDemo.java"
+    },
+    "table-demo": {
+      "script-ref": "demos/table-demo/src/main/java/dev/tamboui/demo/TableDemo.java"
+    },
+    "sparkline-demo": {
+      "script-ref": "demos/sparkline-demo/src/main/java/dev/tamboui/demo/SparklineDemo.java"
+    },
+    "calendar-demo": {
+      "script-ref": "demos/calendar-demo/src/main/java/dev/tamboui/demo/CalendarDemo.java"
+    },
+    "barchart-demo": {
+      "script-ref": "demos/barchart-demo/src/main/java/dev/tamboui/demo/BarChartDemo.java"
+    },
+    "tui-demo": {
+      "script-ref": "demos/tui-demo/src/main/java/dev/tamboui/demo/TuiDemo.java"
+    },
+    "gauge-demo": {
+      "script-ref": "demos/gauge-demo/src/main/java/dev/tamboui/demo/GaugeDemo.java"
+    },
+    "chart-demo": {
+      "script-ref": "demos/chart-demo/src/main/java/dev/tamboui/demo/ChartDemo.java"
+    },
+    "tabs-demo": {
+      "script-ref": "demos/tabs-demo/src/main/java/dev/tamboui/demo/TabsDemo.java"
+    },
+    "picocli-demo": {
+      "script-ref": "demos/picocli-demo/src/main/java/dev/tamboui/demo/PicoCLIDemo.java"
+    },
+    "jtop-demo": {
+      "script-ref": "demos/jtop-demo/src/main/java/dev/tamboui/demo/JTopDemo.java"
+    },
+    "basic-demo": {
+      "script-ref": "demos/basic-demo/src/main/java/dev/tamboui/demo/Demo.java"
+    },
+    "scrollbar-demo": {
+      "script-ref": "demos/scrollbar-demo/src/main/java/dev/tamboui/demo/ScrollbarDemo.java"
+    },
+    "canvas-demo": {
+      "script-ref": "demos/canvas-demo/src/main/java/dev/tamboui/demo/CanvasDemo.java"
+    },
+    "toolkit-demo": {
+      "script-ref": "demos/toolkit-demo/src/main/java/dev/tamboui/demo/ToolkitDemo.java"
+    }
+  }
+}

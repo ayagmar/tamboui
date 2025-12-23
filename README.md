@@ -44,14 +44,18 @@ It provides a comprehensive set of widgets and a layout system for building rich
 
 The `tamboui-tui` module provides a high-level framework that eliminates boilerplate:
 
-[examples/HelloWorld.java](examples/HelloWorld.java):
 ```java
+//DEPS dev.tamboui:tamboui-tui:LATEST
+//DEPS dev.tamboui:tamboui-jline:LATEST
+
+package dev.tamboui.demo;
+
 import dev.tamboui.tui.TuiRunner;
 import dev.tamboui.tui.Keys;
 import dev.tamboui.widgets.paragraph.Paragraph;
 import dev.tamboui.text.Text;
 
-public class HelloWorld {
+public class HelloWorldTuiDemo {
     public static void main(String[] args) throws Exception {
         try (var tui = TuiRunner.create()) {
             tui.run(
@@ -74,8 +78,9 @@ public class HelloWorld {
 }
 ```
 
-### With Mouse and Animation
+Save the above file to `HelloWorld.java` and you can run it as `jbang HelloWorld.java`
 
+### With Mouse and Animation
 
 ```java
 import dev.tamboui.tui.TuiConfig;
@@ -103,6 +108,9 @@ try (var tui = TuiRunner.create(config)) {
 ### With PicoCLI Integration
 
 ```java
+//DEPS dev.tamboui:tamboui-picocli:LATEST
+//DEPS dev.tamboui:tamboui-jline:LATEST
+
 import dev.tamboui.picocli.TuiCommand;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -125,11 +133,14 @@ public class MyApp extends TuiCommand {
 }
 ```
 
-### Using the DSL (Declarative)
+### Using the declarative Toolkit
 
-The `tamboui-toolkit` module provides a fluent DSL for declarative UI construction:
+The `tamboui-toolkit` module provides a fluent DSL giving you retained mode declarative UI construction:
 
 ```java
+//DEPS dev.tamboui:tamboui-toolkit:LATEST
+//DEPS dev.tamboui:tamboui-jline:LATEST
+
 import static dev.tamboui.toolkit.Toolkit.*;
 import dev.tamboui.toolkit.app.ToolkitApp;
 import dev.tamboui.toolkit.element.Element;
@@ -151,7 +162,7 @@ public class HelloDsl extends ToolkitApp {
 }
 ```
 
-#### DSL Elements
+#### Toolkit Elements
 
 | Element | Factory Method | Description |
 |---------|----------------|-------------|
@@ -173,7 +184,7 @@ public class HelloDsl extends ToolkitApp {
 | Calendar | `calendar()` | Monthly calendar |
 | Scrollbar | `scrollbar()` | Scroll position indicator |
 
-#### DSL Examples
+#### Toolkit Examples
 
 ```java
 // Progress with color coding
@@ -229,11 +240,14 @@ canvas(-10, 10, -10, 10)
 - **Component events** - Components handle their own key/mouse events via `.onKeyEvent()` and `.onMouseEvent()`
 - **Drag support** - `.draggable()` for movable elements
 
-### Low-Level API
+### Immediate Mode API
 
 For more control, use the terminal directly:
 
 ```java
+//DEPS dev.tamboui:tamboui-widgets:LATEST
+//DEPS dev.tamboui:tamboui-jline:LATEST
+
 import dev.tamboui.terminal.Backend;
 import dev.tamboui.terminal.BackendFactory;
 import dev.tamboui.terminal.Terminal;
@@ -283,7 +297,23 @@ Then look into `build/repo` for the generated artifacts.
 
 To run the demos, you can either run them on the JVM or compile them to a native executable.
 
-### Convenience Scripts
+#### JBang
+
+If you have JBang installed you can list the local catalog:
+
+```
+jbang alias list .
+```
+
+And then pick one you want to run, i.e.:
+
+```
+jbang sparkline-demo
+```
+
+If your IDE supports JBang you can open the demo .java files and run them directly from your IDE too.
+
+#### Bash
 
 You can use the `./run-demo.sh` script to run any demo directly without building/installing first. For example, to run the `sparkline-demo`:
 
@@ -297,7 +327,7 @@ To run it as a native executable:
 ./run-demo.sh sparkline-demo --native
 ```
 
-#### JVM
+##### JVM
 
 To run a demo on the JVM, first install the distribution and then execute the generated script.
 For example, to run the `sparkline-demo`:
@@ -307,7 +337,7 @@ For example, to run the `sparkline-demo`:
 ./demos/sparkline-demo/build/install/sparkline-demo/bin/sparkline-demo
 ```
 
-#### Native Image (requires GraalVM)
+##### Native Image (requires GraalVM)
 
 To run as a native executable:
 
@@ -344,6 +374,7 @@ All standard ratatui widgets are implemented:
 
 | Demo | Description |
 |------|-------------|
+| `hello-world-demo` | Minimal Hello World using TuiRunner |
 | `basic-demo` | Interactive list with text input |
 | `tui-demo` | Showcases TuiRunner with keyboard, mouse, and animation |
 | `toolkit-demo` | Widget Playground showcasing DSL with draggable panels |

@@ -1,3 +1,8 @@
+///usr/bin/env jbang "$0" "$@" ; exit $?
+//DEPS dev.tamboui:tamboui-toolkit:LATEST
+//DEPS dev.tamboui:tamboui-jline:LATEST
+//SOURCES SystemMetrics.java SystemMonitor.java
+
 /*
  * Copyright (c) 2025 TamboUI Contributors
  * SPDX-License-Identifier: MIT
@@ -26,10 +31,6 @@ import static dev.tamboui.toolkit.Toolkit.*;
 public class JTopDemo {
 
     public static void main(String[] args) throws Exception {
-        new JTopDemo().run();
-    }
-
-    public void run() throws Exception {
         var config = TuiConfig.builder()
             .tickRate(Duration.ofMillis(500))
             .build();
