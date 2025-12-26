@@ -7,6 +7,16 @@ import static java.lang.IO.println;
 import static java.nio.file.Files.exists;
 import static java.nio.file.Files.getLastModifiedTime;
 import static java.nio.file.Files.size;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Pattern;
+import java.util.Arrays;
 
 String formatFileSize(long bytes) {
     if (bytes < 1024) {
@@ -18,10 +28,133 @@ String formatFileSize(long bytes) {
     }
 }
 
+Path findRepoRoot(Path startDir) {
+    Path current = startDir.toAbsolutePath().normalize();
+    while (current != null) {
+        Path gitDir = current.resolve(".git");
+        if (exists(gitDir)) {
+            return current;
+        }
+        Path parent = current.getParent();
+        if (parent == null || parent.equals(current)) {
+            break; // Reached filesystem root
+        }
+        current = parent;
+    }
+    return null; // Not found
+}
+
+String getSourceUrl(String baseName, Path repoRoot) {
+    try {
+        ProcessBuilder pb = new ProcessBuilder("jbang", "info", "tools", "--select", "originalResource", baseName);
+        pb.directory(repoRoot.toFile());
+        Process process = pb.start();
+        String output = new String(process.getInputStream().readAllBytes()).trim();
+        if (process.waitFor() == 0 && !output.isEmpty() && !output.startsWith("Error")) {
+            Path sourceFile = Paths.get(output);
+            if (sourceFile.isAbsolute() && sourceFile.startsWith(repoRoot)) {
+                Path relativePath = repoRoot.relativize(sourceFile);
+                String sourcePath = relativePath.toString().replace('\\', '/');
+                return "https://github.com/tamboui/tamboui/blob/main/" + sourcePath;
+            } else if (!sourceFile.isAbsolute()) {
+                String sourcePath = sourceFile.toString().replace('\\', '/');
+                return "https://github.com/tamboui/tamboui/blob/main/" + sourcePath;
+            }
+        }
+    } catch (Exception e) {
+        // Ignore errors
+    }
+    return null;
+}
+
+void generateReadme(Path outputDir, Map<String, List<Path>> filesByBaseName, Path repoRoot) throws IOException {
+    Path readmeFile = outputDir.resolve("README.md");
+    try (var writer = Files.newBufferedWriter(readmeFile)) {
+        writer.write("# TamboUI Demo Videos\n\n");
+        writer.write("This directory contains demo videos showcasing TamboUI widgets and features.\n\n");
+        writer.write("## Demos\n\n");
+        
+        List<String> videoExtensions = List.of("mp4", "webm", "ogv", "mov", "avi", "mkv");
+        
+        filesByBaseName.entrySet().stream()
+            .sorted(Map.Entry.comparingByKey())
+            .forEach(entry -> {
+                String baseName = entry.getKey();
+                List<Path> variants = entry.getValue();
+                String sourceUrl = getSourceUrl(baseName, repoRoot);
+                
+                try {
+                    // Find preview image (prefer SVG, otherwise first non-video file)
+                    Path previewImage = variants.stream()
+                        .filter(f -> {
+                            String fileName = f.getFileName().toString();
+                            String ext = fileName.substring(fileName.lastIndexOf('.') + 1).toLowerCase();
+                            return !videoExtensions.contains(ext);
+                        })
+                        .filter(f -> f.getFileName().toString().endsWith(".svg"))
+                        .findFirst()
+                        .orElse(variants.stream()
+                            .filter(f -> {
+                                String fileName = f.getFileName().toString();
+                                String ext = fileName.substring(fileName.lastIndexOf('.') + 1).toLowerCase();
+                                return !videoExtensions.contains(ext);
+                            })
+                            .findFirst()
+                            .orElse(variants.get(0)));
+                    
+                    String previewName = previewImage.getFileName().toString();
+                    String ext = previewName.substring(previewName.lastIndexOf('.') + 1).toLowerCase();
+                    boolean isVideo = videoExtensions.contains(ext);
+                    
+                    writer.write(String.format("### %s\n\n", baseName));
+                    
+                    // Add preview image/video
+                    if (isVideo) {
+                        writer.write(String.format("<video src=\"%s\" controls width=\"600\"></video>\n\n", previewName));
+                    } else {
+                        writer.write(String.format("![%s](%s)\n\n", baseName, previewName));
+                    }
+                    
+                    // Add source link if available
+                    if (sourceUrl != null) {
+                        writer.write(String.format("**Source:** [%s](%s)\n\n", baseName, sourceUrl));
+                    }
+                    
+                    // Add links to all variants
+                    if (variants.size() > 1) {
+                        writer.write("**Formats:** ");
+                        List<String> formatLinks = new ArrayList<>();
+                        for (Path variant : variants) {
+                            String variantName = variant.getFileName().toString();
+                            String variantExt = variantName.substring(variantName.lastIndexOf('.') + 1);
+                            formatLinks.add(String.format("[%s](%s)", variantExt.toUpperCase(), variantName));
+                        }
+                        writer.write(String.join(" | ", formatLinks));
+                        writer.write("\n\n");
+                    }
+                    
+                    writer.write("---\n\n");
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+        
+        writer.write("## View All Videos\n\n");
+        writer.write("Open [index.html](index.html) in a browser to view all demo videos in a gallery.\n");
+    }
+}
+
 void main(String... args) throws IOException {
     println("Generating video...");
 
-    Path videosDir = Path.of(".");
+    Path videosDir = Path.of(".").toAbsolutePath().normalize();
+    
+    // Find repo root by looking for .git folder
+    final Path repoRoot = findRepoRoot(videosDir);
+    if (repoRoot == null) {
+        System.err.println("Error: Could not find .git folder. Please run this script from within the tamboui repository.");
+        System.exit(1);
+    }
 
     Path outputDir = videosDir.resolve("output");
 
@@ -144,7 +277,10 @@ void main(String... args) throws IOException {
         // Group files by base name (without extension)
         Map<String, List<Path>> filesByBaseName = new HashMap<>();
         try (var files = Files.list(outputDir)) {
-            files.filter(f -> !f.getFileName().toString().equals("index.html"))
+            files.filter(f -> {
+                    String fileName = f.getFileName().toString();
+                    return !fileName.equals("index.html") && !fileName.equals("README.md");
+                })
                  .sorted()
                  .forEach(file -> {
                 String fileName = file.getFileName().toString();
@@ -156,12 +292,18 @@ void main(String... args) throws IOException {
             });
         }
 
+        println("Generating README.md...");
+        generateReadme(htmlOutputDir, filesByBaseName, repoRoot);
+                
         // Generate HTML for each group
         filesByBaseName.entrySet().stream()
             .sorted(Map.Entry.comparingByKey())
             .forEach(entry -> {
                 String baseName = entry.getKey();
                 List<Path> variants = entry.getValue();
+                
+                // Get source file path using jbang
+                String sourceUrl = getSourceUrl(baseName, repoRoot);
                 
                 // Find preview image (prefer SVG, otherwise first non-video file)
                 List<String> videoExtensions = List.of("mp4", "webm", "ogv", "mov", "avi", "mkv");
@@ -184,7 +326,11 @@ void main(String... args) throws IOException {
                 
                 try {
                     writer.write("<div class=\"item\">\n");
-                    writer.write("  <h2>" + baseName + "</h2>\n");
+                    if (sourceUrl != null) {
+                        writer.write("  <h2><a href=\"" + sourceUrl + "\" target=\"_blank\" style=\"color: #ffb347; text-decoration: none;\">" + baseName + "</a></h2>\n");
+                    } else {
+                        writer.write("  <h2>" + baseName + "</h2>\n");
+                    }
                     
                     // Show preview image
                     String previewName = previewImage.getFileName().toString();

@@ -2,6 +2,8 @@ plugins {
     id("io.github.gradle-nexus.publish-plugin")
 }
 
+group = "dev.tamboui"
+
 nexusPublishing {
     repositories {
         sonatype {
