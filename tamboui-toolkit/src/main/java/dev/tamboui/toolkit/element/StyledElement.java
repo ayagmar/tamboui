@@ -351,11 +351,6 @@ public abstract class StyledElement<T extends StyledElement<T>> implements Eleme
     // Styleable interface implementation
 
     @Override
-    public String styleType() {
-        return getClass().getSimpleName();
-    }
-
-    @Override
     public Optional<String> cssId() {
         return Optional.ofNullable(elementId);
     }

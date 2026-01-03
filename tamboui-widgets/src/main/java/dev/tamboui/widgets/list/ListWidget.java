@@ -110,7 +110,7 @@ public final class ListWidget implements StatefulWidget<ListState> {
                 int startLine = Math.max(0, offset - itemStartOffset);
 
                 boolean isSelected = selectedIndex != null && selectedIndex == i;
-                Style itemStyle = item.style().patch(isSelected ? highlightStyle : Style.EMPTY);
+                Style itemStyle = style.patch(item.style()).patch(isSelected ? highlightStyle : Style.EMPTY);
 
                 // Draw item content from bottom to top
                 List<Line> lines = item.content().lines();
@@ -180,7 +180,7 @@ public final class ListWidget implements StatefulWidget<ListState> {
                 int visibleHeight = Math.min(itemHeight - startLine, listArea.bottom() - y);
 
                 boolean isSelected = selectedIndex != null && selectedIndex == i;
-                Style itemStyle = item.style().patch(isSelected ? highlightStyle : Style.EMPTY);
+                Style itemStyle = style.patch(item.style()).patch(isSelected ? highlightStyle : Style.EMPTY);
 
                 // Draw item content
                 List<Line> lines = item.content().lines();

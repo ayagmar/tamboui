@@ -126,12 +126,6 @@ public final class ProgressCard extends StyledElement<ProgressCard> {
     }
 
     @Override
-    public String styleType() {
-        // This is the CSS type selector: ProgressCard { ... }
-        return "ProgressCard";
-    }
-
-    @Override
     protected void renderContent(Frame frame, Rect area, RenderContext context) {
         if (area.isEmpty()) {
             return;

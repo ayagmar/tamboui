@@ -23,7 +23,9 @@ public interface Styleable {
      *
      * @return the style type name (never null)
      */
-    String styleType();
+    default String styleType() {
+        return getClass().getSimpleName();
+    }
 
     /**
      * Returns the element ID for ID selectors.

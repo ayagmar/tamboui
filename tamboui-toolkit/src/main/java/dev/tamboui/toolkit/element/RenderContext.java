@@ -48,6 +48,20 @@ public interface RenderContext {
     }
 
     /**
+     * Resolves the CSS style for a virtual element with the given type and classes.
+     * <p>
+     * This is useful for resolving styles for sub-elements (like list items)
+     * that aren't full Element instances but need CSS styling.
+     *
+     * @param styleType the element type (e.g., "ListItem")
+     * @param cssClasses the CSS classes to apply
+     * @return the resolved style, or empty if no CSS is applicable
+     */
+    default Optional<ResolvedStyle> resolveStyle(String styleType, String... cssClasses) {
+        return Optional.empty();
+    }
+
+    /**
      * Parses a CSS color value string into a Color.
      * <p>
      * Supports named colors (e.g., "red", "blue"), hex colors (e.g., "#ff0000"),

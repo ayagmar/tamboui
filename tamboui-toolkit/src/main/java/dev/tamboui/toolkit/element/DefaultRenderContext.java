@@ -17,9 +17,11 @@ import dev.tamboui.layout.Rect;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Deque;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * Default implementation of RenderContext with internal framework methods.
@@ -99,6 +101,51 @@ public final class DefaultRenderContext implements RenderContext {
 
         ResolvedStyle resolved = styleEngine.resolve(element, state, ancestors);
         return resolved.hasProperties() ? Optional.of(resolved) : Optional.empty();
+    }
+
+    @Override
+    public Optional<ResolvedStyle> resolveStyle(String styleType, String... cssClasses) {
+        if (styleEngine == null) {
+            return Optional.empty();
+        }
+
+        Set<String> classes = cssClasses.length > 0 ? Set.of(cssClasses) : Collections.emptySet();
+        Styleable virtual = new VirtualStyleable(styleType, classes);
+        ResolvedStyle resolved = styleEngine.resolve(virtual, PseudoClassState.NONE, Collections.emptyList());
+        return resolved.hasProperties() ? Optional.of(resolved) : Optional.empty();
+    }
+
+    /**
+     * A simple Styleable for resolving CSS styles by type and classes.
+     */
+    private static final class VirtualStyleable implements Styleable {
+        private final String type;
+        private final Set<String> classes;
+
+        VirtualStyleable(String type, Set<String> classes) {
+            this.type = type;
+            this.classes = classes;
+        }
+
+        @Override
+        public String styleType() {
+            return type;
+        }
+
+        @Override
+        public Optional<String> cssId() {
+            return Optional.empty();
+        }
+
+        @Override
+        public Set<String> cssClasses() {
+            return classes;
+        }
+
+        @Override
+        public Optional<Styleable> cssParent() {
+            return Optional.empty();
+        }
     }
 
     @Override

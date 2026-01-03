@@ -37,12 +37,15 @@ import java.util.function.Function;
  */
 public final class ListElement<T> extends StyledElement<ListElement<T>> {
 
+    private static final Style DEFAULT_HIGHLIGHT_STYLE = Style.EMPTY.reversed();
+    private static final String DEFAULT_HIGHLIGHT_SYMBOL = "> ";
+
     private final List<ListItem> items = new ArrayList<>();
     private List<T> data;
     private Function<T, ListItem> itemRenderer;
     private ListState state;
-    private Style highlightStyle = Style.EMPTY.reversed();
-    private String highlightSymbol = ">> ";
+    private Style highlightStyle;  // null means "use CSS or default"
+    private String highlightSymbol;  // null means "use CSS or default"
     private String title;
     private BorderType borderType;
     private Color borderColor;
@@ -251,11 +254,22 @@ public final class ListElement<T> extends StyledElement<ListElement<T>> {
             state.scrollToSelected(visibleHeight, effectiveItems);
         }
 
+        // Resolve highlight style: explicit > CSS > default
+        Style effectiveHighlightStyle = highlightStyle;
+        if (effectiveHighlightStyle == null) {
+            effectiveHighlightStyle = context.resolveStyle("ListItem", "list-item-selected")
+                .map(resolved -> resolved.toStyle())
+                .orElse(DEFAULT_HIGHLIGHT_STYLE);
+        }
+
+        // Resolve highlight symbol: explicit > default
+        String effectiveHighlightSymbol = highlightSymbol != null ? highlightSymbol : DEFAULT_HIGHLIGHT_SYMBOL;
+
         ListWidget.Builder builder = ListWidget.builder()
             .items(effectiveItems)
             .style(context.currentStyle())
-            .highlightStyle(highlightStyle)
-            .highlightSymbol(highlightSymbol);
+            .highlightStyle(effectiveHighlightStyle)
+            .highlightSymbol(effectiveHighlightSymbol);
 
         if (title != null || borderType != null) {
             Block.Builder blockBuilder = Block.builder().borders(Borders.ALL);
