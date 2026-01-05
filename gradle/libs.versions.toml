@@ -8,6 +8,7 @@ nexus = "2.0.0"
 oshi = "6.9.2"
 animal-sniffer = "2.0.0"
 sniffer18-signature = "1.0"
+gradle-tooling-api = "9.2.1"
 
 [libraries]
 jline = { module = "org.jline:jline", version.ref = "jline" }
@@ -22,6 +23,7 @@ nexus-publishing-plugin = { module = "io.github.gradle-nexus.publish-plugin:io.g
 animal-sniffer-plugin = { module = "ru.vyarus:gradle-animalsniffer-plugin", version.ref = "animal-sniffer" }
 oshi-core = { module = "com.github.oshi:oshi-core", version.ref = "oshi" }
 sniffer18-signature = { module = "org.codehaus.mojo.signature:java18", version.ref = "sniffer18-signature" }
+gradle-tooling-api = { module = "org.gradle:gradle-tooling-api", version.ref = "gradle-tooling-api" }
 
 [bundles]
 testing = ["junit-jupiter", "junit-platform-launcher", "assertj-core"]

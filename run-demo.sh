@@ -2,53 +2,97 @@
 
 set -e
 
+# Modules that can contain demos
+MODULES="tamboui-widgets tamboui-toolkit tamboui-tui tamboui-css tamboui-picocli"
+
 usage() {
     echo "Usage: $0 [demo-name] [--native]"
     echo ""
     echo "If no demo name is provided, an interactive selector will be shown."
     echo ""
     echo "Available demos:"
+
+    # List demos from root demos directory
     for dir in demos/*/; do
-        demo=$(basename "$dir")
-        if [ "$demo" != "demo-selector" ]; then
-            echo "  - $demo"
+        if [ -d "$dir" ]; then
+            demo=$(basename "$dir")
+            if [ "$demo" != "demo-selector" ]; then
+                echo "  - $demo"
+            fi
+        fi
+    done
+
+    # List demos from module directories
+    for module in $MODULES; do
+        if [ -d "$module/demos" ]; then
+            for dir in "$module/demos"/*/; do
+                if [ -d "$dir" ]; then
+                    demo=$(basename "$dir")
+                    echo "  - $demo ($module)"
+                fi
+            done
         fi
     done
     exit 1
 }
 
-# Run a demo. If use_exec is true, replaces the current process.
+# Find a demo and return its Gradle path and install directory
+# Sets GRADLE_PATH and INSTALL_DIR variables
+find_demo() {
+    local demo_name="$1"
+
+    # Check root demos directory first
+    if [ -d "demos/$demo_name" ]; then
+        GRADLE_PATH=":demos:$demo_name"
+        INSTALL_DIR="demos/$demo_name/build/install/$demo_name"
+        NATIVE_DIR="demos/$demo_name/build/native/nativeCompile"
+        return 0
+    fi
+
+    # Check module directories
+    for module in $MODULES; do
+        if [ -d "$module/demos/$demo_name" ]; then
+            GRADLE_PATH=":$module:demos:$demo_name"
+            INSTALL_DIR="$module/demos/$demo_name/build/install/$demo_name"
+            NATIVE_DIR="$module/demos/$demo_name/build/native/nativeCompile"
+            return 0
+        fi
+    done
+
+    return 1
+}
+
 run_demo() {
     local demo_name="$1"
     local native="$2"
     local use_exec="$3"
 
-    # Verify demo exists
-    if [ ! -d "demos/$demo_name" ]; then
-        echo "Error: Demo '$demo_name' not found in demos/"
+    # Find the demo
+    if ! find_demo "$demo_name"; then
+        echo "Error: Demo '$demo_name' not found"
         echo ""
         usage
     fi
 
     if [ "$native" = true ]; then
         echo "Building native image for $demo_name..."
-        ./gradlew ":demos:$demo_name:nativeCompile"
+        ./gradlew "$GRADLE_PATH:nativeCompile"
         echo ""
         echo "Running $demo_name (native)..."
         if [ "$use_exec" = true ]; then
-            exec "demos/$demo_name/build/native/nativeCompile/$demo_name"
+            exec "$NATIVE_DIR/$demo_name"
         else
-            "demos/$demo_name/build/native/nativeCompile/$demo_name" || true
+            "$NATIVE_DIR/$demo_name" || true
         fi
     else
         echo "Building $demo_name..."
-        ./gradlew ":demos:$demo_name:installDist"
+        ./gradlew "$GRADLE_PATH:installDist"
         echo ""
         echo "Running $demo_name..."
         if [ "$use_exec" = true ]; then
-            exec "demos/$demo_name/build/install/$demo_name/bin/$demo_name"
+            exec "$INSTALL_DIR/bin/$demo_name"
         else
-            "demos/$demo_name/build/install/$demo_name/bin/$demo_name" || true
+            "$INSTALL_DIR/bin/$demo_name" || true
         fi
     fi
 }

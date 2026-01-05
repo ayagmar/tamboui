@@ -120,10 +120,10 @@ public final class TextElement extends StyledElement<TextElement> {
      * If no explicit constraint is set, a sensible default is calculated based on
      * the content and overflow mode:
      * <ul>
-     *   <li>For non-wrapping modes (CLIP, ELLIPSIS, etc.): uses {@code length(lineCount)}
-     *       to allocate exactly the space needed for the text lines.</li>
      *   <li>For wrapping modes (WRAP_WORD, WRAP_CHARACTER): uses {@code min(lineCount)}
      *       to ensure at least minimum height while allowing growth for wrapped content.</li>
+     *   <li>For non-wrapping modes (CLIP, ELLIPSIS, etc.): returns {@code null} to let
+     *       the container decide (typically using {@code fill()}).</li>
      * </ul>
      *
      * @return the constraint for this element
@@ -134,21 +134,37 @@ public final class TextElement extends StyledElement<TextElement> {
             return layoutConstraint;
         }
 
-        // Count lines in content (newlines + 1, minimum 1 for empty content)
+        // For wrapping modes, use min constraint to allow growth for wrapped text
+        // For non-wrapping modes, return null to let the container decide
+        if (overflow == Overflow.WRAP_CHARACTER || overflow == Overflow.WRAP_WORD) {
+            return Constraint.min(countLines());
+        }
+
+        return null;
+    }
+
+    /**
+     * Calculates a height constraint based on content line count and overflow mode.
+     * Used by vertical containers (Column) to determine the height for this text element.
+     *
+     * @return height constraint based on line count
+     */
+    Constraint calculateHeightConstraint() {
+        int lineCount = countLines();
+        if (overflow == Overflow.WRAP_CHARACTER || overflow == Overflow.WRAP_WORD) {
+            return Constraint.min(lineCount);
+        }
+        return Constraint.length(lineCount);
+    }
+
+    private int countLines() {
         int lineCount = 1;
         for (int i = 0; i < content.length(); i++) {
             if (content.charAt(i) == '\n') {
                 lineCount++;
             }
         }
-
-        // For wrapping modes, use min constraint to allow growth for wrapped text
-        if (overflow == Overflow.WRAP_CHARACTER || overflow == Overflow.WRAP_WORD) {
-            return Constraint.min(lineCount);
-        }
-
-        // For non-wrapping modes, use exact length
-        return Constraint.length(lineCount);
+        return lineCount;
     }
 
     @Override

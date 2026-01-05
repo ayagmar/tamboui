@@ -17,3 +17,8 @@ application {
 tasks.withType<JavaCompile>().configureEach {
     modularity.inferModulePath = true
 }
+
+demo {
+    displayName = "Module Path Demo"
+    tags = setOf("toolkit", "panel", "text", "modularity", "module-path", "java-modules", "mouse")
+}

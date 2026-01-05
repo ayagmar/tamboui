@@ -174,24 +174,24 @@ class TextElementTest {
     class DefaultConstraintTests {
 
         @Test
-        @DisplayName("Single line text without overflow defaults to length(1)")
-        void singleLineDefaultsToLength1() {
+        @DisplayName("Single line text without overflow defaults to null (container decides)")
+        void singleLineDefaultsToNull() {
             TextElement element = text("Hello, World!");
-            assertThat(element.constraint()).isEqualTo(Constraint.length(1));
+            assertThat(element.constraint()).isNull();
         }
 
         @Test
-        @DisplayName("Multi-line text defaults to length(lineCount)")
-        void multiLineDefaultsToLengthN() {
+        @DisplayName("Multi-line text without overflow defaults to null (container decides)")
+        void multiLineDefaultsToNull() {
             TextElement element = text("Line 1\nLine 2\nLine 3");
-            assertThat(element.constraint()).isEqualTo(Constraint.length(3));
+            assertThat(element.constraint()).isNull();
         }
 
         @Test
-        @DisplayName("Empty text defaults to length(1)")
-        void emptyTextDefaultsToLength1() {
+        @DisplayName("Empty text defaults to null (container decides)")
+        void emptyTextDefaultsToNull() {
             TextElement element = text("");
-            assertThat(element.constraint()).isEqualTo(Constraint.length(1));
+            assertThat(element.constraint()).isNull();
         }
 
         @Test
@@ -223,17 +223,17 @@ class TextElementTest {
         }
 
         @Test
-        @DisplayName("ELLIPSIS overflow defaults to length(1)")
-        void ellipsisDefaultsToLength() {
+        @DisplayName("ELLIPSIS overflow defaults to null (container decides)")
+        void ellipsisDefaultsToNull() {
             TextElement element = text("Truncated text").overflow(Overflow.ELLIPSIS);
-            assertThat(element.constraint()).isEqualTo(Constraint.length(1));
+            assertThat(element.constraint()).isNull();
         }
 
         @Test
-        @DisplayName("CLIP overflow defaults to length(1)")
-        void clipDefaultsToLength() {
+        @DisplayName("CLIP overflow defaults to null (container decides)")
+        void clipDefaultsToNull() {
             TextElement element = text("Clipped text").overflow(Overflow.CLIP);
-            assertThat(element.constraint()).isEqualTo(Constraint.length(1));
+            assertThat(element.constraint()).isNull();
         }
 
         @Test
