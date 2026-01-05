@@ -19,6 +19,7 @@ import org.gradle.tooling.GradleConnector;
 
 import java.io.File;
 import java.io.OutputStream;
+import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -361,6 +362,11 @@ public class DemoSelector extends ToolkitApp {
             return;
         }
 
+        var stdout = System.out;
+        var stderr = System.err;
+        System.setOut(new PrintStream(OutputStream.nullOutputStream()));
+        System.setErr(new PrintStream(OutputStream.nullOutputStream()));
+
         // Use Gradle Tooling API to fetch the demos model
         try (var connection = GradleConnector.newConnector()
                 .forProjectDirectory(projectRoot)
@@ -368,6 +374,7 @@ public class DemoSelector extends ToolkitApp {
 
             // Suppress Gradle output by redirecting to null streams
             var model = connection.model(DemosModel.class)
+                    .setColorOutput(false)
                     .setStandardOutput(OutputStream.nullOutputStream())
                     .setStandardError(OutputStream.nullOutputStream())
                     .get();
@@ -391,6 +398,9 @@ public class DemoSelector extends ToolkitApp {
         } catch (Exception e) {
             // Fall back to empty list if Tooling API fails
             throw new RuntimeException("Warning: Could not fetch demos via Tooling API: " + e.getMessage());
+        } finally {
+            System.setOut(stdout);
+            System.setErr(stderr);
         }
     }
 

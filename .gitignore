@@ -40,3 +40,6 @@ Thumbs.db
 # Logs
 *.log
 docs/video/output
+
+# AI
+CLAUDE.md
