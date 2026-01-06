@@ -119,7 +119,7 @@ public interface PropertyResolver {
 }
 ```
 
-The CSS module provides `CssStyleResolver` which implements this interface. Widgets don't need to know about CSS - they just accept a `PropertyResolver`.
+The CSS module provides `CssStyleResolver` which implements this interface. Widgets don't need to know about CSS - they or more often their Builder just accept a `PropertyResolver` which is used at creation time to apply styles.
 
 ### StyledProperty
 
