@@ -105,7 +105,7 @@ public class TextAreaDemo implements Element {
                 text(" Lines: " + lineCount + " ").yellow(),
                 text(" Chars: " + charCount + " ").yellow(),
                 text(" [Tab] Switch ").dim(),
-                text(" [q] Quit ").dim()
+                text(" [CTRL+c] Quit ").dim()
             )).rounded().length(3),
 
             // Main content
@@ -175,8 +175,4 @@ public class TextAreaDemo implements Element {
         return Constraint.fill();
     }
 
-    @Override
-    public EventResult handleKeyEvent(KeyEvent event, boolean focused) {
-        return EventResult.UNHANDLED;
-    }
 }
