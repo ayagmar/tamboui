@@ -461,6 +461,13 @@ isBackTab(event)   // Shift+Tab
 <!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
 <!-- prettier-ignore-start -->
 <!-- markdownlint-disable -->
+<table>
+  <tbody>
+    <tr>
+      <td align="center" valign="top" width="14.28%"><a href="http://melix.github.io/blog"><img src="https://avatars.githubusercontent.com/u/316357?v=4?s=100" width="100px;" alt="Cédric Champeau"/><br /><sub><b>Cédric Champeau</b></sub></a><br /><a href="#infra-melix" title="Infrastructure (Hosting, Build-Tools, etc)">🚇</a> <a href="#test-melix" title="Tests">⚠️</a> <a href="#code-melix" title="Code">💻</a></td>
+    </tr>
+  </tbody>
+</table>
 
 <!-- markdownlint-restore -->
 <!-- prettier-ignore-end -->
