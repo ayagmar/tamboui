@@ -111,16 +111,26 @@ public final class DefaultBindings implements Bindings {
                 triggers.put(action, new ArrayList<>(list)));
         }
 
+        private static String validateActionName(String action) {
+            if (action == null) {
+                throw new IllegalArgumentException("Action name cannot be null");
+            }
+            if (!action.matches("[a-zA-Z0-9_]+")) {
+                throw new IllegalArgumentException("Action name must be alphanumeric with underscores only: " + action);
+            }
+            return action;
+        }
+
         @Override
         public Builder bind(String action, InputTrigger... newTriggers) {
-            triggers.computeIfAbsent(action, k -> new ArrayList<>())
+            triggers.computeIfAbsent(validateActionName(action), k -> new ArrayList<>())
                     .addAll(Arrays.asList(newTriggers));
             return this;
         }
 
         @Override
         public Builder rebind(String action, InputTrigger... newTriggers) {
-            triggers.put(action, new ArrayList<>(Arrays.asList(newTriggers)));
+            triggers.put(validateActionName(action), new ArrayList<>(Arrays.asList(newTriggers)));
             return this;
         }
 
