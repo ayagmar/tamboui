@@ -29,6 +29,15 @@
         "test",
         "code"
       ]
+    },
+    {
+      "login": "davsclaus",
+      "name": "Claus Ibsen",
+      "avatar_url": "https://avatars.githubusercontent.com/u/477100?v=4",
+      "profile": "https://github.com/davsclaus",
+      "contributions": [
+        "code"
+      ]
     }
   ]
 }
