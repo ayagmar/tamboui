@@ -46,7 +46,6 @@ public final class Panel extends StyledElement<Panel> {
     private Color focusedBorderColor;
     private Padding padding;
     private final List<Element> children = new ArrayList<>();
-    private boolean focusable;
 
     public Panel() {
     }
@@ -133,6 +132,17 @@ public final class Panel extends StyledElement<Panel> {
     }
 
     /**
+     * Makes this panel borderless.
+     * <p>
+     * This sets the border type to {@link BorderType#NONE}, which renders
+     * no borders but still reserves space for them if borders are enabled.
+     */
+    public Panel borderless() {
+        this.borderType = BorderType.NONE;
+        return this;
+    }
+
+    /**
      * Sets the border color.
      */
     public Panel borderColor(Color color) {
@@ -165,22 +175,6 @@ public final class Panel extends StyledElement<Panel> {
     }
 
     /**
-     * Makes this panel focusable.
-     */
-    public Panel focusable() {
-        this.focusable = true;
-        return this;
-    }
-
-    /**
-     * Sets whether this panel is focusable.
-     */
-    public Panel focusable(boolean focusable) {
-        this.focusable = focusable;
-        return this;
-    }
-
-    /**
      * Adds a child element.
      */
     public Panel add(Element child) {
@@ -194,11 +188,6 @@ public final class Panel extends StyledElement<Panel> {
     public Panel add(Element... children) {
         this.children.addAll(Arrays.asList(children));
         return this;
-    }
-
-    @Override
-    public boolean isFocusable() {
-        return focusable;
     }
 
     @Override

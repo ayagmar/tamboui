@@ -44,6 +44,7 @@ public abstract class StyledElement<T extends StyledElement<T>> implements Eleme
     protected MouseEventHandler mouseHandler;
     protected DragHandler dragHandler;
     protected boolean draggable;
+    protected boolean focusable;
     protected Rect lastRenderedArea;
 
     /**
@@ -291,6 +292,34 @@ public abstract class StyledElement<T extends StyledElement<T>> implements Eleme
     @Override
     public Constraint constraint() {
         return layoutConstraint;
+    }
+
+    // Focusable
+
+    /**
+     * Makes this element focusable for keyboard event handling.
+     *
+     * @return this element for chaining
+     */
+    public T focusable() {
+        this.focusable = true;
+        return self();
+    }
+
+    /**
+     * Sets whether this element is focusable.
+     *
+     * @param focusable true to make focusable, false otherwise
+     * @return this element for chaining
+     */
+    public T focusable(boolean focusable) {
+        this.focusable = focusable;
+        return self();
+    }
+
+    @Override
+    public boolean isFocusable() {
+        return focusable;
     }
 
     // ID for focus management

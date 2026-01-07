@@ -143,6 +143,10 @@ public final class Block implements Widget {
 
     private void renderBorders(Rect area, Buffer buffer) {
         BorderSet set = borderType.set();
+        if (set == null) {
+            // BorderType.NONE - skip border rendering
+            return;
+        }
 
         // When merge strategy is not REPLACE, skip corner positions when rendering sides
         // This prevents corners from being merged with side characters incorrectly

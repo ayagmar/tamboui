@@ -25,6 +25,7 @@ import dev.tamboui.widgets.scrollbar.ScrollbarState;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.function.Function;
 
@@ -65,6 +66,7 @@ public final class ListContainer<T> extends StyledElement<ListContainer<T>> {
     private BorderType borderType;
     private Color borderColor;
     private boolean autoScroll;
+    private boolean autoScrollToEnd;
     private boolean showScrollbar;
     private Color scrollbarThumbColor;
     private Color scrollbarTrackColor;
@@ -82,6 +84,24 @@ public final class ListContainer<T> extends StyledElement<ListContainer<T>> {
         for (String item : items) {
             this.items.add(ListItem.from(item));
         }
+    }
+
+    /**
+     * Creates a list container with pre-built ListItem objects.
+     *
+     * @param items the list items
+     */
+    public ListContainer(ListItem... items) {
+        this.items.addAll(Arrays.asList(items));
+    }
+
+    /**
+     * Creates a list container with a collection of pre-built ListItem objects.
+     *
+     * @param items the list items
+     */
+    public ListContainer(Collection<ListItem> items) {
+        this.items.addAll(items);
     }
 
     /**
@@ -244,6 +264,21 @@ public final class ListContainer<T> extends StyledElement<ListContainer<T>> {
     }
 
     /**
+     * Scrolls the list to show the last items.
+     * <p>
+     * This requires a state to be set on this list. Unlike {@link #autoScroll()},
+     * this method scrolls to the end immediately without requiring a selection.
+     * Useful for chat messages, logs, or other content where you want to always
+     * show the most recent items.
+     *
+     * @return this element
+     */
+    public ListContainer<T> scrollToEnd() {
+        this.autoScrollToEnd = true;
+        return this;
+    }
+
+    /**
      * Enables showing a scrollbar on the right side of the list.
      *
      * @return this element
@@ -261,6 +296,26 @@ public final class ListContainer<T> extends StyledElement<ListContainer<T>> {
      */
     public ListContainer<T> scrollbar(boolean enabled) {
         this.showScrollbar = enabled;
+        return this;
+    }
+
+    /**
+     * Configures the list for display-only mode (non-interactive scrolling).
+     * <p>
+     * This disables visual selection feedback by setting an empty highlight symbol
+     * and empty highlight style. Useful for displaying chat messages, logs, or
+     * other content where selection is not meaningful.
+     * <p>
+     * This is equivalent to calling:
+     * <pre>{@code
+     * list.highlightSymbol("").highlightStyle(Style.EMPTY)
+     * }</pre>
+     *
+     * @return this element
+     */
+    public ListContainer<T> displayOnly() {
+        this.highlightSymbol = "";
+        this.highlightStyle = Style.EMPTY;
         return this;
     }
 
@@ -318,13 +373,20 @@ public final class ListContainer<T> extends StyledElement<ListContainer<T>> {
 
         // Auto-scroll if enabled
         ListState effectiveState = state != null ? state : new ListState();
-        if (autoScroll && state != null) {
+        if (state != null) {
             // Calculate visible height (area height minus border if present)
             int visibleHeight = area.height();
             if (title != null || borderType != null) {
                 visibleHeight -= 2; // Top and bottom border
             }
-            state.scrollToSelected(visibleHeight, effectiveItems);
+
+            if (autoScrollToEnd) {
+                // Scroll to end without changing selection
+                state.scrollToEnd(visibleHeight, effectiveItems);
+            } else if (autoScroll) {
+                // Scroll to keep selected item visible
+                state.scrollToSelected(visibleHeight, effectiveItems);
+            }
         }
 
         // Resolve highlight style: explicit > CSS > default

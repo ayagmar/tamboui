@@ -25,9 +25,12 @@ import dev.tamboui.toolkit.elements.TabsElement;
 import dev.tamboui.toolkit.elements.TextElement;
 import dev.tamboui.toolkit.elements.TextAreaElement;
 import dev.tamboui.toolkit.elements.TextInputElement;
+import dev.tamboui.toolkit.elements.WaveTextElement;
 import dev.tamboui.layout.Constraint;
+import dev.tamboui.style.Color;
 import dev.tamboui.widgets.input.TextAreaState;
 import dev.tamboui.widgets.input.TextInputState;
+import dev.tamboui.widgets.list.ListItem;
 import dev.tamboui.widgets.scrollbar.ScrollbarState;
 import dev.tamboui.tui.event.KeyCode;
 import dev.tamboui.tui.event.KeyEvent;
@@ -93,6 +96,35 @@ public final class Toolkit {
             sb.append(value != null ? value.toString() : "");
         }
         return new TextElement(sb.toString());
+    }
+
+    // ==================== Wave Text ====================
+
+    /**
+     * Creates a wave text element with the given text.
+     * <p>
+     * By default, a dark "shadow" moves through otherwise bright text.
+     * <pre>{@code
+     * waveText("Loading...").color(Color.CYAN)
+     * waveText("Thinking...").inverted()  // Bright peak on dim text
+     * }</pre>
+     *
+     * @param text the text to display
+     * @return a new wave text element
+     */
+    public static WaveTextElement waveText(String text) {
+        return new WaveTextElement(text);
+    }
+
+    /**
+     * Creates a wave text element with the given text and color.
+     *
+     * @param text the text to display
+     * @param color the base color
+     * @return a new wave text element
+     */
+    public static WaveTextElement waveText(String text, Color color) {
+        return new WaveTextElement(text, color);
     }
 
     // ==================== Containers ====================
@@ -487,6 +519,43 @@ public final class Toolkit {
      */
     public static ListContainer<?> list() {
         return new ListContainer<>();
+    }
+
+    /**
+     * Creates a list with pre-built ListItem objects.
+     * <p>
+     * This allows using styled items directly:
+     * <pre>{@code
+     * list(
+     *     ListItem.from(Line.from(Span.styled("Hello", Style.EMPTY.green()))),
+     *     ListItem.from(Line.from(Span.styled("World", Style.EMPTY.cyan())))
+     * )
+     * }</pre>
+     *
+     * @param items the list items
+     * @return a new list container
+     */
+    public static ListContainer<?> list(ListItem... items) {
+        return new ListContainer<>(items);
+    }
+
+    /**
+     * Creates a list with a collection of pre-built ListItem objects.
+     * <p>
+     * This allows using styled items from a collection:
+     * <pre>{@code
+     * var items = List.of(
+     *     ListItem.from(Line.from(Span.styled("Hello", Style.EMPTY.green()))),
+     *     ListItem.from(Line.from(Span.styled("World", Style.EMPTY.cyan())))
+     * );
+     * list(items)
+     * }</pre>
+     *
+     * @param items the list items
+     * @return a new list container
+     */
+    public static ListContainer<?> list(Collection<ListItem> items) {
+        return new ListContainer<>(items);
     }
 
     // ==================== Table ====================

@@ -129,4 +129,33 @@ public final class ListState {
             offset = selectedBottom - visibleHeight;
         }
     }
+
+    /**
+     * Scrolls the list to show the last items without changing selection.
+     * <p>
+     * This is useful for chat messages, logs, or other content where you want
+     * to always show the most recent items without needing to select them.
+     *
+     * @param visibleHeight the visible height in the display area
+     * @param items the list of items
+     */
+    public void scrollToEnd(int visibleHeight, List<ListItem> items) {
+        if (items.isEmpty()) {
+            offset = 0;
+            return;
+        }
+
+        // Calculate total content height
+        int totalHeight = 0;
+        for (ListItem item : items) {
+            totalHeight += item.height();
+        }
+
+        // Set offset to show the last items
+        if (totalHeight > visibleHeight) {
+            offset = totalHeight - visibleHeight;
+        } else {
+            offset = 0;
+        }
+    }
 }

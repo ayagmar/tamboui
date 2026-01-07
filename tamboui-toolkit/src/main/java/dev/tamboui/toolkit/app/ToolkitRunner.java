@@ -19,6 +19,11 @@ import dev.tamboui.tui.event.Event;
 import dev.tamboui.tui.event.KeyEvent;
 import dev.tamboui.tui.event.TickEvent;
 
+import java.time.Duration;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
 /**
@@ -58,12 +63,18 @@ public final class ToolkitRunner implements AutoCloseable {
     private final FocusManager focusManager;
     private final EventRouter eventRouter;
     private final DefaultRenderContext renderContext;
+    private final ScheduledExecutorService scheduler;
 
     private ToolkitRunner(TuiRunner tuiRunner) {
         this.tuiRunner = tuiRunner;
         this.focusManager = new FocusManager();
         this.eventRouter = new EventRouter(focusManager);
         this.renderContext = new DefaultRenderContext(focusManager, eventRouter);
+        this.scheduler = new ScheduledThreadPoolExecutor(1, r -> {
+            Thread t = new Thread(r, "toolkit-scheduler");
+            t.setDaemon(true);
+            return t;
+        });
     }
 
     /**
@@ -161,6 +172,109 @@ public final class ToolkitRunner implements AutoCloseable {
     }
 
     /**
+     * Schedules an action to run after a delay.
+     * <p>
+     * The action runs on a background thread. If the action modifies shared state,
+     * ensure proper synchronization. The UI will automatically redraw on the next
+     * tick event after the action completes.
+     *
+     * <pre>{@code
+     * runner.schedule(() -> {
+     *     message = "Delayed message!";
+     * }, Duration.ofSeconds(2));
+     * }</pre>
+     *
+     * @param action the action to run
+     * @param delay the delay before running
+     * @return a handle that can be used to cancel the scheduled action
+     */
+    public ScheduledAction schedule(Runnable action, Duration delay) {
+        ScheduledFuture<?> future = scheduler.schedule(action, delay.toMillis(), TimeUnit.MILLISECONDS);
+        return new ScheduledAction(future);
+    }
+
+    /**
+     * Schedules an action to run repeatedly at a fixed interval.
+     * <p>
+     * The action runs on a background thread. If the action modifies shared state,
+     * ensure proper synchronization. The UI will automatically redraw on each
+     * tick event.
+     *
+     * <pre>{@code
+     * var repeating = runner.scheduleRepeating(() -> {
+     *     counter++;
+     * }, Duration.ofMillis(100));
+     *
+     * // Later, to stop:
+     * repeating.cancel();
+     * }</pre>
+     *
+     * @param action the action to run
+     * @param interval the interval between runs
+     * @return a handle that can be used to cancel the scheduled action
+     */
+    public ScheduledAction scheduleRepeating(Runnable action, Duration interval) {
+        ScheduledFuture<?> future = scheduler.scheduleAtFixedRate(
+                action, interval.toMillis(), interval.toMillis(), TimeUnit.MILLISECONDS);
+        return new ScheduledAction(future);
+    }
+
+    /**
+     * Schedules an action to run repeatedly with a fixed delay between runs.
+     * <p>
+     * Unlike {@link #scheduleRepeating}, this waits for each execution to complete
+     * before scheduling the next one. This is useful when the action's duration
+     * is unpredictable and you want consistent spacing between runs.
+     *
+     * @param action the action to run
+     * @param delay the delay between the end of one run and the start of the next
+     * @return a handle that can be used to cancel the scheduled action
+     */
+    public ScheduledAction scheduleWithFixedDelay(Runnable action, Duration delay) {
+        ScheduledFuture<?> future = scheduler.scheduleWithFixedDelay(
+                action, delay.toMillis(), delay.toMillis(), TimeUnit.MILLISECONDS);
+        return new ScheduledAction(future);
+    }
+
+    /**
+     * A handle to a scheduled action that can be cancelled.
+     */
+    public static final class ScheduledAction {
+        private final ScheduledFuture<?> future;
+
+        ScheduledAction(ScheduledFuture<?> future) {
+            this.future = future;
+        }
+
+        /**
+         * Cancels the scheduled action.
+         * <p>
+         * If the action is currently running, it will complete but won't
+         * run again (for repeating actions).
+         */
+        public void cancel() {
+            future.cancel(false);
+        }
+
+        /**
+         * Returns whether this action has been cancelled.
+         */
+        public boolean isCancelled() {
+            return future.isCancelled();
+        }
+
+        /**
+         * Returns whether this action has completed.
+         * <p>
+         * For repeating actions, this only returns true if the action
+         * was cancelled or encountered an error.
+         */
+        public boolean isDone() {
+            return future.isDone();
+        }
+    }
+
+    /**
      * Returns the focus manager.
      */
     public FocusManager focusManager() {
@@ -196,6 +310,7 @@ public final class ToolkitRunner implements AutoCloseable {
 
     @Override
     public void close() {
+        scheduler.shutdownNow();
         tuiRunner.close();
     }
 

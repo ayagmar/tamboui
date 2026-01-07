@@ -8,6 +8,10 @@ package dev.tamboui.widgets.block;
  * Type of border to draw.
  */
 public enum BorderType {
+    /**
+     * No border - renders nothing but still reserves space if borders are enabled.
+     */
+    NONE(null),
     PLAIN(new BorderSet("─", "─", "│", "│", "┌", "┐", "└", "┘")),
     ROUNDED(new BorderSet("─", "─", "│", "│", "╭", "╮", "╰", "╯")),
     DOUBLE(new BorderSet("═", "═", "║", "║", "╔", "╗", "╚", "╝")),
