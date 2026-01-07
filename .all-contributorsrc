@@ -1,4 +1,23 @@
 {
   "projectName": "tamboui",
-  "projectOwner": "tamboui"
+  "projectOwner": "tamboui",
+  "files": [
+    "README.md"
+  ],
+  "commitType": "docs",
+  "commitConvention": "angular",
+  "contributorsPerLine": 7,
+  "contributors": [
+    {
+      "login": "melix",
+      "name": "Cédric Champeau",
+      "avatar_url": "https://avatars.githubusercontent.com/u/316357?v=4",
+      "profile": "http://melix.github.io/blog",
+      "contributions": [
+        "infra",
+        "test",
+        "code"
+      ]
+    }
+  ]
 }
