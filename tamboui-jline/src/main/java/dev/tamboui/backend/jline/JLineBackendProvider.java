@@ -17,6 +17,11 @@ import java.io.IOException;
 public class JLineBackendProvider implements BackendProvider {
 
     @Override
+    public String name() {
+        return "jline";
+    }
+
+    @Override
     public Backend create() throws IOException {
         return new JLineBackend();
     }
