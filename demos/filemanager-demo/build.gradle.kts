@@ -11,6 +11,7 @@ demo {
 
 dependencies {
     implementation(projects.tambouiToolkit)
+    implementation(projects.tambouiImage)
 }
 
 application {
