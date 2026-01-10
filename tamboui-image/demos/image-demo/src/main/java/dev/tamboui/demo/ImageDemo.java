@@ -2,6 +2,8 @@
 //DEPS dev.tamboui:tamboui-image:LATEST
 //DEPS dev.tamboui:tamboui-jline:LATEST
 //FILES c2023-tsuchinshan-atlas.jpg=../../../../resources/c2023-tsuchinshan-atlas.jpg
+// Prevents OSX from showing up in the terminal when running the demo
+//JAVA_OPTIONS -Dapple.awt.UIElement=true
 
 /*
  * Copyright (c) 2025 TamboUI Contributors

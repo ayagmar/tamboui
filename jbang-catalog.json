@@ -77,7 +77,7 @@
       "script-ref": "tamboui-widgets/demos/collapsed-borders-demo/src/main/java/dev/tamboui/demo/CollapsedBordersDemo.java"
     },
     "colors-rgb-demo": {
-      "script-ref": "tamboui-widgets/demos/colors-rgb-demo/src/main/java/dev/tamboui/demo/ColorsRgbDemo.java"
+      "script-ref": "tamboui-widgets/demos/colors-rgb-demo/src/main/java/dev/tamboui/demo/ColorsRgbDemoPanama.java"
     },
     "gauge-demo": {
       "script-ref": "tamboui-widgets/demos/gauge-demo/src/main/java/dev/tamboui/demo/GaugeDemo.java"
