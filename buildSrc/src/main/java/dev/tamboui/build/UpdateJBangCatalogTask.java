@@ -12,15 +12,17 @@ import org.gradle.api.provider.Property;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputDirectory;
 import org.gradle.api.tasks.Optional;
+import org.gradle.api.tasks.options.Option;
 import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.PathSensitive;
 import org.gradle.api.tasks.PathSensitivity;
 import org.gradle.api.tasks.TaskAction;
+import org.gradle.process.ExecOperations;
+import org.gradle.process.ExecResult;
 
-import java.io.BufferedReader;
+import javax.inject.Inject;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -37,6 +39,14 @@ import java.util.stream.Stream;
 public abstract class UpdateJBangCatalogTask extends DefaultTask {
 
     private static final String DEMO_SELECTOR = "demo-selector";
+
+    /**
+     * Returns the ExecOperations service for executing external processes.
+     *
+     * @return the ExecOperations service
+     */
+    @Inject
+    protected abstract ExecOperations getExecOperations();
 
     /**
      * Returns the root project directory.
@@ -68,7 +78,8 @@ public abstract class UpdateJBangCatalogTask extends DefaultTask {
      *
      * @return the verify builds property
      */
-    @Input
+    @Option(option = "verify-builds", description = "Verify builds after writing the catalog")
+    @Input 
     @Optional
     public abstract Property<Boolean> getVerifyBuilds();
 
@@ -244,38 +255,25 @@ public abstract class UpdateJBangCatalogTask extends DefaultTask {
      */
     private boolean buildAlias(String aliasName) {
         try {
-            ProcessBuilder processBuilder = new ProcessBuilder(
-                    "jbang", "build",
-                    "-C=-Xdiags:compact",
-                    "-C=-Xmaxerrs",
-                    "-C=1",
-                    aliasName
-            );
-            processBuilder.redirectErrorStream(true);
+            ExecResult result = getExecOperations().exec(execSpec -> {
+                execSpec.commandLine(
+                        "jbang", "build",
+                        "-C=-Xdiags:compact",
+                        "-C=-Xmaxerrs",
+                        "-C=1",
+                        aliasName
+                );
+                execSpec.setIgnoreExitValue(true);
+                // Output is automatically captured and logged by Gradle
+            });
 
-            Process process = processBuilder.start();
-
-            // Read and print output in real-time
-            try (BufferedReader reader = new BufferedReader(
-                    new InputStreamReader(process.getInputStream()))) {
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    getLogger().lifecycle("  {}", line);
-                }
-            }
-
-            int exitCode = process.waitFor();
-            if (exitCode != 0) {
-                getLogger().warn("Build failed for alias '{}' with exit code {}", aliasName, exitCode);
+            if (result.getExitValue() != 0) {
+                getLogger().warn("Build failed for alias '{}' with exit code {}", aliasName, result.getExitValue());
                 return false;
             }
             return true;
-        } catch (IOException e) {
+        } catch (Exception e) {
             getLogger().error("Failed to execute jbang build for alias '{}': {}", aliasName, e.getMessage(), e);
-            return false;
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            getLogger().error("Build interrupted for alias '{}'", aliasName, e);
             return false;
         }
     }

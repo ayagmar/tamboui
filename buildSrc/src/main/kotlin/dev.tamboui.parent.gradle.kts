@@ -41,5 +41,4 @@ tasks.register<UpdateJBangCatalogTask>("updateJBangCatalog") {
     projectDir = layout.projectDirectory
     modules =  rootProject.subprojects.map { it.name }
     catalogFile = layout.projectDirectory.file("jbang-catalog.json")
-    verifyBuilds = providers.gradleProperty("jbang.verifyBuilds").map { it.toBoolean() }.orElse(false)
 }
