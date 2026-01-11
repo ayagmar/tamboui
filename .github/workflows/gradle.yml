@@ -26,3 +26,13 @@ jobs:
 
       - name: Execute Gradle build
         run: ./gradlew build
+
+      - name: Update jbang-catalog.json to include new demos
+        run: ./gradlew updateJBangCatalog --verify-builds
+
+      - name: Check jbang-catalog.json is up to date
+        run: |
+          if ! git diff --exit-code -- jbang-catalog.json; then
+            echo "::error file=jbang-catalog.json::jbang-catalog.json is out of sync. Please run './gradlew updateJBangCatalog --verify-builds' and commit the changes."
+            exit 1
+          fi

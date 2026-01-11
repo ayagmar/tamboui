@@ -8,17 +8,24 @@ import org.gradle.api.DefaultTask;
 import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.provider.ListProperty;
+import org.gradle.api.provider.Property;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputDirectory;
+import org.gradle.api.tasks.Optional;
+import org.gradle.api.tasks.options.Option;
 import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.PathSensitive;
 import org.gradle.api.tasks.PathSensitivity;
 import org.gradle.api.tasks.TaskAction;
+import org.gradle.process.ExecOperations;
+import org.gradle.process.ExecResult;
 
+import javax.inject.Inject;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -32,6 +39,14 @@ import java.util.stream.Stream;
 public abstract class UpdateJBangCatalogTask extends DefaultTask {
 
     private static final String DEMO_SELECTOR = "demo-selector";
+
+    /**
+     * Returns the ExecOperations service for executing external processes.
+     *
+     * @return the ExecOperations service
+     */
+    @Inject
+    protected abstract ExecOperations getExecOperations();
 
     /**
      * Returns the root project directory.
@@ -59,6 +74,16 @@ public abstract class UpdateJBangCatalogTask extends DefaultTask {
     public abstract RegularFileProperty getCatalogFile();
 
     /**
+     * Returns whether to verify builds after writing the catalog.
+     *
+     * @return the verify builds property
+     */
+    @Option(option = "verify-builds", description = "Verify builds after writing the catalog")
+    @Input 
+    @Optional
+    public abstract Property<Boolean> getVerifyBuilds();
+
+    /**
      * Executes the task to update the jbang catalog.
      */
     @TaskAction
@@ -79,6 +104,11 @@ public abstract class UpdateJBangCatalogTask extends DefaultTask {
 
         // Write the catalog file
         writeCatalog(aliases);
+
+        // Optionally verify builds
+        if (getVerifyBuilds().getOrElse(false)) {
+            verifyBuilds(aliases.keySet());
+        }
     }
 
     /**
@@ -191,6 +221,60 @@ public abstract class UpdateJBangCatalogTask extends DefaultTask {
             getLogger().lifecycle("Updated {}", catalogFile);
         } catch (IOException e) {
             throw new RuntimeException("Failed to write catalog file: " + catalogFile, e);
+        }
+    }
+
+    /**
+     * Verifies builds for all aliases by running jbang build on each one.
+     *
+     * @param aliases the set of alias names to verify
+     */
+    private void verifyBuilds(java.util.Set<String> aliases) {
+        getLogger().lifecycle("Verifying builds for {} aliases...", aliases.size());
+        List<String> failedAliases = new ArrayList<>();
+
+        for (String alias : aliases) {
+            getLogger().lifecycle("Building alias: {}", alias);
+            if (!buildAlias(alias)) {
+                failedAliases.add(alias);
+            }
+        }
+
+        if (!failedAliases.isEmpty()) {
+            getLogger().error("Build verification failed for {} alias(es): {}", failedAliases.size(), String.join(", ", failedAliases));
+        } else {
+            getLogger().lifecycle("All {} aliases built successfully", aliases.size());
+        }
+    }
+
+    /**
+     * Builds a single alias using jbang build command.
+     *
+     * @param aliasName the alias name to build
+     * @return true if the build succeeded (exit code 0), false otherwise
+     */
+    private boolean buildAlias(String aliasName) {
+        try {
+            ExecResult result = getExecOperations().exec(execSpec -> {
+                execSpec.commandLine(
+                        "jbang", "build",
+                        "-C=-Xdiags:compact",
+                        "-C=-Xmaxerrs",
+                        "-C=1",
+                        aliasName
+                );
+                execSpec.setIgnoreExitValue(true);
+                // Output is automatically captured and logged by Gradle
+            });
+
+            if (result.getExitValue() != 0) {
+                getLogger().warn("Build failed for alias '{}' with exit code {}", aliasName, result.getExitValue());
+                return false;
+            }
+            return true;
+        } catch (Exception e) {
+            getLogger().error("Failed to execute jbang build for alias '{}': {}", aliasName, e.getMessage(), e);
+            return false;
         }
     }
 }
