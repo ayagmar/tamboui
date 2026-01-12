@@ -9,6 +9,10 @@ demo {
     tags = setOf("colors", "animation", "styling")
 }
 
+dependencies {
+    implementation(projects.tambouiPanamaBackend)
+}
+
 application {
     mainClass.set("dev.tamboui.demo.ColorsRgbDemo")
 }

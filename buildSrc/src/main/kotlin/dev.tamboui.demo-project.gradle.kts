@@ -12,7 +12,7 @@ plugins {
 dependencies {
     implementation(project(":tamboui-core"))
     implementation(project(":tamboui-widgets"))
-    runtimeOnly(project(":tamboui-jline"))
+    runtimeOnly(project(":tamboui-panama-backend"))
 }
 
 tasks.withType<JavaExec>().configureEach {
@@ -20,12 +20,12 @@ tasks.withType<JavaExec>().configureEach {
 }
 
 tasks.withType<JavaCompile>().configureEach {
-    options.release = 21
+    options.release = 22
 }
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_21
-    targetCompatibility = JavaVersion.VERSION_21
+    sourceCompatibility = JavaVersion.VERSION_22
+    targetCompatibility = JavaVersion.VERSION_22
 }
 
 application {
@@ -40,7 +40,9 @@ graalvmNative {
                 "--initialize-at-build-time=org.jline",
                 "--initialize-at-run-time=org.jline.nativ",
                 "--allow-incomplete-classpath",
-                "-H:+ReportExceptionStackTraces"
+                "-H:+ReportExceptionStackTraces",
+                "--enable-native-access=ALL-UNNAMED",
+                "-H:+SharedArenaSupport"
             )
 
             // JLine requires access to terminal

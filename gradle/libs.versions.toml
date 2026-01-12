@@ -34,4 +34,3 @@ testing = ["junit-jupiter", "junit-platform-launcher", "assertj-core"]
 
 [plugins]
 animal-sniffer = { id = "ru.vyarus.animalsniffer", version.ref = "animal-sniffer" }
-
