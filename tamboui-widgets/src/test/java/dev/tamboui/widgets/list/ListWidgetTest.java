@@ -11,6 +11,7 @@ import dev.tamboui.style.Color;
 import dev.tamboui.style.Style;
 import dev.tamboui.text.Line;
 import dev.tamboui.text.Text;
+import dev.tamboui.widgets.text.Overflow;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
 
@@ -221,5 +222,160 @@ class ListWidgetTest {
         dev.tamboui.assertj.BufferAssertions.assertThat(buffer)
             .hasCellAt(2, 1, new Cell("L", highlightStyle)) // Line 2 content (indented, selected)
             .hasCellAt(2, 2, new Cell("L", highlightStyle)); // Line 3 content (indented, selected)
+    }
+
+    // ========== Overflow Mode Tests ==========
+
+    @Test
+    @DisplayName("CLIP overflow truncates text at boundary")
+    void clipOverflow() {
+        List<ListItem> items = Arrays.asList(
+            ListItem.from("Hello World This Is Long")
+        );
+        ListWidget list = ListWidget.builder()
+            .items(items)
+            .overflow(Overflow.CLIP)
+            .highlightSymbol("")
+            .build();
+        Rect area = new Rect(0, 0, 5, 1);
+        Buffer buffer = Buffer.empty(area);
+        ListState state = new ListState();
+
+        list.render(area, buffer, state);
+
+        // Should show "Hello" (5 chars)
+        assertThat(buffer.get(0, 0).symbol()).isEqualTo("H");
+        assertThat(buffer.get(1, 0).symbol()).isEqualTo("e");
+        assertThat(buffer.get(2, 0).symbol()).isEqualTo("l");
+        assertThat(buffer.get(3, 0).symbol()).isEqualTo("l");
+        assertThat(buffer.get(4, 0).symbol()).isEqualTo("o");
+    }
+
+    @Test
+    @DisplayName("ELLIPSIS overflow truncates with ellipsis at end")
+    void ellipsisOverflow() {
+        List<ListItem> items = Arrays.asList(
+            ListItem.from("Hello World")
+        );
+        ListWidget list = ListWidget.builder()
+            .items(items)
+            .overflow(Overflow.ELLIPSIS)
+            .highlightSymbol("")
+            .build();
+        Rect area = new Rect(0, 0, 8, 1);
+        Buffer buffer = Buffer.empty(area);
+        ListState state = new ListState();
+
+        list.render(area, buffer, state);
+
+        // Should show "Hello..." (5 chars + 3 dots = 8)
+        assertThat(buffer.get(0, 0).symbol()).isEqualTo("H");
+        assertThat(buffer.get(4, 0).symbol()).isEqualTo("o");
+        assertThat(buffer.get(5, 0).symbol()).isEqualTo(".");
+        assertThat(buffer.get(6, 0).symbol()).isEqualTo(".");
+        assertThat(buffer.get(7, 0).symbol()).isEqualTo(".");
+    }
+
+    @Test
+    @DisplayName("ELLIPSIS_START overflow truncates with ellipsis at start")
+    void ellipsisStartOverflow() {
+        List<ListItem> items = Arrays.asList(
+            ListItem.from("Hello World")
+        );
+        ListWidget list = ListWidget.builder()
+            .items(items)
+            .overflow(Overflow.ELLIPSIS_START)
+            .highlightSymbol("")
+            .build();
+        Rect area = new Rect(0, 0, 8, 1);
+        Buffer buffer = Buffer.empty(area);
+        ListState state = new ListState();
+
+        list.render(area, buffer, state);
+
+        // Should show "...World" (3 dots + 5 chars = 8)
+        assertThat(buffer.get(0, 0).symbol()).isEqualTo(".");
+        assertThat(buffer.get(1, 0).symbol()).isEqualTo(".");
+        assertThat(buffer.get(2, 0).symbol()).isEqualTo(".");
+        assertThat(buffer.get(3, 0).symbol()).isEqualTo("W");
+        assertThat(buffer.get(7, 0).symbol()).isEqualTo("d");
+    }
+
+    @Test
+    @DisplayName("ELLIPSIS_MIDDLE overflow truncates with ellipsis in middle")
+    void ellipsisMiddleOverflow() {
+        List<ListItem> items = Arrays.asList(
+            ListItem.from("Hello World")
+        );
+        ListWidget list = ListWidget.builder()
+            .items(items)
+            .overflow(Overflow.ELLIPSIS_MIDDLE)
+            .highlightSymbol("")
+            .build();
+        Rect area = new Rect(0, 0, 8, 1);
+        Buffer buffer = Buffer.empty(area);
+        ListState state = new ListState();
+
+        list.render(area, buffer, state);
+
+        // Should show "Hel...ld" (3 left + 3 dots + 2 right = 8)
+        assertThat(buffer.get(0, 0).symbol()).isEqualTo("H");
+        assertThat(buffer.get(1, 0).symbol()).isEqualTo("e");
+        assertThat(buffer.get(2, 0).symbol()).isEqualTo("l");
+        assertThat(buffer.get(3, 0).symbol()).isEqualTo(".");
+        assertThat(buffer.get(4, 0).symbol()).isEqualTo(".");
+        assertThat(buffer.get(5, 0).symbol()).isEqualTo(".");
+        assertThat(buffer.get(6, 0).symbol()).isEqualTo("l");
+        assertThat(buffer.get(7, 0).symbol()).isEqualTo("d");
+    }
+
+    @Test
+    @DisplayName("Overflow does not modify text that fits")
+    void overflowTextFits() {
+        List<ListItem> items = Arrays.asList(
+            ListItem.from("Hi")
+        );
+        ListWidget list = ListWidget.builder()
+            .items(items)
+            .overflow(Overflow.ELLIPSIS)
+            .highlightSymbol("")
+            .build();
+        Rect area = new Rect(0, 0, 10, 1);
+        Buffer buffer = Buffer.empty(area);
+        ListState state = new ListState();
+
+        list.render(area, buffer, state);
+
+        assertThat(buffer.get(0, 0).symbol()).isEqualTo("H");
+        assertThat(buffer.get(1, 0).symbol()).isEqualTo("i");
+        assertThat(buffer.get(2, 0).symbol()).isEqualTo(" ");
+    }
+
+    @Test
+    @DisplayName("Overflow works with highlight symbol")
+    void overflowWithHighlightSymbol() {
+        List<ListItem> items = Arrays.asList(
+            ListItem.from("Hello World This Is Long")
+        );
+        ListWidget list = ListWidget.builder()
+            .items(items)
+            .overflow(Overflow.ELLIPSIS)
+            .highlightSymbol("> ")
+            .build();
+        Rect area = new Rect(0, 0, 10, 1);
+        Buffer buffer = Buffer.empty(area);
+        ListState state = new ListState();
+        state.select(0);
+
+        list.render(area, buffer, state);
+
+        // Symbol takes 2 chars, leaving 8 for content
+        // Should show "> Hello..." (> + space + Hello + ...)
+        assertThat(buffer.get(0, 0).symbol()).isEqualTo(">");
+        assertThat(buffer.get(1, 0).symbol()).isEqualTo(" ");
+        assertThat(buffer.get(2, 0).symbol()).isEqualTo("H");
+        assertThat(buffer.get(7, 0).symbol()).isEqualTo(".");
+        assertThat(buffer.get(8, 0).symbol()).isEqualTo(".");
+        assertThat(buffer.get(9, 0).symbol()).isEqualTo(".");
     }
 }
