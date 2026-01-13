@@ -8,10 +8,15 @@ import dev.tamboui.css.cascade.PseudoClassState;
 import dev.tamboui.toolkit.element.ChildPosition;
 import dev.tamboui.toolkit.element.RenderContext;
 import dev.tamboui.toolkit.element.StyledElement;
+import dev.tamboui.toolkit.event.EventResult;
 import dev.tamboui.layout.Rect;
 import dev.tamboui.style.Color;
 import dev.tamboui.style.Style;
 import dev.tamboui.terminal.Frame;
+import dev.tamboui.tui.bindings.Actions;
+import dev.tamboui.tui.event.KeyEvent;
+import dev.tamboui.tui.event.MouseEvent;
+import dev.tamboui.tui.event.MouseEventKind;
 import dev.tamboui.widgets.block.Block;
 import dev.tamboui.widgets.block.BorderType;
 import dev.tamboui.widgets.block.Borders;
@@ -72,6 +77,10 @@ public final class ListContainer<T> extends StyledElement<ListContainer<T>> {
     private Color scrollbarThumbColor;
     private Color scrollbarTrackColor;
     private Overflow overflow;
+
+    // Cached values from last render for event handling
+    private int lastItemCount;
+    private int lastViewportHeight;
 
     public ListContainer() {
     }
@@ -392,6 +401,7 @@ public final class ListContainer<T> extends StyledElement<ListContainer<T>> {
 
         // Apply CSS positional styles (odd/even, first/last) to each item
         int totalItems = effectiveItems.size();
+        this.lastItemCount = totalItems;
         for (int i = 0; i < totalItems; i++) {
             ChildPosition pos = ChildPosition.of(i, totalItems);
             Style posStyle = context.childStyle("item", pos);
@@ -402,15 +412,16 @@ public final class ListContainer<T> extends StyledElement<ListContainer<T>> {
             }
         }
 
+        // Calculate visible height (area height minus border if present)
+        int visibleHeight = area.height();
+        if (title != null || borderType != null) {
+            visibleHeight -= 2; // Top and bottom border
+        }
+        this.lastViewportHeight = visibleHeight;
+
         // Auto-scroll if enabled
         ListState effectiveState = state != null ? state : new ListState();
         if (state != null) {
-            // Calculate visible height (area height minus border if present)
-            int visibleHeight = area.height();
-            if (title != null || borderType != null) {
-                visibleHeight -= 2; // Top and bottom border
-            }
-
             if (autoScrollToEnd) {
                 // Scroll to end without changing selection
                 state.scrollToEnd(visibleHeight, effectiveItems);
@@ -528,5 +539,133 @@ public final class ListContainer<T> extends StyledElement<ListContainer<T>> {
 
             frame.renderStatefulWidget(scrollbarBuilder.build(), scrollbarArea, scrollbarState);
         }
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    // Event handling for automatic navigation
+    // ═══════════════════════════════════════════════════════════════
+
+    @Override
+    protected boolean needsEventRouting() {
+        // Register for events if focusable (keyboard) or has scrollbar (mouse wheel)
+        return super.needsEventRouting() || showScrollbar || state != null;
+    }
+
+    /**
+     * Handles keyboard events for list navigation.
+     * <p>
+     * Custom key handlers (set via {@link #onKeyEvent}) are called first.
+     * If no custom handler is set or it returns UNHANDLED, automatic navigation
+     * is performed:
+     * <ul>
+     *   <li>Up/Down arrows - move selection by one item</li>
+     *   <li>Page Up/Down - move selection by viewport height</li>
+     *   <li>Home/End - jump to first/last item</li>
+     * </ul>
+     * <p>
+     * Note: The {@code focused} parameter is informational (for visual feedback).
+     * Navigation is handled regardless of focus state - if the event reached
+     * this element (directly or via forwarding from a focused parent), it
+     * should be processed.
+     *
+     * @param event the key event
+     * @param focused whether this element is directly focused (informational)
+     * @return HANDLED if the event was processed, UNHANDLED otherwise
+     */
+    @Override
+    public EventResult handleKeyEvent(KeyEvent event, boolean focused) {
+        // Let custom handler run first if set
+        EventResult result = super.handleKeyEvent(event, focused);
+        if (result.isHandled()) {
+            return result;
+        }
+
+        // Handle navigation if we have a state with items
+        if (state == null || lastItemCount == 0) {
+            return EventResult.UNHANDLED;
+        }
+
+        // Up arrow
+        if (event.matches(Actions.MOVE_UP)) {
+            state.selectPrevious();
+            return EventResult.HANDLED;
+        }
+
+        // Down arrow
+        if (event.matches(Actions.MOVE_DOWN)) {
+            state.selectNext(lastItemCount);
+            return EventResult.HANDLED;
+        }
+
+        // Page up - scroll by viewport height
+        if (event.matches(Actions.PAGE_UP)) {
+            int steps = Math.max(1, lastViewportHeight - 1);
+            for (int i = 0; i < steps; i++) {
+                state.selectPrevious();
+            }
+            return EventResult.HANDLED;
+        }
+
+        // Page down - scroll by viewport height
+        if (event.matches(Actions.PAGE_DOWN)) {
+            int steps = Math.max(1, lastViewportHeight - 1);
+            for (int i = 0; i < steps; i++) {
+                state.selectNext(lastItemCount);
+            }
+            return EventResult.HANDLED;
+        }
+
+        // Home - jump to first item
+        if (event.matches(Actions.HOME)) {
+            state.selectFirst();
+            return EventResult.HANDLED;
+        }
+
+        // End - jump to last item
+        if (event.matches(Actions.END)) {
+            state.selectLast(lastItemCount);
+            return EventResult.HANDLED;
+        }
+
+        return EventResult.UNHANDLED;
+    }
+
+    /**
+     * Handles mouse events for list scrolling.
+     * <p>
+     * Custom mouse handlers (set via {@link #onMouseEvent}) are called first.
+     * If no custom handler is set or it returns UNHANDLED, automatic scrolling
+     * is performed for mouse wheel events.
+     *
+     * @param event the mouse event
+     * @return HANDLED if the event was processed, UNHANDLED otherwise
+     */
+    @Override
+    public EventResult handleMouseEvent(MouseEvent event) {
+        // Let custom handler run first if set
+        EventResult result = super.handleMouseEvent(event);
+        if (result.isHandled()) {
+            return result;
+        }
+
+        // Handle mouse wheel scrolling
+        if (state != null && lastItemCount > 0) {
+            if (event.kind() == MouseEventKind.SCROLL_UP) {
+                // Scroll up by 3 items (standard scroll speed)
+                for (int i = 0; i < 3; i++) {
+                    state.selectPrevious();
+                }
+                return EventResult.HANDLED;
+            }
+            if (event.kind() == MouseEventKind.SCROLL_DOWN) {
+                // Scroll down by 3 items
+                for (int i = 0; i < 3; i++) {
+                    state.selectNext(lastItemCount);
+                }
+                return EventResult.HANDLED;
+            }
+        }
+
+        return EventResult.UNHANDLED;
     }
 }

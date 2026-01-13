@@ -210,27 +210,9 @@ public class DemoSelector extends ToolkitApp {
         var currentIdx = listState.selected();
         var current = currentIdx != null ? currentIdx : 0;
 
-        // Navigation using bindings
-        if (event.matches(Actions.MOVE_UP)) {
-            if (current > 0) {
-                listState.select(current - 1);
-            }
-            return EventResult.HANDLED;
-        }
-        if (event.matches(Actions.MOVE_DOWN)) {
-            if (current < listSize - 1) {
-                listState.select(current + 1);
-            }
-            return EventResult.HANDLED;
-        }
-        if (event.matches(Actions.HOME)) {
-            listState.select(0);
-            return EventResult.HANDLED;
-        }
-        if (event.matches(Actions.END)) {
-            listState.select(listSize - 1);
-            return EventResult.HANDLED;
-        }
+        // Note: Basic navigation (UP/DOWN/HOME/END) is now handled automatically
+        // by ListContainer via ContainerElement forwarding. Only custom behavior
+        // (section jumping, collapse/expand, filtering) needs manual handling.
 
         // PAGE_DOWN: Jump to next section
         if (event.matches(Actions.PAGE_DOWN)) {

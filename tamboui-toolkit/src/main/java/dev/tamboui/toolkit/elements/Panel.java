@@ -5,10 +5,10 @@
 package dev.tamboui.toolkit.elements;
 
 import dev.tamboui.css.cascade.CssStyleResolver;
+import dev.tamboui.toolkit.element.ContainerElement;
 import dev.tamboui.toolkit.element.Element;
 import dev.tamboui.toolkit.element.DefaultRenderContext;
 import dev.tamboui.toolkit.element.RenderContext;
-import dev.tamboui.toolkit.element.StyledElement;
 import dev.tamboui.layout.Constraint;
 import dev.tamboui.layout.Layout;
 import dev.tamboui.layout.Rect;
@@ -36,7 +36,7 @@ import java.util.List;
  * resolved through the underlying {@link Block} widget.
  * Renders children vertically inside the bordered area.
  */
-public final class Panel extends StyledElement<Panel> {
+public final class Panel extends ContainerElement<Panel> {
 
     private String title;
     private String bottomTitle;
@@ -45,7 +45,6 @@ public final class Panel extends StyledElement<Panel> {
     private Color borderColor;
     private Color focusedBorderColor;
     private Padding padding;
-    private final List<Element> children = new ArrayList<>();
     private boolean fitToContent;
 
     public Panel() {
@@ -172,22 +171,6 @@ public final class Panel extends StyledElement<Panel> {
      */
     public Panel padding(Padding padding) {
         this.padding = padding;
-        return this;
-    }
-
-    /**
-     * Adds a child element.
-     */
-    public Panel add(Element child) {
-        this.children.add(child);
-        return this;
-    }
-
-    /**
-     * Adds multiple child elements.
-     */
-    public Panel add(Element... children) {
-        this.children.addAll(Arrays.asList(children));
         return this;
     }
 
@@ -327,4 +310,5 @@ public final class Panel extends StyledElement<Panel> {
             internalContext.registerElement(child, childArea);
         }
     }
+
 }

@@ -242,9 +242,12 @@ public abstract class StyledElement<T extends StyledElement<T>> implements Eleme
 
     /**
      * Returns whether this element needs to be registered with the event router.
+     * <p>
+     * Elements are registered if they are focusable (to receive keyboard events),
+     * draggable, or have explicit event handlers.
      */
-    private boolean needsEventRouting() {
-        return draggable || keyHandler != null || mouseHandler != null;
+    protected boolean needsEventRouting() {
+        return focusable || draggable || keyHandler != null || mouseHandler != null;
     }
 
     /**

@@ -4,10 +4,10 @@
  */
 package dev.tamboui.toolkit.elements;
 
+import dev.tamboui.toolkit.element.ContainerElement;
 import dev.tamboui.toolkit.element.DefaultRenderContext;
 import dev.tamboui.toolkit.element.Element;
 import dev.tamboui.toolkit.element.RenderContext;
-import dev.tamboui.toolkit.element.StyledElement;
 import dev.tamboui.layout.Constraint;
 import dev.tamboui.layout.Layout;
 import dev.tamboui.layout.Rect;
@@ -21,9 +21,8 @@ import java.util.List;
 /**
  * A vertical layout container that arranges children in a column.
  */
-public final class Column extends StyledElement<Column> {
+public final class Column extends ContainerElement<Column> {
 
-    private final List<Element> children = new ArrayList<>();
     private int spacing = 0;
 
     public Column() {
@@ -38,22 +37,6 @@ public final class Column extends StyledElement<Column> {
      */
     public Column spacing(int spacing) {
         this.spacing = Math.max(0, spacing);
-        return this;
-    }
-
-    /**
-     * Adds a child element.
-     */
-    public Column add(Element child) {
-        this.children.add(child);
-        return this;
-    }
-
-    /**
-     * Adds multiple child elements.
-     */
-    public Column add(Element... children) {
-        this.children.addAll(Arrays.asList(children));
         return this;
     }
 

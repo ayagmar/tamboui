@@ -4,9 +4,9 @@
  */
 package dev.tamboui.toolkit.elements;
 
+import dev.tamboui.toolkit.element.ContainerElement;
 import dev.tamboui.toolkit.element.Element;
 import dev.tamboui.toolkit.element.RenderContext;
-import dev.tamboui.toolkit.element.StyledElement;
 import dev.tamboui.toolkit.event.EventResult;
 import dev.tamboui.layout.Constraint;
 import dev.tamboui.layout.Layout;
@@ -45,12 +45,11 @@ import java.util.List;
  * ).rounded().borderColor(Color.YELLOW)
  * }</pre>
  */
-public final class DialogElement extends StyledElement<DialogElement> {
+public final class DialogElement extends ContainerElement<DialogElement> {
 
     private String title;
     private BorderType borderType = BorderType.PLAIN;
     private Color borderColor;
-    private final List<Element> children = new ArrayList<>();
     private Integer fixedWidth;
     private Integer fixedHeight;
     private int minWidth = 20;
@@ -143,22 +142,6 @@ public final class DialogElement extends StyledElement<DialogElement> {
     }
 
     /**
-     * Adds a child element.
-     */
-    public DialogElement add(Element child) {
-        this.children.add(child);
-        return this;
-    }
-
-    /**
-     * Adds multiple child elements.
-     */
-    public DialogElement add(Element... children) {
-        this.children.addAll(Arrays.asList(children));
-        return this;
-    }
-
-    /**
      * Sets the callback to run when the dialog is confirmed (Enter key).
      *
      * @param callback the callback to run on confirmation
@@ -183,16 +166,16 @@ public final class DialogElement extends StyledElement<DialogElement> {
     /**
      * Handles key events for the dialog.
      * <p>
-     * Routes events to children first (e.g., TextInputElement handles text input).
+     * Routes events to children first (via ContainerElement).
      * Then handles Enter for confirm and Escape for cancel.
+     * Being modal, the dialog consumes all key events.
      */
     @Override
     public EventResult handleKeyEvent(KeyEvent event, boolean focused) {
-        // Route to children first
-        for (Element child : children) {
-            if (child.handleKeyEvent(event, true) == EventResult.HANDLED) {
-                return EventResult.HANDLED;
-            }
+        // Route to children first (via ContainerElement)
+        EventResult result = super.handleKeyEvent(event, focused);
+        if (result.isHandled()) {
+            return result;
         }
 
         // Handle Escape to cancel

@@ -184,13 +184,17 @@ public final class TextAreaElement extends StyledElement<TextAreaElement> {
 
     /**
      * Handles a key event for text area input.
+     * <p>
+     * Note: The {@code focused} parameter is informational only.
+     * If the event reached this element, it should be processed.
      */
     @Override
     public EventResult handleKeyEvent(KeyEvent event, boolean focused) {
+        // Text input requires focus - only handle events when focused
+        // to avoid multiple text areas in the same container all receiving input
         if (!focused) {
             return EventResult.UNHANDLED;
         }
-
         boolean handled = handleTextAreaKey(state, event);
         if (handled && changeListener != null) {
             changeListener.onTextChange(state.text());

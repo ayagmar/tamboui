@@ -185,6 +185,13 @@ public class FileManagerView implements Element {
     }
 
     private Element browserRow(RenderContext context) {
+        // Sync focus with active side - when Tab changes focus, update the controller
+        if (context.isFocused("left") && !manager.isActive(FileManagerController.Side.LEFT)) {
+            manager.setActiveSide(FileManagerController.Side.LEFT);
+        } else if (context.isFocused("right") && !manager.isActive(FileManagerController.Side.RIGHT)) {
+            manager.setActiveSide(FileManagerController.Side.RIGHT);
+        }
+
         boolean leftActive = manager.isActive(FileManagerController.Side.LEFT);
         boolean rightActive = manager.isActive(FileManagerController.Side.RIGHT);
 
@@ -213,6 +220,7 @@ public class FileManagerView implements Element {
 
         return panel(browser.currentDirectory().toString(), fileListWrapper)
                 .id(id)
+                .focusable()
                 .rounded()
                 .titleEllipsisStart()
                 .borderColor(active ? Color.CYAN : Color.DARK_GRAY)

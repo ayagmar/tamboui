@@ -97,11 +97,7 @@ public class FileManagerKeyHandler {
             return EventResult.HANDLED;
         }
 
-        // Switch between panels
-        if (event.isFocusNext() || event.isFocusPrevious()) {
-            manager.switchSide();
-            return EventResult.HANDLED;
-        }
+        // Switch between panels (Tab is handled by focus system, left/right for quick switch)
         if (event.isLeft()) {
             manager.setActiveSide(FileManagerController.Side.LEFT);
             return EventResult.HANDLED;

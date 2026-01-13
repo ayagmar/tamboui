@@ -345,7 +345,7 @@ public class ScrollbarDemo {
         List<Rect> rows = Layout.vertical()
             .constraints(
                 Constraint.length(3),  // Description
-                Constraint.length(3),  // Horizontal scrollbar example
+                Constraint.length(5),  // Horizontal scrollbar example (needs room for block borders + scrollbar)
                 Constraint.fill(),     // Vertical scrollbar showcase
                 Constraint.length(1)   // Spacer
             )
@@ -393,6 +393,9 @@ public class ScrollbarDemo {
             .text(Text.from(content))
             .build();
         frame.renderWidget(para, contentArea);
+
+        // Update viewport content length based on actual scrollbar width
+        horizontalScrollState.viewportContentLength(scrollbarArea.width());
 
         // Horizontal scrollbar
         Scrollbar scrollbar = Scrollbar.builder()
