@@ -31,14 +31,14 @@ TextInputElement {
 }
 
 /* List items - no highlight needed for conversation */
-ListContainer {
+RichList {
     border: none;
 }
 
-ListContainer-item {
+RichList-item {
     background-color: transparent;
 }
 
-ListContainer-item:selected {
+RichList-item:selected {
     background-color: transparent;
 }

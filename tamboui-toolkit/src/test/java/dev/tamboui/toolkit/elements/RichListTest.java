@@ -9,7 +9,6 @@ import dev.tamboui.toolkit.element.RenderContext;
 import dev.tamboui.layout.Rect;
 import dev.tamboui.style.Color;
 import dev.tamboui.terminal.Frame;
-import dev.tamboui.widgets.list.ListState;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -19,64 +18,60 @@ import static dev.tamboui.toolkit.Toolkit.*;
 import static org.assertj.core.api.Assertions.*;
 
 /**
- * Tests for ListContainer.
+ * Tests for RichList.
  */
-class ListContainerTest {
+class RichListTest {
 
     @Test
-    @DisplayName("ListContainer fluent API chains correctly")
+    @DisplayName("RichList fluent API chains correctly")
     void fluentApiChaining() {
-        ListState state = new ListState();
-        ListContainer<?> element = list("Item 1", "Item 2", "Item 3")
-            .state(state)
+        RichList<?> element = list("Item 1", "Item 2", "Item 3")
             .highlightSymbol("> ")
             .highlightColor(Color.YELLOW)
             .title("Menu")
             .rounded()
             .borderColor(Color.CYAN);
 
-        assertThat(element).isInstanceOf(ListContainer.class);
+        assertThat(element).isInstanceOf(RichList.class);
     }
 
     @Test
     @DisplayName("list() creates empty element")
     void emptyList() {
-        ListContainer<?> element = list();
+        RichList<?> element = list();
         assertThat(element).isNotNull();
     }
 
     @Test
     @DisplayName("list(String...) creates element with items")
     void listWithItems() {
-        ListContainer<?> element = list("A", "B", "C");
+        RichList<?> element = list("A", "B", "C");
         assertThat(element).isNotNull();
     }
 
     @Test
     @DisplayName("list(List<String>) creates element with items")
     void listWithItemsList() {
-        ListContainer<?> element = list(Arrays.asList("X", "Y", "Z"));
+        RichList<?> element = list(Arrays.asList("X", "Y", "Z"));
         assertThat(element).isNotNull();
     }
 
     @Test
     @DisplayName("items() method replaces items")
     void itemsMethod() {
-        ListContainer<?> element = list()
+        RichList<?> element = list()
             .items("New 1", "New 2");
         assertThat(element).isNotNull();
     }
 
     @Test
-    @DisplayName("ListContainer renders items to buffer")
+    @DisplayName("RichList renders items to buffer")
     void rendersToBuffer() {
         Rect area = new Rect(0, 0, 20, 5);
         Buffer buffer = Buffer.empty(area);
         Frame frame = Frame.forTesting(buffer);
-        ListState state = new ListState();
 
         list("Item 1", "Item 2", "Item 3")
-            .state(state)
             .title("List")
             .rounded()
             .render(frame, area, RenderContext.empty());
@@ -86,16 +81,14 @@ class ListContainerTest {
     }
 
     @Test
-    @DisplayName("ListContainer with selection highlights item")
+    @DisplayName("RichList with selection highlights item")
     void withSelection() {
         Rect area = new Rect(0, 0, 20, 5);
         Buffer buffer = Buffer.empty(area);
         Frame frame = Frame.forTesting(buffer);
-        ListState state = new ListState();
-        state.select(1);
 
         list("Item 1", "Item 2", "Item 3")
-            .state(state)
+            .selected(1)
             .highlightColor(Color.YELLOW)
             .render(frame, area, RenderContext.empty());
 
@@ -111,20 +104,19 @@ class ListContainerTest {
         Rect emptyArea = new Rect(0, 0, 0, 0);
         Buffer buffer = Buffer.empty(new Rect(0, 0, 10, 5));
         Frame frame = Frame.forTesting(buffer);
-        ListState state = new ListState();
 
         // Should not throw
-        list("A", "B").state(state).render(frame, emptyArea, RenderContext.empty());
+        list("A", "B").render(frame, emptyArea, RenderContext.empty());
     }
 
     @Test
-    @DisplayName("ListContainer without explicit state creates internal state")
+    @DisplayName("RichList manages its own internal state")
     void internalState() {
         Rect area = new Rect(0, 0, 20, 5);
         Buffer buffer = Buffer.empty(area);
         Frame frame = Frame.forTesting(buffer);
 
-        // Should not throw even without state
+        // Should not throw even without explicit state
         list("Item 1", "Item 2")
             .render(frame, area, RenderContext.empty());
     }
@@ -132,7 +124,7 @@ class ListContainerTest {
     @Test
     @DisplayName("highlightSymbol sets the indicator")
     void highlightSymbol() {
-        ListContainer<?> element = list("A", "B")
+        RichList<?> element = list("A", "B")
             .highlightSymbol("→ ");
         assertThat(element).isNotNull();
     }
@@ -140,8 +132,34 @@ class ListContainerTest {
     @Test
     @DisplayName("highlightStyle sets the style")
     void highlightStyle() {
-        ListContainer<?> element = list("A", "B")
+        RichList<?> element = list("A", "B")
             .highlightColor(Color.GREEN);
         assertThat(element).isNotNull();
+    }
+
+    @Test
+    @DisplayName("selected() returns current selection index")
+    void selectedReturnsIndex() {
+        RichList<?> element = list("A", "B", "C")
+            .selected(2);
+        assertThat(element.selected()).isEqualTo(2);
+    }
+
+    @Test
+    @DisplayName("selectPrevious decrements selection")
+    void selectPreviousDecrements() {
+        RichList<?> element = list("A", "B", "C")
+            .selected(2);
+        element.selectPrevious();
+        assertThat(element.selected()).isEqualTo(1);
+    }
+
+    @Test
+    @DisplayName("selectNext increments selection")
+    void selectNextIncrements() {
+        RichList<?> element = list("A", "B", "C")
+            .selected(0);
+        element.selectNext(3);
+        assertThat(element.selected()).isEqualTo(1);
     }
 }

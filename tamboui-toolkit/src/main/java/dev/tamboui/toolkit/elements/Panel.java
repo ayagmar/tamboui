@@ -7,7 +7,6 @@ package dev.tamboui.toolkit.elements;
 import dev.tamboui.css.cascade.CssStyleResolver;
 import dev.tamboui.toolkit.element.ContainerElement;
 import dev.tamboui.toolkit.element.Element;
-import dev.tamboui.toolkit.element.DefaultRenderContext;
 import dev.tamboui.toolkit.element.RenderContext;
 import dev.tamboui.layout.Constraint;
 import dev.tamboui.layout.Layout;
@@ -301,13 +300,11 @@ public final class Panel extends ContainerElement<Panel> {
                 .constraints(constraints.toArray(new Constraint[0]))
                 .split(innerArea);
 
-        // Render children and register them for events
-        DefaultRenderContext internalContext = (DefaultRenderContext) context;
+        // Render children (they self-register for events in their own render() if needed)
         for (int i = 0; i < children.size() && i < areas.size(); i++) {
             Element child = children.get(i);
             Rect childArea = areas.get(i);
             child.render(frame, childArea, context);
-            internalContext.registerElement(child, childArea);
         }
     }
 
