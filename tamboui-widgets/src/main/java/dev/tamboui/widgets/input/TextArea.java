@@ -244,10 +244,9 @@ public final class TextArea implements StatefulWidget<TextAreaState> {
             int cursorX = textArea.left() + relativeCol;
             int cursorY = textArea.top() + relativeRow;
 
-            // Set cursor style at cursor position
+            // Render cursor as styled cell in buffer (avoids terminal cursor blink issues)
             Cell currentCell = buffer.get(cursorX, cursorY);
             buffer.set(cursorX, cursorY, currentCell.patchStyle(cursorStyle));
-            frame.setCursorPosition(new Position(cursorX, cursorY));
         }
     }
 

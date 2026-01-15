@@ -155,11 +155,10 @@ public final class TextInput implements StatefulWidget<TextInputState> {
         int cursorX = inputArea.left() + (cursorPos - scrollOffset);
         int cursorY = inputArea.top();
 
-        // Set cursor style at cursor position
+        // Render cursor as styled cell in buffer (avoids terminal cursor blink issues)
         if (inputArea.contains(cursorX, cursorY)) {
             Cell currentCell = buffer.get(cursorX, cursorY);
             buffer.set(cursorX, cursorY, currentCell.patchStyle(cursorStyle));
-            frame.setCursorPosition(new Position(cursorX, cursorY));
         }
     }
 
