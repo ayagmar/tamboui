@@ -90,7 +90,7 @@ public interface RenderContext {
      * Resolves CSS style for a child element.
      * <p>
      * The child type is derived from the current element's type plus the child name
-     * (e.g., for a ListContainer rendering, "item" becomes "ListContainer-item").
+     * (e.g., for a ListElement rendering, "item" becomes "ListElement-item").
      * <p>
      * Example usage:
      * <pre>{@code
@@ -100,9 +100,9 @@ public interface RenderContext {
      * <p>
      * This enables CSS selectors like:
      * <pre>{@code
-     * ListContainer-item { color: white; }
-     * ListContainer-item:selected { color: cyan; text-style: bold; }
-     * #nav ListContainer ListContainer-item:selected { color: green; }
+     * ListElement-item { color: white; }
+     * ListElement-item:selected { color: cyan; text-style: bold; }
+     * #nav ListElement ListElement-item:selected { color: green; }
      * }</pre>
      *
      * @param childName the child name (e.g., "item", "header", "tab")

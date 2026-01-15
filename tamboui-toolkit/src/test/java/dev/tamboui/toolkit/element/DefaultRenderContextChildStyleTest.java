@@ -35,13 +35,13 @@ class DefaultRenderContextChildStyleTest {
     @DisplayName("childStyle with ChildPosition resolves nth-child(odd)")
     void childStyleResolvesNthChildOdd() {
         // Given CSS with nth-child selectors
-        String css = "ListContainer-item:nth-child(odd) { background: red; }\n" +
-                     "ListContainer-item:nth-child(even) { background: blue; }";
+        String css = "ListElement-item:nth-child(odd) { background: red; }\n" +
+                     "ListElement-item:nth-child(even) { background: blue; }";
         styleEngine.addStylesheet("test", css);
         styleEngine.setActiveStylesheet("test");
 
         // And a parent element on the stack
-        Styleable parent = createStyleable("ListContainer");
+        Styleable parent = createStyleable("ListElement");
         context.withElement(parent, Style.EMPTY, () -> {
             // When resolving child style for first item (index 0, nthChild = 1 = odd)
             ChildPosition pos = ChildPosition.of(0, 5);
@@ -57,13 +57,13 @@ class DefaultRenderContextChildStyleTest {
     @DisplayName("childStyle with ChildPosition resolves nth-child(even)")
     void childStyleResolvesNthChildEven() {
         // Given CSS with nth-child selectors
-        String css = "ListContainer-item:nth-child(odd) { background: red; }\n" +
-                     "ListContainer-item:nth-child(even) { background: blue; }";
+        String css = "ListElement-item:nth-child(odd) { background: red; }\n" +
+                     "ListElement-item:nth-child(even) { background: blue; }";
         styleEngine.addStylesheet("test", css);
         styleEngine.setActiveStylesheet("test");
 
         // And a parent element on the stack
-        Styleable parent = createStyleable("ListContainer");
+        Styleable parent = createStyleable("ListElement");
         context.withElement(parent, Style.EMPTY, () -> {
             // When resolving child style for second item (index 1, nthChild = 2 = even)
             ChildPosition pos = ChildPosition.of(1, 5);
@@ -79,7 +79,7 @@ class DefaultRenderContextChildStyleTest {
     @DisplayName("childStyle returns current style when element stack is empty")
     void childStyleReturnsCurrentStyleWhenStackEmpty() {
         // Given CSS with nth-child selectors
-        String css = "ListContainer-item:nth-child(odd) { background: red; }";
+        String css = "ListElement-item:nth-child(odd) { background: red; }";
         styleEngine.addStylesheet("test", css);
         styleEngine.setActiveStylesheet("test");
 
@@ -95,13 +95,13 @@ class DefaultRenderContextChildStyleTest {
     @DisplayName("childStyle with hex colors parses correctly")
     void childStyleParsesHexColors() {
         // Given CSS with hex color values (like the real theme)
-        String css = "ListContainer-item:nth-child(odd) { background: #ff0000; }\n" +
-                     "ListContainer-item:nth-child(even) { background: #0000ff; }";
+        String css = "ListElement-item:nth-child(odd) { background: #ff0000; }\n" +
+                     "ListElement-item:nth-child(even) { background: #0000ff; }";
         styleEngine.addStylesheet("test", css);
         styleEngine.setActiveStylesheet("test");
 
         // And a parent element on the stack
-        Styleable parent = createStyleable("ListContainer");
+        Styleable parent = createStyleable("ListElement");
         context.withElement(parent, Style.EMPTY, () -> {
             // When resolving for odd position
             ChildPosition oddPos = ChildPosition.of(0, 5);
@@ -121,6 +121,38 @@ class DefaultRenderContextChildStyleTest {
             assertThat(evenStyle.bg()).isPresent();
             Color expectedBlue = Color.rgb(0, 0, 255);
             assertThat(evenStyle.bg().get()).isEqualTo(expectedBlue);
+        });
+    }
+
+    @Test
+    @DisplayName("childStyle with universal selector override")
+    void childStyleWithUniversalSelectorOverride() {
+        // Given CSS with universal selector AND specific nth-child rules (like real theme)
+        String css = "* { background: black; color: white; }\n" +
+                     "ListElement-item { color: white; }\n" +
+                     "ListElement-item:nth-child(odd) { background: #992299; }\n" +
+                     "ListElement-item:nth-child(even) { background: #229922; }";
+        styleEngine.addStylesheet("test", css);
+        styleEngine.setActiveStylesheet("test");
+
+        // And a parent element on the stack
+        Styleable parent = createStyleable("ListElement");
+        context.withElement(parent, Style.EMPTY, () -> {
+            // When resolving for odd position (index 0 -> nthChild 1)
+            ChildPosition oddPos = ChildPosition.of(0, 5);
+            Style oddStyle = context.childStyle("item", oddPos);
+
+            // Then specific background should override universal selector
+            assertThat(oddStyle.bg()).isPresent();
+            assertThat(oddStyle.bg().get()).isEqualTo(Color.rgb(0x99, 0x22, 0x99));
+
+            // When resolving for even position (index 1 -> nthChild 2)
+            ChildPosition evenPos = ChildPosition.of(1, 5);
+            Style evenStyle = context.childStyle("item", evenPos);
+
+            // Then specific background should override universal selector
+            assertThat(evenStyle.bg()).isPresent();
+            assertThat(evenStyle.bg().get()).isEqualTo(Color.rgb(0x22, 0x99, 0x22));
         });
     }
 

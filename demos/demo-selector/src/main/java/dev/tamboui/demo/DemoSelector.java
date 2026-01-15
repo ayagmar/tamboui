@@ -13,7 +13,7 @@ import dev.tamboui.toolkit.event.EventResult;
 import dev.tamboui.tui.bindings.Actions;
 import dev.tamboui.tui.event.KeyCode;
 import dev.tamboui.tui.event.KeyEvent;
-import dev.tamboui.widgets.list.ListState;
+import dev.tamboui.toolkit.elements.ListElement;
 import dev.tamboui.widgets.text.Overflow;
 import org.gradle.tooling.GradleConnector;
 
@@ -39,7 +39,7 @@ public class DemoSelector extends ToolkitApp {
 
     private static final String SELF_NAME = "demo-selector";
 
-    private final ListState listState = new ListState();
+    private final ListElement<?> demoList;
     private final Map<String, List<DemoInfo>> demosByModule = new TreeMap<>();
     private final Set<String> expandedModules = new HashSet<>();
     private String filter = "";
@@ -47,6 +47,15 @@ public class DemoSelector extends ToolkitApp {
 
     // Display list state
     private final List<DisplayItem> displayItems = new ArrayList<>();
+
+    public DemoSelector() {
+        demoList = list()
+            .highlightSymbol("> ")
+            .highlightColor(Color.YELLOW)
+            .autoScroll()
+            .scrollbar()
+            .scrollbarThumbColor(Color.CYAN);
+    }
 
     public static void main(String[] args) throws Exception {
         var selector = new DemoSelector();
@@ -67,7 +76,7 @@ public class DemoSelector extends ToolkitApp {
         expandedModules.addAll(demosByModule.keySet());
         rebuildDisplayList();
         if (!displayItems.isEmpty()) {
-            listState.select(findFirstSelectable());
+            demoList.selected(findFirstSelectable());
         }
     }
 
@@ -112,8 +121,8 @@ public class DemoSelector extends ToolkitApp {
      * Returns the currently selected item.
      */
     private DisplayItem selectedItem() {
-        var idx = listState.selected();
-        if (idx != null && idx >= 0 && idx < displayItems.size()) {
+        var idx = demoList.selected();
+        if (idx >= 0 && idx < displayItems.size()) {
             return displayItems.get(idx);
         }
         return null;
@@ -174,13 +183,7 @@ public class DemoSelector extends ToolkitApp {
                 row(
                         // Demo list
                         panel(
-                                list(lines)
-                                        .state(listState)
-                                        .highlightSymbol("> ")
-                                        .highlightColor(Color.YELLOW)
-                                        .autoScroll()
-                                        .scrollbar()
-                                        .scrollbarThumbColor(Color.CYAN)
+                                demoList.items(lines)
                         )
                                 .title(title)
                                 .rounded()
@@ -207,18 +210,17 @@ public class DemoSelector extends ToolkitApp {
 
     private EventResult handleKey(KeyEvent event) {
         var listSize = displayItems.size();
-        var currentIdx = listState.selected();
-        var current = currentIdx != null ? currentIdx : 0;
+        var current = demoList.selected();
 
         // Note: Basic navigation (UP/DOWN/HOME/END) is now handled automatically
-        // by ListContainer via ContainerElement forwarding. Only custom behavior
+        // by ListElement via ContainerElement forwarding. Only custom behavior
         // (section jumping, collapse/expand, filtering) needs manual handling.
 
         // PAGE_DOWN: Jump to next section
         if (event.matches(Actions.PAGE_DOWN)) {
             for (int i = current + 1; i < listSize; i++) {
                 if (displayItems.get(i).demo() == null) {
-                    listState.select(i);
+                    demoList.selected(i);
                     break;
                 }
             }
@@ -229,7 +231,7 @@ public class DemoSelector extends ToolkitApp {
         if (event.matches(Actions.PAGE_UP)) {
             for (int i = current - 1; i >= 0; i--) {
                 if (displayItems.get(i).demo() == null) {
-                    listState.select(i);
+                    demoList.selected(i);
                     break;
                 }
             }
@@ -249,7 +251,7 @@ public class DemoSelector extends ToolkitApp {
                     // On demo - go to parent module header
                     for (var i = current - 1; i >= 0; i--) {
                         if (displayItems.get(i).demo() == null) {
-                            listState.select(i);
+                            demoList.selected(i);
                             break;
                         }
                     }
@@ -267,7 +269,7 @@ public class DemoSelector extends ToolkitApp {
                     toggleModule(selected.module());
                 } else if (current + 1 < listSize && displayItems.get(current + 1).demo() != null) {
                     // Already expanded - go to first child
-                    listState.select(current + 1);
+                    demoList.selected(current + 1);
                 }
             }
             return EventResult.HANDLED;
@@ -293,7 +295,7 @@ public class DemoSelector extends ToolkitApp {
         if (event.matches(Actions.CANCEL) && !filter.isEmpty()) {
             filter = "";
             rebuildDisplayList();
-            listState.select(findFirstSelectable());
+            demoList.selected(findFirstSelectable());
             return EventResult.HANDLED;
         }
 
@@ -301,7 +303,7 @@ public class DemoSelector extends ToolkitApp {
         if (event.matches(Actions.DELETE_BACKWARD) && !filter.isEmpty()) {
             filter = filter.substring(0, filter.length() - 1);
             rebuildDisplayList();
-            listState.select(findFirstSelectable());
+            demoList.selected(findFirstSelectable());
             return EventResult.HANDLED;
         }
 
@@ -311,7 +313,7 @@ public class DemoSelector extends ToolkitApp {
             if (Character.isLetterOrDigit(c) || c == '-' || c == '_') {
                 filter += c;
                 rebuildDisplayList();
-                listState.select(findFirstSelectable());
+                demoList.selected(findFirstSelectable());
                 return EventResult.HANDLED;
             }
         }
@@ -339,12 +341,12 @@ public class DemoSelector extends ToolkitApp {
             for (var i = 0; i < displayItems.size(); i++) {
                 var item = displayItems.get(i);
                 if (item.demo() == null && item.module().equals(currentModule)) {
-                    listState.select(i);
+                    demoList.selected(i);
                     return;
                 }
             }
         }
-        listState.select(findFirstSelectable());
+        demoList.selected(findFirstSelectable());
     }
 
     private int findFirstSelectable() {

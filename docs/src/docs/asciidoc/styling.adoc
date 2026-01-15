@@ -128,11 +128,11 @@ Button:hover {
     text-style: bold;
 }
 
-ListContainer-item:selected {
+ListElement-item:selected {
     background: blue;
 }
 
-ListContainer-item:nth-child(even) {
+ListElement-item:nth-child(even) {
     background: #1a1a1a;
 }
 ----

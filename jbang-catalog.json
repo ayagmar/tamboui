@@ -16,6 +16,9 @@
     "inline-progress-demo": {
       "script-ref": "demos/inline-progress-demo/src/main/java/dev/tamboui/demo/InlineProgressDemo.java"
     },
+    "listelement-demo": {
+      "script-ref": "demos/listelement-demo/src/main/java/dev/tamboui/demo/ListElementDemo.java"
+    },
     "modular-demo": {
       "script-ref": "demos/modular-demo/src/main/java/dev/tamboui/demo/modular/ModularDemo.java"
     },

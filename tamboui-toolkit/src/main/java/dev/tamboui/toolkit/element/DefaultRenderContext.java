@@ -29,8 +29,15 @@ import java.util.Set;
 /**
  * Default implementation of RenderContext with internal framework methods.
  * <p>
- * This class is used internally by the toolkit. User code should only
- * interact with the {@link RenderContext} interface.
+ * <strong>INTERNAL USE ONLY</strong> - This class is used internally by the toolkit framework.
+ * User code and element implementations should only interact with the {@link RenderContext} interface.
+ * <p>
+ * <strong>CODE SMELL WARNING:</strong> If you find yourself casting {@code RenderContext} to
+ * {@code DefaultRenderContext} in your code, this is a design problem. The only legitimate
+ * user of this class's internal methods is {@link StyledElement#render}.
+ * <p>
+ * Methods like {@link #withElement}, {@link #registerElement}, and stack manipulation
+ * are framework internals that should never be called directly from element implementations.
  */
 public final class DefaultRenderContext implements RenderContext {
 
@@ -302,30 +309,6 @@ public final class DefaultRenderContext implements RenderContext {
         eventRouter.registerElement(element, area);
         if (element.isFocusable() && element.id() != null) {
             focusManager.registerFocusable(element.id(), area);
-        }
-    }
-
-    /**
-     * Executes an action with a style pushed onto the style stack.
-     * <p>
-     * The style is merged with the current style (current style provides base,
-     * new style overrides). After the action completes, the style is popped.
-     * <p>
-     * Internal use only - called by StyledElement.render().
-     *
-     * @param style the style to push
-     * @param action the action to execute
-     * @deprecated Use {@link #withElement(Styleable, Style, Runnable)} instead
-     */
-    @Deprecated
-    public void withStyle(Style style, Runnable action) {
-        // Merge new style onto current style
-        Style merged = currentStyle().patch(style);
-        styleStack.push(merged);
-        try {
-            action.run();
-        } finally {
-            styleStack.pop();
         }
     }
 

@@ -12,7 +12,7 @@ import dev.tamboui.toolkit.elements.ChartElement;
 import dev.tamboui.toolkit.elements.Column;
 import dev.tamboui.toolkit.elements.GaugeElement;
 import dev.tamboui.toolkit.elements.LineGaugeElement;
-import dev.tamboui.toolkit.elements.ListContainer;
+import dev.tamboui.toolkit.elements.ListElement;
 import dev.tamboui.toolkit.elements.Panel;
 import dev.tamboui.toolkit.elements.Row;
 import dev.tamboui.toolkit.elements.ScrollbarElement;
@@ -266,24 +266,24 @@ class ToolkitTest {
     class ListFactoryTests {
 
         @Test
-        @DisplayName("list() creates empty ListContainer")
+        @DisplayName("list() creates empty ListElement")
         void emptyList() {
-            ListContainer<?> element = list();
-            assertThat(element).isInstanceOf(ListContainer.class);
+            ListElement<?> element = list();
+            assertThat(element).isInstanceOf(ListElement.class);
         }
 
         @Test
-        @DisplayName("list(String...) creates ListContainer with items")
+        @DisplayName("list(String...) creates ListElement with items")
         void listWithItems() {
-            ListContainer<?> element = list("Item 1", "Item 2", "Item 3");
-            assertThat(element).isInstanceOf(ListContainer.class);
+            ListElement<?> element = list("Item 1", "Item 2", "Item 3");
+            assertThat(element).isInstanceOf(ListElement.class);
         }
 
         @Test
-        @DisplayName("list(List<String>) creates ListContainer with items")
+        @DisplayName("list(List<String>) creates ListElement with items")
         void listWithItemsList() {
-            ListContainer<?> element = list(Arrays.asList("A", "B", "C"));
-            assertThat(element).isInstanceOf(ListContainer.class);
+            ListElement<?> element = list(Arrays.asList("A", "B", "C"));
+            assertThat(element).isInstanceOf(ListElement.class);
         }
     }
 

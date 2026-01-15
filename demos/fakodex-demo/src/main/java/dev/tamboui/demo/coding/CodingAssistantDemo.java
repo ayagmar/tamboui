@@ -12,18 +12,15 @@ import dev.tamboui.css.engine.StyleEngine;
 import dev.tamboui.layout.Constraint;
 import dev.tamboui.style.Color;
 import dev.tamboui.style.Style;
-import dev.tamboui.text.Line;
-import dev.tamboui.text.Span;
 import dev.tamboui.toolkit.app.ToolkitRunner;
 import dev.tamboui.toolkit.element.Element;
+import dev.tamboui.toolkit.element.StyledElement;
 import dev.tamboui.toolkit.event.EventResult;
 import dev.tamboui.tui.TuiConfig;
 import dev.tamboui.tui.bindings.Actions;
 import dev.tamboui.tui.event.KeyCode;
 import dev.tamboui.tui.event.KeyEvent;
 import dev.tamboui.widgets.input.TextInputState;
-import dev.tamboui.widgets.list.ListItem;
-import dev.tamboui.widgets.list.ListState;
 import dev.tamboui.widgets.wavetext.WaveTextState;
 
 import java.io.IOException;
@@ -75,7 +72,6 @@ public class CodingAssistantDemo {
     // Conversation lines for display
     private final List<StyledLine> lines = new ArrayList<>();
     private final TextInputState inputState = new TextInputState();
-    private final ListState listState = new ListState();
     private final Random random = new Random();
 
     private long tickCount = 0;
@@ -98,13 +94,13 @@ public class CodingAssistantDemo {
     /**
      * A styled line with text and color.
      */
-    private record StyledLine(String text, Color color, boolean bold) {
-        ListItem toListItem() {
+    private record StyledLine(String content, Color color, boolean bold) {
+        StyledElement<?> toElement() {
             var style = Style.EMPTY.fg(color);
             if (bold) {
                 style = style.bold();
             }
-            return ListItem.from(Line.from(Span.styled(text, style)));
+            return text(content).style(style);
         }
 
         static StyledLine of(String text) {
@@ -279,8 +275,7 @@ public class CodingAssistantDemo {
         // Conversation area
         columnChildren.add(
                 list()
-                        .data(lines, StyledLine::toListItem)
-                        .state(listState)
+                        .data(lines, StyledLine::toElement)
                         .displayOnly()
                         .scrollToEnd()
                         .constraint(Constraint.fill())

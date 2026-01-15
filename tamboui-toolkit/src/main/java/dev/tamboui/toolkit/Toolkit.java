@@ -14,7 +14,7 @@ import dev.tamboui.toolkit.elements.DialogElement;
 import dev.tamboui.toolkit.elements.GaugeElement;
 import dev.tamboui.toolkit.elements.LazyElement;
 import dev.tamboui.toolkit.elements.LineGaugeElement;
-import dev.tamboui.toolkit.elements.ListContainer;
+import dev.tamboui.toolkit.elements.ListElement;
 import dev.tamboui.toolkit.elements.Panel;
 import dev.tamboui.toolkit.elements.Row;
 import dev.tamboui.toolkit.elements.ScrollbarElement;
@@ -28,11 +28,10 @@ import dev.tamboui.toolkit.elements.TextInputElement;
 import dev.tamboui.toolkit.elements.WaveTextElement;
 import dev.tamboui.layout.Constraint;
 import dev.tamboui.style.Color;
+import dev.tamboui.toolkit.element.StyledElement;
 import dev.tamboui.widgets.input.TextAreaState;
 import dev.tamboui.widgets.input.TextInputState;
-import dev.tamboui.widgets.list.ListItem;
 import dev.tamboui.widgets.scrollbar.ScrollbarState;
-import dev.tamboui.tui.event.KeyCode;
 import dev.tamboui.tui.event.KeyEvent;
 
 import java.time.LocalDate;
@@ -498,8 +497,8 @@ public final class Toolkit {
      * @param items the list items
      * @return a new list element
      */
-    public static ListContainer<?> list(String... items) {
-        return new ListContainer<>(items);
+    public static ListElement<?> list(String... items) {
+        return new ListElement<>(items);
     }
 
     /**
@@ -508,8 +507,8 @@ public final class Toolkit {
      * @param items the list items
      * @return a new list container
      */
-    public static ListContainer<?> list(List<String> items) {
-        return new ListContainer<>(items);
+    public static ListElement<?> list(List<String> items) {
+        return new ListElement<>(items);
     }
 
     /**
@@ -517,45 +516,26 @@ public final class Toolkit {
      *
      * @return a new empty list container
      */
-    public static ListContainer<?> list() {
-        return new ListContainer<>();
+    public static ListElement<?> list() {
+        return new ListElement<>();
     }
 
     /**
-     * Creates a list with pre-built ListItem objects.
+     * Creates a list with styled element items.
      * <p>
-     * This allows using styled items directly:
+     * This allows using styled elements directly:
      * <pre>{@code
      * list(
-     *     ListItem.from(Line.from(Span.styled("Hello", Style.EMPTY.green()))),
-     *     ListItem.from(Line.from(Span.styled("World", Style.EMPTY.cyan())))
+     *     text("Hello").green(),
+     *     text("World").cyan()
      * )
      * }</pre>
      *
-     * @param items the list items
+     * @param elements the list items as styled elements
      * @return a new list container
      */
-    public static ListContainer<?> list(ListItem... items) {
-        return new ListContainer<>(items);
-    }
-
-    /**
-     * Creates a list with a collection of pre-built ListItem objects.
-     * <p>
-     * This allows using styled items from a collection:
-     * <pre>{@code
-     * var items = List.of(
-     *     ListItem.from(Line.from(Span.styled("Hello", Style.EMPTY.green()))),
-     *     ListItem.from(Line.from(Span.styled("World", Style.EMPTY.cyan())))
-     * );
-     * list(items)
-     * }</pre>
-     *
-     * @param items the list items
-     * @return a new list container
-     */
-    public static ListContainer<?> list(Collection<ListItem> items) {
-        return new ListContainer<>(items);
+    public static ListElement<?> list(StyledElement<?>... elements) {
+        return new ListElement<>(elements);
     }
 
     // ==================== Table ====================

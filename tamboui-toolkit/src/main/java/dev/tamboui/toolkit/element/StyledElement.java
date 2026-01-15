@@ -247,7 +247,7 @@ public abstract class StyledElement<T extends StyledElement<T>> implements Eleme
      * draggable, or have explicit event handlers.
      */
     protected boolean needsEventRouting() {
-        return focusable || draggable || keyHandler != null || mouseHandler != null;
+        return isFocusable() || draggable || keyHandler != null || mouseHandler != null;
     }
 
     /**

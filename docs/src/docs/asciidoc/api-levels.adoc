@@ -420,18 +420,19 @@ panel("At most 50").max(50)
 
 === Stateful Widgets
 
-Lists, tables, and inputs need state objects:
+Tables and text inputs need state objects. Lists manage their own state internally:
 
 [source,java]
 ----
-private ListState listState = new ListState();
+private ListElement<?> myList = list("Apple", "Banana", "Cherry")
+    .highlightColor(Color.CYAN)
+    .autoScroll();
+
 private TableState tableState = new TableState();
 private TextInputState inputState = new TextInputState();
 
 // In render():
-list("Apple", "Banana", "Cherry")
-    .state(listState)
-    .highlightColor(Color.CYAN)
+myList  // ListElement manages selection and scroll internally
 
 table()
     .header("Name", "Age")
@@ -441,6 +442,15 @@ table()
 
 textInput(inputState)
     .placeholder("Type here...")
+----
+
+ListElement provides methods for navigation:
+[source,java]
+----
+myList.selectNext(itemCount);  // Move selection down
+myList.selectPrevious();       // Move selection up
+myList.selected();             // Get current selection index
+myList.selected(index);        // Set selection to specific index
 ----
 
 === Event Handling
@@ -517,16 +527,16 @@ public class TodoApp extends ToolkitApp {
         "Learn TamboUI",
         "Build something cool"
     ));
-    private final ListState listState = new ListState();
+    private final ListElement<?> todoList = list()
+        .highlightColor(Color.CYAN)
+        .autoScroll();
 
     @Override
     protected Element render() {
         return panel("Todo",
             items.isEmpty()
                 ? text("Empty - press 'a' to add").dim()
-                : list(items.toArray(new String[0]))
-                    .state(listState)
-                    .highlightColor(Color.CYAN),
+                : todoList.items(items.toArray(new String[0])),
             spacer(),
             text("[a]dd [d]elete [q]uit").dim()
         )
@@ -542,15 +552,15 @@ public class TodoApp extends ToolkitApp {
             return EventResult.HANDLED;
         }
         if (event.isChar('d') && !items.isEmpty()) {
-            items.remove(listState.selected());
+            items.remove(todoList.selected());
             return EventResult.HANDLED;
         }
         if (event.isDown()) {
-            listState.selectNext(items.size());
+            todoList.selectNext(items.size());
             return EventResult.HANDLED;
         }
         if (event.isUp()) {
-            listState.selectPrevious();
+            todoList.selectPrevious();
             return EventResult.HANDLED;
         }
         return EventResult.UNHANDLED;

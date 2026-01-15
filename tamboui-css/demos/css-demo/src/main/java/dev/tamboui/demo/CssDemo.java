@@ -17,7 +17,7 @@ import dev.tamboui.toolkit.element.RenderContext;
 import dev.tamboui.toolkit.event.EventResult;
 import dev.tamboui.tui.TuiConfig;
 import dev.tamboui.tui.event.KeyEvent;
-import dev.tamboui.widgets.list.ListState;
+import dev.tamboui.toolkit.elements.ListElement;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -43,7 +43,6 @@ public class CssDemo implements Element {
 
     private String currentTheme = "dark";
     private final StyleEngine styleEngine;
-    private final ListState listState = new ListState();
     private final List<String> listItems = List.of(
         "Dashboard",
         "Settings",
@@ -51,6 +50,7 @@ public class CssDemo implements Element {
         "Messages",
         "Notifications"
     );
+    private final ListElement<?> navList;
 
     public CssDemo() {
         styleEngine = StyleEngine.create();
@@ -62,8 +62,12 @@ public class CssDemo implements Element {
         } catch (IOException e) {
             throw new UncheckedIOException("Failed to load CSS themes", e);
         }
-        // Start with first item selected
-        listState.selectFirst();
+        // Create navigation list
+        navList = list(listItems)
+            .id("nav-list")
+            .title("Navigation")
+            .rounded()
+            .autoScroll();
     }
 
     public static void main(String[] args) throws Exception {
@@ -100,13 +104,7 @@ public class CssDemo implements Element {
             // Main content
             row(
                 // Left sidebar with navigation list
-                list(listItems)
-                    .id("nav-list")
-                    .state(listState)
-                    .title("Navigation")
-                    .rounded()
-                    .autoScroll()
-                    .length(20),
+                navList.length(20),
 
                 // Center panel - Style Classes (focusable)
                 panel(() -> column(
@@ -156,11 +154,11 @@ public class CssDemo implements Element {
         }
         // List navigation
         if (event.isUp()) {
-            listState.selectPrevious();
+            navList.selectPrevious();
             return EventResult.HANDLED;
         }
         if (event.isDown()) {
-            listState.selectNext(listItems.size());
+            navList.selectNext(listItems.size());
             return EventResult.HANDLED;
         }
         return EventResult.UNHANDLED;
