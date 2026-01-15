@@ -8,6 +8,7 @@ import dev.tamboui.toolkit.element.ContainerElement;
 import dev.tamboui.toolkit.element.Element;
 import dev.tamboui.toolkit.element.RenderContext;
 import dev.tamboui.layout.Constraint;
+import dev.tamboui.layout.Flex;
 import dev.tamboui.layout.Layout;
 import dev.tamboui.layout.Rect;
 import dev.tamboui.style.Style;
@@ -19,10 +20,16 @@ import java.util.List;
 
 /**
  * A horizontal layout container that arranges children in a row.
+ *
+ * <p>Supports flex modes for distributing remaining space:
+ * <pre>
+ * row(child1, child2, child3).flex(Flex.CENTER).spacing(1)
+ * </pre>
  */
 public final class Row extends ContainerElement<Row> {
 
     private int spacing = 0;
+    private Flex flex = Flex.START;
 
     public Row() {
     }
@@ -33,9 +40,24 @@ public final class Row extends ContainerElement<Row> {
 
     /**
      * Sets the spacing between children.
+     *
+     * @param spacing spacing in cells between adjacent children
+     * @return this row for method chaining
      */
     public Row spacing(int spacing) {
         this.spacing = Math.max(0, spacing);
+        return this;
+    }
+
+    /**
+     * Sets how remaining space is distributed among children.
+     *
+     * @param flex the flex mode for space distribution
+     * @return this row for method chaining
+     * @see Flex
+     */
+    public Row flex(Flex flex) {
+        this.flex = flex != null ? flex : Flex.START;
         return this;
     }
 
@@ -66,6 +88,7 @@ public final class Row extends ContainerElement<Row> {
 
         List<Rect> areas = Layout.horizontal()
             .constraints(constraints.toArray(new Constraint[0]))
+            .flex(flex)
             .split(area);
 
         // Render children (skipping spacing areas)
