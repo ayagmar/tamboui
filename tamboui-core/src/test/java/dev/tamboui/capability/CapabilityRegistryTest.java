@@ -23,7 +23,8 @@ class CapabilityRegistryTest {
 
         CapabilityReport report = registry.buildReport();
         assertThat(report.section("tamboui-test:Test")).isPresent();
-        assertThat(report.value("tamboui-test:Test", "foo")).contains("bar");
+        assertThat(report.value("tamboui-test:Test", "foo", String.class)).contains("bar");
+        assertThat(report.value("tamboui-test:Test", "answer", Integer.class)).contains(42);
         assertThat(report.feature("tamboui-test:Test", "feature.a")).contains(true);
         assertThat(report.feature("tamboui-test:Test", "feature.b")).contains(false);
     }

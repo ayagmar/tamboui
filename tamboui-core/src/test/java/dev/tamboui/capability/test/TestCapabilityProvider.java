@@ -18,6 +18,7 @@ public final class TestCapabilityProvider implements CapabilityProvider {
     public void contribute(CapabilityReportBuilder report) {
         report.section(source(), "Test")
             .kv("foo", "bar")
+            .kv("answer", 42)
             .feature("feature.a", true)
             .feature("feature.b", false)
             .end();

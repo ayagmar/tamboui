@@ -30,9 +30,9 @@ public final class ImageCapabilityProvider implements CapabilityProvider {
                 .kv("supportedProtocols", supported.stream().map(Enum::name).collect(Collectors.joining(", ")));
 
         for (TerminalImageProtocol protocol : TerminalImageProtocol.values()) {
-            images.feature("native." + protocol.name().toLowerCase(), caps.supports(protocol));
+            images.feature("imageProtocol." + protocol.name().toLowerCase(), caps.supports(protocol));
         }
-        images.feature("native.any", caps.supportsNativeImages());
+        images.feature("supportsNativeImages", caps.supportsNativeImages());
         images.end();
     }
 }

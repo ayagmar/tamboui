@@ -30,7 +30,7 @@ public final class CapabilityReportBuilder {
     public final class Section {
         private final String source;
         private final String name;
-        private final Map<String, String> values = new LinkedHashMap<>();
+        private final Map<String, Object> rawValues = new LinkedHashMap<>();
         private final Map<String, Boolean> features = new LinkedHashMap<>();
 
         private Section(String source, String name) {
@@ -42,8 +42,7 @@ public final class CapabilityReportBuilder {
             if (key == null || key.isEmpty()) {
                 return this;
             }
-            String stringValue = String.valueOf(value);
-            values.put(key, stringValue);
+            rawValues.put(key, value);
             return this;
         }
 
@@ -56,7 +55,12 @@ public final class CapabilityReportBuilder {
         }
 
         public CapabilityReportBuilder end() {
-            sections.add(new CapabilitySection(source, name, new LinkedHashMap<>(features), new LinkedHashMap<>(values)));
+            sections.add(new CapabilitySection(
+                    source,
+                    name,
+                    new LinkedHashMap<String, Boolean>(features),
+                    new LinkedHashMap<String, Object>(rawValues)
+            ));
             return CapabilityReportBuilder.this;
         }
     }

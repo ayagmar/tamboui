@@ -22,11 +22,7 @@ public final class CapabilityRegistry {
     }
 
     public static CapabilityRegistry load() {
-        return load(Thread.currentThread().getContextClassLoader());
-    }
-
-    public static CapabilityRegistry load(ClassLoader classLoader) {
-        ServiceLoader<CapabilityProvider> loader = ServiceLoader.load(CapabilityProvider.class, classLoader);
+        ServiceLoader<CapabilityProvider> loader = ServiceLoader.load(CapabilityProvider.class);
         List<CapabilityProvider> providers = new ArrayList<>();
         for (CapabilityProvider provider : loader) {
             providers.add(provider);
