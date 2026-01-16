@@ -508,7 +508,7 @@ public final class Panel extends ContainerElement<Panel> {
         for (int i = 0; i < children.size() && i < areas.size(); i++) {
             Element child = children.get(i);
             Rect childArea = areas.get(i);
-            child.render(frame, childArea, context);
+            context.renderChild(child, frame, childArea);
         }
     }
 

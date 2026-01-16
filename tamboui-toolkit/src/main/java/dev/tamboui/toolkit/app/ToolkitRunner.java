@@ -19,6 +19,8 @@ import dev.tamboui.tui.event.Event;
 import dev.tamboui.tui.event.KeyEvent;
 import dev.tamboui.tui.event.TickEvent;
 
+import java.io.OutputStream;
+import java.io.PrintStream;
 import java.time.Duration;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -59,22 +61,38 @@ import java.util.function.Supplier;
  */
 public final class ToolkitRunner implements AutoCloseable {
 
+    private static final PrintStream NULL_OUTPUT = new PrintStream(new OutputStream() {
+        @Override
+        public void write(int b) {
+            // Discard all output
+        }
+    });
+
     private final TuiRunner tuiRunner;
     private final FocusManager focusManager;
     private final EventRouter eventRouter;
     private final DefaultRenderContext renderContext;
     private final ScheduledExecutorService scheduler;
+    private final boolean faultTolerant;
+    private final PrintStream errorOutput;
 
-    private ToolkitRunner(TuiRunner tuiRunner) {
+    private ToolkitRunner(TuiRunner tuiRunner, boolean faultTolerant, PrintStream errorOutput) {
         this.tuiRunner = tuiRunner;
         this.focusManager = new FocusManager();
         this.eventRouter = new EventRouter(focusManager);
         this.renderContext = new DefaultRenderContext(focusManager, eventRouter);
+        this.renderContext.setFaultTolerant(faultTolerant);
         this.scheduler = new ScheduledThreadPoolExecutor(1, r -> {
             Thread t = new Thread(r, "toolkit-scheduler");
             t.setDaemon(true);
             return t;
         });
+        this.faultTolerant = faultTolerant;
+        this.errorOutput = errorOutput;
+    }
+
+    private ToolkitRunner(TuiRunner tuiRunner) {
+        this(tuiRunner, false, NULL_OUTPUT);
     }
 
     /**
@@ -105,6 +123,10 @@ public final class ToolkitRunner implements AutoCloseable {
      * <p>
      * Events are routed to elements based on their handlers.
      * Press 'q' or Ctrl+C to quit (when no element consumes the event).
+     * <p>
+     * If fault-tolerant rendering is enabled (via builder), individual element
+     * render failures are caught and replaced with error placeholders, allowing
+     * the rest of the UI to continue rendering.
      *
      * @param elementSupplier provides the root element for each render
      * @throws Exception if an error occurs during execution
@@ -132,6 +154,15 @@ public final class ToolkitRunner implements AutoCloseable {
                 }
             }
         );
+    }
+
+    /**
+     * Returns whether fault-tolerant rendering is enabled.
+     *
+     * @return true if fault-tolerant rendering is enabled
+     */
+    public boolean isFaultTolerant() {
+        return faultTolerant;
     }
 
     private boolean handleEvent(Event event) {
@@ -349,6 +380,8 @@ public final class ToolkitRunner implements AutoCloseable {
         private StyleEngine styleEngine;
         private Object app;
         private boolean autoBindingRegistration;
+        private boolean faultTolerant;
+        private PrintStream errorOutput = NULL_OUTPUT;
 
         private Builder() {
         }
@@ -414,13 +447,45 @@ public final class ToolkitRunner implements AutoCloseable {
         }
 
         /**
+         * Enables or disables fault-tolerant rendering.
+         * <p>
+         * When enabled, individual element render failures are caught and
+         * replaced with error placeholders, allowing the rest of the UI to
+         * continue rendering. When disabled (default), render exceptions
+         * propagate to the TuiRunner's error handler.
+         *
+         * @param enabled true to enable fault-tolerant rendering
+         * @return this builder
+         */
+        public Builder faultTolerant(boolean enabled) {
+            this.faultTolerant = enabled;
+            return this;
+        }
+
+        /**
+         * Sets the output stream for error logging.
+         * <p>
+         * Defaults to a null output stream that discards all output.
+         * In fault-tolerant mode, errors are displayed via placeholders
+         * rather than logged to avoid flooding the terminal.
+         *
+         * @param errorOutput the error output stream, or null to discard output
+         * @return this builder
+         */
+        public Builder errorOutput(PrintStream errorOutput) {
+            this.errorOutput = errorOutput != null ? errorOutput : NULL_OUTPUT;
+            return this;
+        }
+
+        /**
          * Builds and returns a configured ToolkitRunner.
          *
          * @return a new ToolkitRunner
          * @throws Exception if terminal initialization fails
          */
         public ToolkitRunner build() throws Exception {
-            ToolkitRunner runner = ToolkitRunner.create(config);
+            TuiRunner tuiRunner = TuiRunner.create(config);
+            ToolkitRunner runner = new ToolkitRunner(tuiRunner, faultTolerant, errorOutput);
 
             // Set bindings on render context for Component auto-registration
             runner.renderContext.setBindings(bindings);

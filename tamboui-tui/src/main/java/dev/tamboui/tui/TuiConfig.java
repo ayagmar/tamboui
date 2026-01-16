@@ -6,7 +6,10 @@ package dev.tamboui.tui;
 
 import dev.tamboui.tui.bindings.Bindings;
 import dev.tamboui.tui.bindings.BindingSets;
+import dev.tamboui.tui.error.RenderErrorHandler;
+import dev.tamboui.tui.error.RenderErrorHandlers;
 
+import java.io.PrintStream;
 import java.time.Duration;
 
 /**
@@ -22,6 +25,8 @@ public final class TuiConfig {
     private final Duration tickRate;
     private final boolean shutdownHook;
     private final Bindings bindings;
+    private final RenderErrorHandler errorHandler;
+    private final PrintStream errorOutput;
 
     public TuiConfig(
             boolean rawMode,
@@ -31,7 +36,9 @@ public final class TuiConfig {
             Duration pollTimeout,
             Duration tickRate,
             boolean shutdownHook,
-            Bindings bindings
+            Bindings bindings,
+            RenderErrorHandler errorHandler,
+            PrintStream errorOutput
     ) {
         this.rawMode = rawMode;
         this.alternateScreen = alternateScreen;
@@ -41,6 +48,8 @@ public final class TuiConfig {
         this.tickRate = tickRate;
         this.shutdownHook = shutdownHook;
         this.bindings = bindings;
+        this.errorHandler = errorHandler;
+        this.errorOutput = errorOutput;
     }
 
     /**
@@ -58,7 +67,9 @@ public final class TuiConfig {
                 Duration.ofMillis(100),      // pollTimeout
                 Duration.ofMillis(100),      // tickRate
                 true,                        // shutdownHook
-                BindingSets.defaults()       // bindings
+                BindingSets.defaults(),      // bindings
+                RenderErrorHandlers.displayAndQuit(),  // errorHandler
+                System.err                   // errorOutput
         );
     }
 
@@ -145,6 +156,28 @@ public final class TuiConfig {
         return bindings;
     }
 
+    /**
+     * Returns the error handler for render errors.
+     *
+     * @return the error handler
+     * @see RenderErrorHandler
+     */
+    public RenderErrorHandler errorHandler() {
+        return errorHandler;
+    }
+
+    /**
+     * Returns the output stream for error logging.
+     * <p>
+     * This stream is used to log fatal errors when the TUI has captured
+     * standard streams and stack traces would otherwise be invisible.
+     *
+     * @return the error output stream
+     */
+    public PrintStream errorOutput() {
+        return errorOutput;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -202,6 +235,8 @@ public final class TuiConfig {
         private Duration tickRate = Duration.ofMillis(100);
         private boolean shutdownHook = true;
         private Bindings bindings = BindingSets.defaults();
+        private RenderErrorHandler errorHandler = RenderErrorHandlers.displayAndQuit();
+        private PrintStream errorOutput = System.err;
 
         private Builder() {
         }
@@ -317,6 +352,35 @@ public final class TuiConfig {
         }
 
         /**
+         * Sets the error handler for render errors.
+         * <p>
+         * The handler is invoked when an exception occurs during rendering.
+         * Use factory methods from {@link RenderErrorHandlers} for common behaviors.
+         *
+         * @param errorHandler the error handler to use
+         * @return this builder
+         * @see RenderErrorHandlers
+         */
+        public Builder errorHandler(RenderErrorHandler errorHandler) {
+            this.errorHandler = errorHandler != null ? errorHandler : RenderErrorHandlers.displayAndQuit();
+            return this;
+        }
+
+        /**
+         * Sets the output stream for error logging.
+         * <p>
+         * This stream is used to log fatal errors when the TUI has captured
+         * standard streams. Defaults to {@code System.err}.
+         *
+         * @param errorOutput the error output stream
+         * @return this builder
+         */
+        public Builder errorOutput(PrintStream errorOutput) {
+            this.errorOutput = errorOutput != null ? errorOutput : System.err;
+            return this;
+        }
+
+        /**
          * Builds the configuration.
          */
         public TuiConfig build() {
@@ -328,7 +392,9 @@ public final class TuiConfig {
                     pollTimeout,
                     tickRate,
                     shutdownHook,
-                    bindings
+                    bindings,
+                    errorHandler,
+                    errorOutput
             );
         }
     }

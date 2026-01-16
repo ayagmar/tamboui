@@ -207,7 +207,7 @@ public final class Row extends ContainerElement<Row> {
             }
             Element child = children.get(childIndex);
             Rect childArea = areas.get(i);
-            child.render(frame, childArea, context);
+            context.renderChild(child, frame, childArea);
             childIndex++;
         }
     }

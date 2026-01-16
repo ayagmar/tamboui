@@ -211,7 +211,7 @@ public final class Column extends ContainerElement<Column> {
             }
             Element child = children.get(childIndex);
             Rect childArea = areas.get(i);
-            child.render(frame, childArea, context);
+            context.renderChild(child, frame, childArea);
             childIndex++;
         }
     }

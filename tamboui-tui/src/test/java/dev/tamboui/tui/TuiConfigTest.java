@@ -4,9 +4,13 @@
  */
 package dev.tamboui.tui;
 
+import dev.tamboui.tui.error.ErrorAction;
+import dev.tamboui.tui.error.RenderErrorHandlers;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
 import java.time.Duration;
 
 import static org.assertj.core.api.Assertions.*;
@@ -111,5 +115,76 @@ class TuiConfigTest {
     void builderDefaultsShutdownHookToTrue() {
         TuiConfig config = TuiConfig.builder().build();
         assertThat(config.shutdownHook()).isTrue();
+    }
+
+    @Test
+    @DisplayName("defaults() sets errorHandler to displayAndQuit")
+    void defaultsSetErrorHandlerToDisplayAndQuit() {
+        TuiConfig config = TuiConfig.defaults();
+
+        assertThat(config.errorHandler()).isNotNull();
+        // Verify it's the display-and-quit handler by checking its behavior
+        ErrorAction action = config.errorHandler().handle(
+                dev.tamboui.tui.error.RenderError.from(new RuntimeException("test")),
+                new dev.tamboui.tui.error.ErrorContext() {
+                    @Override
+                    public PrintStream errorOutput() {
+                        return System.err;
+                    }
+
+                    @Override
+                    public void quit() {
+                    }
+                }
+        );
+        assertThat(action).isEqualTo(ErrorAction.DISPLAY_AND_QUIT);
+    }
+
+    @Test
+    @DisplayName("defaults() sets errorOutput to System.err")
+    void defaultsSetErrorOutputToSystemErr() {
+        TuiConfig config = TuiConfig.defaults();
+        assertThat(config.errorOutput()).isSameAs(System.err);
+    }
+
+    @Test
+    @DisplayName("builder allows custom errorHandler")
+    void builderAllowsCustomErrorHandler() {
+        TuiConfig config = TuiConfig.builder()
+                .errorHandler(RenderErrorHandlers.suppress())
+                .build();
+
+        assertThat(config.errorHandler()).isNotNull();
+    }
+
+    @Test
+    @DisplayName("builder allows custom errorOutput")
+    void builderAllowsCustomErrorOutput() {
+        PrintStream customOutput = new PrintStream(new ByteArrayOutputStream());
+        TuiConfig config = TuiConfig.builder()
+                .errorOutput(customOutput)
+                .build();
+
+        assertThat(config.errorOutput()).isSameAs(customOutput);
+    }
+
+    @Test
+    @DisplayName("builder defaults errorHandler when null is passed")
+    void builderDefaultsErrorHandlerWhenNull() {
+        TuiConfig config = TuiConfig.builder()
+                .errorHandler(null)
+                .build();
+
+        assertThat(config.errorHandler()).isNotNull();
+    }
+
+    @Test
+    @DisplayName("builder defaults errorOutput when null is passed")
+    void builderDefaultsErrorOutputWhenNull() {
+        TuiConfig config = TuiConfig.builder()
+                .errorOutput(null)
+                .build();
+
+        assertThat(config.errorOutput()).isSameAs(System.err);
     }
 }

@@ -4,21 +4,39 @@
  */
 package dev.tamboui.tui;
 
+import dev.tamboui.buffer.Buffer;
+import dev.tamboui.layout.Rect;
 import dev.tamboui.layout.Size;
+import dev.tamboui.style.Color;
+import dev.tamboui.style.Style;
 import dev.tamboui.terminal.Backend;
 import dev.tamboui.terminal.BackendFactory;
 import dev.tamboui.terminal.Frame;
 import dev.tamboui.terminal.Terminal;
+import dev.tamboui.text.Line;
+import dev.tamboui.text.Span;
 import dev.tamboui.tui.bindings.ActionHandler;
 import dev.tamboui.tui.bindings.Bindings;
 import dev.tamboui.tui.bindings.BindingSets;
+import dev.tamboui.tui.error.ErrorAction;
+import dev.tamboui.tui.error.ErrorContext;
+import dev.tamboui.tui.error.RenderError;
+import dev.tamboui.tui.error.RenderErrorHandler;
 import dev.tamboui.tui.event.Event;
 import dev.tamboui.tui.event.EventParser;
+import dev.tamboui.tui.event.KeyCode;
 import dev.tamboui.tui.event.KeyEvent;
 import dev.tamboui.tui.event.ResizeEvent;
 import dev.tamboui.tui.event.TickEvent;
+import dev.tamboui.widgets.block.Block;
+import dev.tamboui.widgets.block.BorderType;
+import dev.tamboui.widgets.block.Borders;
+import dev.tamboui.widgets.paragraph.Paragraph;
 
 import java.io.IOException;
+import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.List;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.concurrent.BlockingQueue;
@@ -66,8 +84,13 @@ public final class TuiRunner implements AutoCloseable {
     private final ScheduledExecutorService tickScheduler;
     private final AtomicLong frameCount;
     private final Thread shutdownHook;
+    private final RenderErrorHandler errorHandler;
+    private final PrintStream errorOutput;
     private volatile Instant lastTick;
     private volatile Size lastSize;
+    private volatile RenderError lastError;
+    private volatile boolean inErrorState;
+    private volatile int errorScroll;
 
     private TuiRunner(Backend backend, Terminal<Backend> terminal, TuiConfig config) {
         this.backend = backend;
@@ -78,6 +101,8 @@ public final class TuiRunner implements AutoCloseable {
         this.cleanedUp = new AtomicBoolean(false);
         this.frameCount = new AtomicLong(0);
         this.lastTick = Instant.now();
+        this.errorHandler = config.errorHandler();
+        this.errorOutput = config.errorOutput();
 
         // Initialize last known size
         try {
@@ -166,24 +191,184 @@ public final class TuiRunner implements AutoCloseable {
 
     /**
      * Runs the main event loop with the given handler and renderer.
+     * <p>
+     * Exceptions thrown during rendering are caught and handled according to
+     * the configured {@link RenderErrorHandler}. By default, errors are displayed
+     * in the UI and the application waits for user dismissal before quitting.
      *
      * @param handler  the event handler
      * @param renderer the UI renderer
-     * @throws Exception if an error occurs during execution
+     * @throws Exception if an error occurs during execution that cannot be handled
      */
     public void run(EventHandler handler, Renderer renderer) throws Exception {
-        // Initial draw
-        terminal.draw(renderer::render);
+        try {
+            // Initial draw
+            safeRender(renderer);
 
-        while (running.get()) {
-            Event event = pollEvent(config.pollTimeout());
+            while (running.get()) {
+                if (inErrorState) {
+                    handleErrorModeEvents();
+                    continue;
+                }
 
-            if (event != null) {
-                boolean shouldRedraw = handler.handle(event, this);
-                if (shouldRedraw && running.get()) {
-                    terminal.draw(renderer::render);
+                Event event = pollEvent(config.pollTimeout());
+
+                if (event != null) {
+                    boolean shouldRedraw;
+                    try {
+                        shouldRedraw = handler.handle(event, this);
+                    } catch (Throwable t) {
+                        handleRenderError(t);
+                        continue;
+                    }
+                    if (shouldRedraw && running.get() && !inErrorState) {
+                        safeRender(renderer);
+                    }
                 }
             }
+        } finally {
+            // Ensure cleanup even on unexpected exit
+            // Note: actual cleanup happens in close()
+        }
+    }
+
+    private void safeRender(Renderer renderer) {
+        try {
+            terminal.draw(renderer::render);
+        } catch (Throwable t) {
+            handleRenderError(t);
+        }
+    }
+
+    private void handleRenderError(Throwable t) {
+        lastError = RenderError.from(t);
+        errorScroll = 0;
+
+        ErrorContext context = new ErrorContext() {
+            @Override
+            public PrintStream errorOutput() {
+                return errorOutput;
+            }
+
+            @Override
+            public void quit() {
+                TuiRunner.this.quit();
+            }
+        };
+
+        ErrorAction action = errorHandler.handle(lastError, context);
+
+        switch (action) {
+            case DISPLAY_AND_QUIT:
+                inErrorState = true;
+                renderErrorDisplay();
+                break;
+            case QUIT_IMMEDIATELY:
+                quit();
+                break;
+            case SUPPRESS:
+                // Continue - error was logged by handler
+                break;
+        }
+    }
+
+    private void handleErrorModeEvents() {
+        Event event = pollEvent(config.pollTimeout());
+        if (event == null) {
+            return;
+        }
+
+        if (event instanceof KeyEvent) {
+            KeyEvent keyEvent = (KeyEvent) event;
+
+            // Quit on 'q' or Escape
+            if (keyEvent.isQuit() || keyEvent.code() == KeyCode.ESCAPE) {
+                quit();
+                return;
+            }
+
+            // Scroll handling
+            if (keyEvent.code() == KeyCode.UP || keyEvent.code() == KeyCode.CHAR && keyEvent.character() == 'k') {
+                if (errorScroll > 0) {
+                    errorScroll--;
+                    renderErrorDisplay();
+                }
+            } else if (keyEvent.code() == KeyCode.DOWN || keyEvent.code() == KeyCode.CHAR && keyEvent.character() == 'j') {
+                errorScroll++;
+                renderErrorDisplay();
+            } else if (keyEvent.code() == KeyCode.PAGE_UP) {
+                errorScroll = Math.max(0, errorScroll - 10);
+                renderErrorDisplay();
+            } else if (keyEvent.code() == KeyCode.PAGE_DOWN) {
+                errorScroll += 10;
+                renderErrorDisplay();
+            } else if (keyEvent.code() == KeyCode.HOME) {
+                errorScroll = 0;
+                renderErrorDisplay();
+            }
+        } else if (event instanceof ResizeEvent) {
+            renderErrorDisplay();
+        }
+    }
+
+    private void renderErrorDisplay() {
+        if (lastError == null) {
+            return;
+        }
+
+        try {
+            terminal.draw(frame -> {
+                Rect area = frame.area();
+                Buffer buffer = frame.buffer();
+
+                // Build the error message content
+                List<Line> lines = new ArrayList<Line>();
+                lines.add(Line.from(new Span(lastError.fullExceptionType(), Style.EMPTY.fg(Color.RED).bold())));
+                lines.add(Line.from(Span.raw("")));
+                lines.add(Line.from(new Span("Message: ", Style.EMPTY.bold()), Span.raw(lastError.message())));
+                lines.add(Line.from(Span.raw("")));
+                lines.add(Line.from(new Span("Stack trace:", Style.EMPTY.bold())));
+
+                // Add stack trace lines
+                String[] stackLines = lastError.formattedStackTrace().split("\n");
+                for (String stackLine : stackLines) {
+                    lines.add(Line.from(Span.raw(stackLine)));
+                }
+
+                // Create the block with border
+                Block block = Block.builder()
+                        .title(" ERROR ")
+                        .titleBottom(" Press 'q' to quit, arrows to scroll ")
+                        .borders(Borders.ALL)
+                        .borderType(BorderType.ROUNDED)
+                        .borderColor(Color.RED)
+                        .build();
+
+                // Render the block
+                block.render(area, buffer);
+                Rect inner = block.inner(area);
+
+                if (inner.isEmpty()) {
+                    return;
+                }
+
+                // Calculate visible lines based on scroll
+                int visibleHeight = inner.height();
+                int maxScroll = Math.max(0, lines.size() - visibleHeight);
+                int actualScroll = Math.min(errorScroll, maxScroll);
+                errorScroll = actualScroll;
+
+                // Render visible lines
+                for (int i = 0; i < visibleHeight && (actualScroll + i) < lines.size(); i++) {
+                    Line line = lines.get(actualScroll + i);
+                    buffer.setLine(inner.left(), inner.top() + i, line);
+                }
+            });
+        } catch (IOException e) {
+            // Failed to render error display - write to error output
+            errorOutput.println("Failed to render error display: " + e.getMessage());
+            lastError.cause().printStackTrace(errorOutput);
+            quit();
         }
     }
 

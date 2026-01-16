@@ -6,8 +6,10 @@ package dev.tamboui.toolkit.element;
 
 import dev.tamboui.css.Styleable;
 import dev.tamboui.css.cascade.CssStyleResolver;
+import dev.tamboui.layout.Rect;
 import dev.tamboui.style.Color;
 import dev.tamboui.style.Style;
+import dev.tamboui.terminal.Frame;
 
 import java.util.Optional;
 
@@ -171,6 +173,21 @@ public interface RenderContext {
      */
     default Style childStyle(String childName, ChildPosition position, dev.tamboui.css.cascade.PseudoClassState state) {
         return currentStyle();  // fallback when no CSS engine
+    }
+
+    /**
+     * Renders a child element within the given area.
+     * <p>
+     * Container elements should use this method instead of calling
+     * {@code child.render()} directly. This allows the infrastructure
+     * to handle errors gracefully when fault-tolerant mode is enabled.
+     *
+     * @param child the child element to render
+     * @param frame the frame to render into
+     * @param area the area allocated for the child
+     */
+    default void renderChild(Element child, Frame frame, Rect area) {
+        child.render(frame, area, this);
     }
 
     /**

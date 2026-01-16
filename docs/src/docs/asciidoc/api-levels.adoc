@@ -214,6 +214,70 @@ try (var tui = TuiRunner.create(config)) {
 
 Tick events fire at the configured rate - useful for animations, clocks, or any periodic updates.
 
+=== Error Handling
+
+When exceptions occur during rendering, TuiRunner catches them and displays an error screen with the stack trace.
+By default, errors are shown in-app with options to scroll and dismiss:
+
+[source,java]
+----
+// Default: errors display in UI, press 'q' to quit
+try (var tui = TuiRunner.create()) {
+    tui.run(handler, renderer);
+}
+----
+
+Configure error handling behavior via `TuiConfig`:
+
+[source,java]
+----
+import dev.tamboui.tui.error.RenderErrorHandlers;
+
+// Log errors to a file and quit immediately
+var config = TuiConfig.builder()
+    .errorHandler(RenderErrorHandlers.logAndQuit(new PrintStream("/tmp/tui-errors.log")))
+    .build();
+
+// Write error details to a file, then show in-app error display
+var config = TuiConfig.builder()
+    .errorHandler(RenderErrorHandlers.writeToFile(Path.of("/tmp/crash.log")))
+    .build();
+----
+
+Available error handlers:
+
+[cols="1,2",options="header"]
+|===
+|Handler |Behavior
+
+|`displayAndQuit()` (default)
+|Shows full-screen error display with scrollable stack trace, quit on 'q'
+
+|`logAndQuit(PrintStream)`
+|Logs error to stream, then exits immediately
+
+|`writeToFile(Path)`
+|Writes error to file, then shows in-app display
+
+|`suppress()`
+|Logs warning and continues (use with caution)
+|===
+
+Custom error handlers implement `RenderErrorHandler`:
+
+[source,java]
+----
+var config = TuiConfig.builder()
+    .errorHandler((error, context) -> {
+        // Log error details
+        context.errorOutput().println("Error: " + error.message());
+        error.cause().printStackTrace(context.errorOutput());
+        // Return the action to take
+        return ErrorAction.QUIT_IMMEDIATELY;
+    })
+    .build();
+----
+
 === Semantic Key Checks
 
 `KeyEvent` provides semantic methods that respect the configured bindings:
@@ -515,6 +579,32 @@ try (var runner = ToolkitRunner.create(config)) {
     runner.run(() -> panel("App", content()));
 }
 ----
+
+=== Fault-Tolerant Rendering
+
+When enabled, fault-tolerant mode catches exceptions from individual elements and displays error placeholders instead of crashing the entire application.
+The rest of the UI continues to render normally.
+
+[source,java]
+----
+try (var runner = ToolkitRunner.builder()
+        .faultTolerant(true)
+        .build()) {
+    runner.run(() -> render());
+}
+----
+
+With fault-tolerant mode:
+
+* If an element throws during `render()`, an error placeholder is displayed in its area
+* The error placeholder shows a red border with the exception type and message
+* Other elements continue to render normally
+* Useful for dashboards where one failing widget shouldn't break the entire UI
+
+Without fault-tolerant mode (default):
+
+* Exceptions propagate to `TuiRunner`, which displays a full-screen error
+* This is the safer default for most applications
 
 === Example: Todo List
 
