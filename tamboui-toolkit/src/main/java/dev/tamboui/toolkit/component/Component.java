@@ -10,13 +10,12 @@ import dev.tamboui.toolkit.element.RenderContext;
 import dev.tamboui.toolkit.element.StyledElement;
 import dev.tamboui.toolkit.event.EventResult;
 import dev.tamboui.toolkit.focus.Focusable;
+import dev.tamboui.toolkit.id.IdGenerator;
 import dev.tamboui.tui.bindings.ActionHandler;
 import dev.tamboui.layout.Rect;
 import dev.tamboui.terminal.Frame;
 import dev.tamboui.tui.event.KeyEvent;
 import dev.tamboui.tui.event.MouseEvent;
-
-import java.util.UUID;
 
 /**
  * Base class for stateful components with event handling.
@@ -71,7 +70,7 @@ public abstract class Component<T extends Component<T>> extends StyledElement<T>
     protected final void renderContent(Frame frame, Rect area, RenderContext renderContext) {
         // Auto-generate ID if not set (Component is always focusable)
         if (elementId == null) {
-            elementId = UUID.randomUUID().toString();
+            elementId = IdGenerator.newId(this);
         }
 
         DefaultRenderContext internalContext = (DefaultRenderContext) renderContext;

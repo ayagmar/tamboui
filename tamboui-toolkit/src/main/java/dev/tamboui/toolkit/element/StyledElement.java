@@ -10,6 +10,7 @@ import dev.tamboui.toolkit.event.DragHandler;
 import dev.tamboui.toolkit.event.EventResult;
 import dev.tamboui.toolkit.event.KeyEventHandler;
 import dev.tamboui.toolkit.event.MouseEventHandler;
+import dev.tamboui.toolkit.id.IdGenerator;
 import dev.tamboui.tui.bindings.ActionHandler;
 import dev.tamboui.layout.Constraint;
 import dev.tamboui.layout.Rect;
@@ -23,7 +24,6 @@ import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Optional;
 import java.util.Set;
-import java.util.UUID;
 import java.util.function.BiConsumer;
 
 /**
@@ -233,7 +233,7 @@ public abstract class StyledElement<T extends StyledElement<T>> implements Eleme
             ctx.withElement(this, effectiveStyle, cssResolver, () -> renderContent(frame, area, context));
             // Auto-generate ID for focusable elements that don't have one
             if (isFocusable() && elementId == null) {
-                elementId = UUID.randomUUID().toString();
+                elementId = IdGenerator.newId(this);
             }
             ctx.registerElement(this, area);
         } else {
