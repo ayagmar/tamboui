@@ -11,6 +11,7 @@ import dev.tamboui.layout.Rect;
 import dev.tamboui.style.Color;
 import dev.tamboui.style.Style;
 import dev.tamboui.terminal.Frame;
+import dev.tamboui.toolkit.id.IdGenerator;
 import dev.tamboui.tui.event.KeyEvent;
 import dev.tamboui.widgets.block.Block;
 import dev.tamboui.widgets.block.BorderType;
@@ -24,7 +25,8 @@ import static dev.tamboui.toolkit.Toolkit.handleTextInputKey;
 /**
  * A DSL wrapper for the TextInput widget.
  * <p>
- * A single-line text input field.
+ * A single-line text input field. This element is always focusable to receive
+ * keyboard input for text editing.
  * <pre>{@code
  * textInput(inputState)
  *     .placeholder("Enter name...")
@@ -45,10 +47,28 @@ public final class TextInputElement extends StyledElement<TextInputElement> {
 
     public TextInputElement() {
         this.state = new TextInputState();
+        ensureId();
     }
 
     public TextInputElement(TextInputState state) {
         this.state = state != null ? state : new TextInputState();
+        ensureId();
+    }
+
+    private void ensureId() {
+        if (elementId == null) {
+            elementId = IdGenerator.newId(this);
+        }
+    }
+
+    /**
+     * TextInputElement is always focusable to receive keyboard input.
+     *
+     * @return always returns true
+     */
+    @Override
+    public boolean isFocusable() {
+        return true;
     }
 
     /**
@@ -137,12 +157,17 @@ public final class TextInputElement extends StyledElement<TextInputElement> {
      * Handles a key event for text input.
      * <p>
      * Handles: character input, backspace, delete, left/right arrows, home/end.
+     * Only processes events when focused.
      *
      * @param event the key event
+     * @param focused whether this element is currently focused
      * @return HANDLED if the event was processed, UNHANDLED otherwise
      */
     @Override
     public EventResult handleKeyEvent(KeyEvent event, boolean focused) {
+        if (!focused) {
+            return EventResult.UNHANDLED;
+        }
         return handleTextInputKey(state, event) ? EventResult.HANDLED : EventResult.UNHANDLED;
     }
 

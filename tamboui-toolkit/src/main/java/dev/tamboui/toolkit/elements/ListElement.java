@@ -770,11 +770,6 @@ public final class ListElement<T> extends StyledElement<ListElement<T>> {
     // ═══════════════════════════════════════════════════════════════
 
     @Override
-    protected boolean needsEventRouting() {
-        return super.needsEventRouting() || scrollBarPolicy != ScrollBarPolicy.NONE || lastItemCount > 0;
-    }
-
-    @Override
     public EventResult handleKeyEvent(KeyEvent event, boolean focused) {
         EventResult result = super.handleKeyEvent(event, focused);
         if (result.isHandled()) {

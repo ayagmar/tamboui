@@ -10,6 +10,7 @@ import dev.tamboui.toolkit.element.RenderContext;
 import dev.tamboui.toolkit.element.StyledElement;
 import dev.tamboui.toolkit.event.EventResult;
 import dev.tamboui.toolkit.focus.Focusable;
+import dev.tamboui.toolkit.id.IdGenerator;
 import dev.tamboui.tui.bindings.ActionHandler;
 import dev.tamboui.layout.Rect;
 import dev.tamboui.terminal.Frame;
@@ -67,9 +68,9 @@ public abstract class Component<T extends Component<T>> extends StyledElement<T>
 
     @Override
     protected final void renderContent(Frame frame, Rect area, RenderContext renderContext) {
+        // Auto-generate ID if not set (Component is always focusable)
         if (elementId == null) {
-            throw new IllegalStateException(
-                    "Component " + getClass().getSimpleName() + " must have an id. Use .id(\"myId\") when creating the component.");
+            elementId = IdGenerator.newId(this);
         }
 
         DefaultRenderContext internalContext = (DefaultRenderContext) renderContext;
