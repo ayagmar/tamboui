@@ -1,3 +1,6 @@
+//DEPS dev.tamboui:tamboui-widgets:LATEST
+//DEPS dev.tamboui:tamboui-toolkit:LATEST
+//DEPS dev.tamboui:tamboui-jline:LATEST
 /*
  * Copyright (c) 2025 TamboUI Contributors
  * SPDX-License-Identifier: MIT
