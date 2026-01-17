@@ -56,6 +56,16 @@ final class FloatingPanelsArea implements Element {
             fp.content.onTick(tick);
         }
 
+        // Bring focused panel to front by moving it to the end of the list
+        for (int i = 0; i < panels.size(); i++) {
+            var fp = panels.get(i);
+            if (context.isFocused(fp.panelId()) && i < panels.size() - 1) {
+                panels.remove(i);
+                panels.add(fp);
+                break;
+            }
+        }
+
         for (var fp : panels) {
             renderFloatingPanel(frame, area, context, fp);
         }
@@ -66,6 +76,9 @@ final class FloatingPanelsArea implements Element {
         var relX = Math.max(0, Math.min(fp.x, area.width() - content.width()));
         var relY = Math.max(0, Math.min(fp.y, area.height() - content.height()));
         var panelArea = new Rect(area.x() + relX, area.y() + relY, content.width(), content.height());
+
+        // Clear the panel area to properly occlude content from panels behind this one
+        frame.buffer().clear(panelArea);
 
         var focused = context.isFocused(fp.panelId());
         var borderColor = focused ? Color.WHITE : content.color();
