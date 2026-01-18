@@ -137,7 +137,7 @@ public final class Actions {
 
     // Debug / Development
     /**
-     * Toggle the FPS overlay.
+     * Toggle the debug overlay.
      */
-    public static final String TOGGLE_FPS_OVERLAY = "toggleFpsOverlay";
+    public static final String TOGGLE_DEBUG_OVERLAY = "toggleDebugOverlay";
 }

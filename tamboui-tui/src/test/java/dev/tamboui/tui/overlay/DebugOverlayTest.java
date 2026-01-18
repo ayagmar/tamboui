@@ -15,21 +15,21 @@ import java.time.Duration;
 import static org.assertj.core.api.Assertions.*;
 
 /**
- * Tests for FpsOverlay.
+ * Tests for DebugOverlay.
  */
-class FpsOverlayTest {
+class DebugOverlayTest {
 
     @Test
     @DisplayName("Overlay is initially not visible")
     void initiallyNotVisible() {
-        FpsOverlay overlay = new FpsOverlay(Duration.ofMillis(100), Duration.ofMillis(100));
+        DebugOverlay overlay = new DebugOverlay("test", Duration.ofMillis(100), Duration.ofMillis(100));
         assertThat(overlay.isVisible()).isFalse();
     }
 
     @Test
     @DisplayName("toggle() changes visibility")
     void toggleChangesVisibility() {
-        FpsOverlay overlay = new FpsOverlay(Duration.ofMillis(100), Duration.ofMillis(100));
+        DebugOverlay overlay = new DebugOverlay("test", Duration.ofMillis(100), Duration.ofMillis(100));
 
         overlay.toggle();
         assertThat(overlay.isVisible()).isTrue();
@@ -41,7 +41,7 @@ class FpsOverlayTest {
     @Test
     @DisplayName("recordFrame() records FPS samples")
     void recordFrameRecordsFps() throws InterruptedException {
-        FpsOverlay overlay = new FpsOverlay(Duration.ofMillis(100), Duration.ofMillis(100));
+        DebugOverlay overlay = new DebugOverlay("test", Duration.ofMillis(100), Duration.ofMillis(100));
 
         // Simulate frame renders with delays
         for (int i = 0; i < 5; i++) {
@@ -57,7 +57,7 @@ class FpsOverlayTest {
     @Test
     @DisplayName("render() does nothing when not visible")
     void renderDoesNothingWhenNotVisible() {
-        FpsOverlay overlay = new FpsOverlay(Duration.ofMillis(100), Duration.ofMillis(100));
+        DebugOverlay overlay = new DebugOverlay("test", Duration.ofMillis(100), Duration.ofMillis(100));
 
         Rect area = new Rect(0, 0, 40, 10);
         Buffer buffer = Buffer.empty(area);
@@ -72,7 +72,7 @@ class FpsOverlayTest {
     @Test
     @DisplayName("render() draws overlay when visible")
     void renderDrawsOverlayWhenVisible() throws InterruptedException {
-        FpsOverlay overlay = new FpsOverlay(Duration.ofMillis(100), Duration.ofMillis(100));
+        DebugOverlay overlay = new DebugOverlay("test", Duration.ofMillis(100), Duration.ofMillis(100));
 
         // Record some frames
         overlay.recordFrame();
@@ -88,14 +88,16 @@ class FpsOverlayTest {
 
         // The overlay should be in the top-right corner
         // Check that something was rendered (rounded border corner)
-        int overlayX = area.width() - 22 - 1; // OVERLAY_WIDTH = 22, margin = 1
+        // Width = max(18, 9 + "test".length() + 2) = 18
+        int overlayWidth = Math.max(18, 9 + "test".length() + 2);
+        int overlayX = area.width() - overlayWidth - 1;
         assertThat(buffer.get(overlayX, 1).symbol()).isEqualTo("╭");
     }
 
     @Test
     @DisplayName("render() handles empty area gracefully")
     void renderHandlesEmptyArea() {
-        FpsOverlay overlay = new FpsOverlay(Duration.ofMillis(100), Duration.ofMillis(100));
+        DebugOverlay overlay = new DebugOverlay("test", Duration.ofMillis(100), Duration.ofMillis(100));
         overlay.toggle();
 
         Rect emptyArea = new Rect(0, 0, 0, 0);
@@ -107,9 +109,9 @@ class FpsOverlayTest {
     }
 
     @Test
-    @DisplayName("FpsOverlay works with null tick rate")
+    @DisplayName("DebugOverlay works with null tick rate")
     void worksWithNullTickRate() {
-        FpsOverlay overlay = new FpsOverlay(Duration.ofMillis(100), null);
+        DebugOverlay overlay = new DebugOverlay("test", Duration.ofMillis(100), null);
         overlay.toggle();
 
         Rect area = new Rect(0, 0, 40, 10);
@@ -124,7 +126,7 @@ class FpsOverlayTest {
     @Test
     @DisplayName("FPS calculation uses actual frame timing")
     void fpsCalculationUsesActualFrameTiming() throws InterruptedException {
-        FpsOverlay overlay = new FpsOverlay(Duration.ofMillis(100), Duration.ofMillis(100));
+        DebugOverlay overlay = new DebugOverlay("test", Duration.ofMillis(100), Duration.ofMillis(100));
 
         // Record multiple frames with ~100ms intervals (roughly 10 FPS)
         for (int i = 0; i < 5; i++) {
