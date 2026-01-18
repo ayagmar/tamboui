@@ -257,7 +257,6 @@ public final class TuiRunner implements AutoCloseable {
                 }
 
                 Event event = pollEvent(effectivePollTimeout);
-
                 if (event != null) {
                     // Handle FPS overlay toggle
                     if (config.bindings().matches(event, Actions.TOGGLE_FPS_OVERLAY)) {
@@ -431,13 +430,24 @@ public final class TuiRunner implements AutoCloseable {
      * @return the next event, or null if timeout expires
      */
     public Event pollEvent(Duration timeout) {
-        // Check queue first (for resize and tick events)
+        // Check for keyboard/mouse input first (non-blocking) to ensure responsiveness
+        // even when tick events are queued
+        try {
+            Event terminalEvent = EventParser.readEvent(backend, 0, config.bindings());
+            if (terminalEvent != null) {
+                return terminalEvent;
+            }
+        } catch (IOException e) {
+            // Ignore and continue to check queue
+        }
+
+        // Check queue for tick/resize events
         Event queued = eventQueue.poll();
         if (queued != null) {
             return queued;
         }
 
-        // Read from terminal
+        // No events available, wait for terminal input with timeout
         try {
             return EventParser.readEvent(backend, (int) timeout.toMillis(), config.bindings());
         } catch (IOException e) {
