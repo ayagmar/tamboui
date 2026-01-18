@@ -29,7 +29,7 @@ import dev.tamboui.tui.event.KeyCode;
 import dev.tamboui.tui.event.KeyEvent;
 import dev.tamboui.tui.event.ResizeEvent;
 import dev.tamboui.tui.event.TickEvent;
-import dev.tamboui.tui.overlay.FpsOverlay;
+import dev.tamboui.tui.overlay.DebugOverlay;
 import dev.tamboui.widgets.block.Block;
 import dev.tamboui.widgets.block.BorderType;
 import dev.tamboui.widgets.block.Borders;
@@ -95,7 +95,7 @@ public final class TuiRunner implements AutoCloseable {
     private final AtomicBoolean resizePending;
     private final AtomicReference<Renderer> activeRenderer;
     private final Duration effectivePollTimeout;
-    private final FpsOverlay fpsOverlay;
+    private final DebugOverlay debugOverlay;
     private final List<PostRenderProcessor> postRenderProcessors;
     private volatile RenderError lastError;
     private volatile boolean inErrorState;
@@ -158,8 +158,8 @@ public final class TuiRunner implements AutoCloseable {
             this.effectivePollTimeout = config.pollTimeout();
         }
 
-        // Create FPS overlay
-        this.fpsOverlay = new FpsOverlay(config.pollTimeout(), config.tickRate());
+        // Create debug overlay
+        this.debugOverlay = new DebugOverlay(backend.getClass().getSimpleName(), config.pollTimeout(), config.tickRate());
 
         // Store post-render processors
         this.postRenderProcessors = config.postRenderProcessors();
@@ -229,7 +229,7 @@ public final class TuiRunner implements AutoCloseable {
     public void run(EventHandler handler, Renderer renderer) throws Exception {
         // Wrap renderer to add post-render processors and FPS overlay
         Renderer wrappedRenderer = frame -> {
-            fpsOverlay.recordFrame();
+            debugOverlay.recordFrame();
             renderer.render(frame);
 
             // Call post-render processors
@@ -238,8 +238,8 @@ public final class TuiRunner implements AutoCloseable {
             }
 
             // FPS overlay is always last
-            if (fpsOverlay.isVisible()) {
-                fpsOverlay.render(frame, frame.area());
+            if (debugOverlay.isVisible()) {
+                debugOverlay.render(frame, frame.area());
             }
         };
 
@@ -258,9 +258,9 @@ public final class TuiRunner implements AutoCloseable {
 
                 Event event = pollEvent(effectivePollTimeout);
                 if (event != null) {
-                    // Handle FPS overlay toggle
-                    if (config.bindings().matches(event, Actions.TOGGLE_FPS_OVERLAY)) {
-                        fpsOverlay.toggle();
+                    // Handle debug overlay toggle
+                    if (config.bindings().matches(event, Actions.TOGGLE_DEBUG_OVERLAY)) {
+                        debugOverlay.toggle();
                         safeRender(wrappedRenderer);
                         continue;
                     }

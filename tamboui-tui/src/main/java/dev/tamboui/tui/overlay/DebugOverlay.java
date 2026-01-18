@@ -21,37 +21,44 @@ import dev.tamboui.widgets.paragraph.Paragraph;
 import java.time.Duration;
 
 /**
- * FPS overlay that displays performance metrics.
+ * Debug overlay that displays performance metrics and system information.
  * <p>
- * Shows actual frame rate (computed from render timing), configured poll timeout, and tick rate.
+ * Shows the backend name, actual frame rate (computed from render timing),
+ * configured poll timeout, and tick rate.
  * Toggle visibility with CTRL+SHIFT+F12.
  */
-public final class FpsOverlay {
+public final class DebugOverlay {
 
-    private static final int OVERLAY_WIDTH = 22;
-    private static final int OVERLAY_HEIGHT = 6;
+    private static final int OVERLAY_HEIGHT = 7;
+    private static final int MIN_OVERLAY_WIDTH = 18;
+    private final int overlayWidth;
 
     private boolean visible;
+    private final String backendName;
     private final Duration pollTimeout;
     private final Duration tickRate;
     private final long startTimeNanos;
     private long renderCount;
 
     /**
-     * Creates a new FPS overlay.
+     * Creates a new debug overlay.
      *
+     * @param backendName the name of the backend being used
      * @param pollTimeout the configured poll timeout
      * @param tickRate the configured tick rate (may be null if ticks disabled)
      */
-    public FpsOverlay(Duration pollTimeout, Duration tickRate) {
+    public DebugOverlay(String backendName, Duration pollTimeout, Duration tickRate) {
+        this.backendName = backendName;
         this.pollTimeout = pollTimeout;
         this.tickRate = tickRate;
         this.visible = false;
         this.startTimeNanos = System.nanoTime();
+        // Width = "Backend: " (9) + backend name + border (2)
+        this.overlayWidth = Math.max(MIN_OVERLAY_WIDTH, 9 + backendName.length() + 2);
     }
 
     /**
-     * Toggles the visibility of the FPS overlay.
+     * Toggles the visibility of the debug overlay.
      */
     public void toggle() {
         this.visible = !this.visible;
@@ -111,7 +118,7 @@ public final class FpsOverlay {
     }
 
     /**
-     * Renders the FPS overlay in the top-right corner.
+     * Renders the debug overlay in the top-right corner.
      *
      * @param frame the frame to render to
      * @param area the total available area
@@ -122,7 +129,7 @@ public final class FpsOverlay {
         }
 
         // Position in top-right corner with margin
-        int x = area.x() + area.width() - OVERLAY_WIDTH - 1;
+        int x = area.x() + area.width() - overlayWidth - 1;
         int y = area.y() + 1;
 
         // Ensure we don't go off-screen
@@ -130,10 +137,10 @@ public final class FpsOverlay {
             x = area.x();
         }
 
-        int overlayWidth = Math.min(OVERLAY_WIDTH, area.width());
-        int overlayHeight = Math.min(OVERLAY_HEIGHT, area.height());
+        int width = Math.min(overlayWidth, area.width());
+        int height = Math.min(OVERLAY_HEIGHT, area.height());
 
-        Rect overlayArea = new Rect(x, y, overlayWidth, overlayHeight);
+        Rect overlayArea = new Rect(x, y, width, height);
 
         // Clear the area first
         frame.renderWidget(Clear.INSTANCE, overlayArea);
@@ -146,6 +153,7 @@ public final class FpsOverlay {
         // Determine FPS color based on performance ratio
         Color fpsColor = computeFpsColor(fps, theoreticalFps);
 
+        String backendLine = String.format("Backend: %s", backendName);
         String runtimeLine = String.format("Runtime: %.1fs", runtime);
         String fpsLine = String.format("FPS: %.1f", fps);
         String pollLine = String.format("Poll: %dms", pollTimeout.toMillis());
@@ -158,7 +166,7 @@ public final class FpsOverlay {
                 .borders(Borders.ALL)
                 .borderType(BorderType.ROUNDED)
                 .borderStyle(Style.EMPTY.fg(Color.DARK_GRAY))
-                .title(Title.from(Line.from(Span.styled("FPS", Style.EMPTY.fg(Color.CYAN).bold()))))
+                .title(Title.from(Line.from(Span.styled("Debug", Style.EMPTY.fg(Color.CYAN).bold()))))
                 .build();
 
         frame.renderWidget(block, overlayArea);
@@ -169,8 +177,9 @@ public final class FpsOverlay {
             return;
         }
 
-        // Render FPS text
+        // Render debug text
         Text content = Text.from(
+                Line.from(Span.styled(backendLine, Style.EMPTY.fg(Color.MAGENTA))),
                 Line.from(Span.styled(runtimeLine, Style.EMPTY.fg(Color.WHITE))),
                 Line.from(Span.styled(fpsLine, Style.EMPTY.fg(fpsColor).bold())),
                 Line.from(Span.styled(pollLine, Style.EMPTY.fg(Color.GRAY))),
