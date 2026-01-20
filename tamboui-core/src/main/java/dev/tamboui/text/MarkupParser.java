@@ -160,9 +160,22 @@ public final class MarkupParser {
             while (pos < input.length()) {
                 char c = input.charAt(pos);
 
-                if (c == '[') {
+                if (c == '\\') {
+                    // Backslash escape sequences
+                    if (pos + 1 < input.length()) {
+                        char next = input.charAt(pos + 1);
+                        if (next == '[' || next == ']' || next == '\\') {
+                            currentText.append(next);
+                            pos += 2;
+                            continue;
+                        }
+                    }
+                    // Lone backslash or unknown escape, treat as literal
+                    currentText.append(c);
+                    pos++;
+                } else if (c == '[') {
                     if (pos + 1 < input.length() && input.charAt(pos + 1) == '[') {
-                        // Escaped opening bracket
+                        // Escaped opening bracket (legacy)
                         currentText.append('[');
                         pos += 2;
                     } else {
@@ -171,7 +184,7 @@ public final class MarkupParser {
                     }
                 } else if (c == ']') {
                     if (pos + 1 < input.length() && input.charAt(pos + 1) == ']') {
-                        // Escaped closing bracket
+                        // Escaped closing bracket (legacy)
                         currentText.append(']');
                         pos += 2;
                     } else {

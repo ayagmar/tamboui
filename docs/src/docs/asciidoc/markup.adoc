@@ -160,13 +160,26 @@ Create clickable links (in supported terminals):
 
 === Escaped Brackets
 
-Use double brackets to display literal brackets:
+Two escape mechanisms are supported for literal brackets:
+
+==== Double Brackets
 
 [source]
 ----
 Use [[tag]] for markup     renders as:  Use [tag] for markup
 Content with ]] closing    renders as:  Content with ] closing
 ----
+
+==== Backslash Escapes
+
+[source]
+----
+Use \[tag] for literal     renders as:  Use [tag] for literal
+Content with \] closing    renders as:  Content with ] closing
+Path: C:\\Users\\name      renders as:  Path: C:\Users\name
+----
+
+Supported backslash escapes: `\[`, `\]`, `\\`. Other sequences (like `\n`) are preserved as-is.
 
 === Nesting
 
@@ -368,8 +381,12 @@ MarkupParser.parse("""
 |`[link=https://x.com]click[/link]`
 
 |`[[` / `]]`
-|Escaped brackets
+|Double bracket escapes
 |`Use [[tag]]` -> `Use [tag]`
+
+|`\[` / `\]` / `\\`
+|Backslash escapes
+|`\[tag\]` -> `[tag]`
 |===
 
 == Next Steps

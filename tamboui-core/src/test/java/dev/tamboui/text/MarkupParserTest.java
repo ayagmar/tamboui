@@ -132,6 +132,51 @@ class MarkupParserTest {
     }
 
     @Test
+    @DisplayName("parse backslash escaped opening bracket")
+    void parseBackslashEscapedOpeningBracket() {
+        Text text = MarkupParser.parse("Use \\[tag] for literal bracket");
+
+        assertThat(text.lines()).hasSize(1);
+        assertThat(text.lines().get(0).rawContent()).isEqualTo("Use [tag] for literal bracket");
+    }
+
+    @Test
+    @DisplayName("parse backslash escaped closing bracket")
+    void parseBackslashEscapedClosingBracket() {
+        Text text = MarkupParser.parse("Content with \\] closing");
+
+        assertThat(text.lines()).hasSize(1);
+        assertThat(text.lines().get(0).rawContent()).isEqualTo("Content with ] closing");
+    }
+
+    @Test
+    @DisplayName("parse backslash escaped backslash")
+    void parseBackslashEscapedBackslash() {
+        Text text = MarkupParser.parse("Path: C:\\\\Users\\\\name");
+
+        assertThat(text.lines()).hasSize(1);
+        assertThat(text.lines().get(0).rawContent()).isEqualTo("Path: C:\\Users\\name");
+    }
+
+    @Test
+    @DisplayName("lone backslash is preserved")
+    void loneBackslashPreserved() {
+        Text text = MarkupParser.parse("Lone \\ backslash");
+
+        assertThat(text.lines()).hasSize(1);
+        assertThat(text.lines().get(0).rawContent()).isEqualTo("Lone \\ backslash");
+    }
+
+    @Test
+    @DisplayName("backslash before other characters is preserved")
+    void backslashBeforeOtherCharsPreserved() {
+        Text text = MarkupParser.parse("Newline: \\n Tab: \\t");
+
+        assertThat(text.lines()).hasSize(1);
+        assertThat(text.lines().get(0).rawContent()).isEqualTo("Newline: \\n Tab: \\t");
+    }
+
+    @Test
     @DisplayName("parse multi-line text")
     void parseMultiLineText() {
         Text text = MarkupParser.parse("Line 1\n[bold]Line 2[/bold]\nLine 3");
