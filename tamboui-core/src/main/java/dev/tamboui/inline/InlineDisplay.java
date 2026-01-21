@@ -16,6 +16,7 @@ import dev.tamboui.text.Text;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.Writer;
 import java.util.function.BiConsumer;
 
 /**
@@ -84,7 +85,7 @@ public final class InlineDisplay implements AutoCloseable {
     public static InlineDisplay create(int height) throws IOException {
         Backend backend = BackendFactory.create();
         Size size = backend.size();
-        PrintWriter out = new PrintWriter(System.out, true);
+        PrintWriter out = createPrintWriter(backend);
         return new InlineDisplay(height, size.width(), backend, out);
     }
 
@@ -98,8 +99,34 @@ public final class InlineDisplay implements AutoCloseable {
      */
     public static InlineDisplay create(int height, int width) throws IOException {
         Backend backend = BackendFactory.create();
-        PrintWriter out = new PrintWriter(System.out, true);
+        PrintWriter out = createPrintWriter(backend);
         return new InlineDisplay(height, width, backend, out);
+    }
+
+    private static PrintWriter createPrintWriter(Backend backend) {
+        try {
+            // Probe backend raw support by writing and flushing a no-op sequence
+            backend.writeRaw("");
+            return new PrintWriter(new Writer() {
+                @Override
+                public void write(char[] cbuf, int off, int len) throws IOException {
+                    backend.writeRaw(new String(cbuf, off, len));
+                }
+
+                @Override
+                public void flush() throws IOException {
+                    backend.flush();
+                }
+
+                @Override
+                public void close() throws IOException {
+                    flush();
+                }
+            }, true);
+        } catch (UnsupportedOperationException | IOException e) {
+            // Fallback to System.out
+            return new PrintWriter(System.out, true);
+        }
     }
 
     /**
