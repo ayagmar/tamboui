@@ -5,6 +5,7 @@
 package dev.tamboui.toolkit.app;
 
 import dev.tamboui.css.engine.StyleEngine;
+import dev.tamboui.style.StyledAreaRegistry;
 import dev.tamboui.toolkit.element.DefaultRenderContext;
 import dev.tamboui.toolkit.element.Element;
 import dev.tamboui.toolkit.element.ElementRegistry;
@@ -76,6 +77,7 @@ public final class ToolkitRunner implements AutoCloseable {
     private final FocusManager focusManager;
     private final EventRouter eventRouter;
     private final ElementRegistry elementRegistry;
+    private final StyledAreaRegistry styledAreaRegistry;
     private final DefaultRenderContext renderContext;
     private final ScheduledExecutorService scheduler;
     private final boolean faultTolerant;
@@ -89,6 +91,7 @@ public final class ToolkitRunner implements AutoCloseable {
         this.tuiRunner = tuiRunner;
         this.focusManager = new FocusManager();
         this.elementRegistry = new ElementRegistry();
+        this.styledAreaRegistry = StyledAreaRegistry.create();
         this.eventRouter = new EventRouter(focusManager, elementRegistry);
         this.renderContext = new DefaultRenderContext(focusManager, eventRouter);
         this.renderContext.setFaultTolerant(faultTolerant);
@@ -150,6 +153,10 @@ public final class ToolkitRunner implements AutoCloseable {
                 focusManager.clearFocusables();
                 eventRouter.clear();
                 elementRegistry.clear();
+                styledAreaRegistry.clear();
+
+                // Configure frame with styled area registry for auto-registration
+                frame.setStyledAreaRegistry(styledAreaRegistry);
 
                 // Get the current element tree
                 Element root = elementSupplier.get();
@@ -167,7 +174,7 @@ public final class ToolkitRunner implements AutoCloseable {
 
                 // Apply post-render processors (e.g., effects, overlays)
                 for (ToolkitPostRenderProcessor processor : postRenderProcessors) {
-                    processor.process(frame, elementRegistry, lastElapsed);
+                    processor.process(frame, elementRegistry, styledAreaRegistry, focusManager, lastElapsed);
                 }
             }
         );
@@ -368,6 +375,17 @@ public final class ToolkitRunner implements AutoCloseable {
      */
     public ElementRegistry elementRegistry() {
         return elementRegistry;
+    }
+
+    /**
+     * Returns the styled area registry for styled span lookups.
+     * <p>
+     * The registry is populated during rendering when styled content with Tags
+     * is written to the buffer. It can be used by effect systems to target
+     * styled spans using CSS-like selectors.
+     */
+    public StyledAreaRegistry styledAreaRegistry() {
+        return styledAreaRegistry;
     }
 
     /**

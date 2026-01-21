@@ -6,6 +6,7 @@ package dev.tamboui.css.selector;
 
 import dev.tamboui.css.Styleable;
 import dev.tamboui.css.cascade.PseudoClassState;
+import dev.tamboui.css.cascade.PseudoClassStateProvider;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
@@ -273,6 +274,87 @@ class SelectorTest {
                 .as(".muted Text should match Text element inside element with class muted").isTrue();
         assertThat(descendant2.matches(textWithoutMuted, PseudoClassState.NONE, Collections.<Styleable>emptyList()))
                 .as(".muted Text should NOT match Text element without muted ancestor").isFalse();
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    // PseudoClassStateProvider tests for ancestor pseudo-class matching
+    // ═══════════════════════════════════════════════════════════════
+
+    @Test
+    void descendantSelectorWithStateProviderMatchesFocusedAncestor() {
+        // Selector: #parent:focus .child
+        CompoundSelector parentSelector = new CompoundSelector(Arrays.<Selector>asList(
+                new IdSelector("parent"),
+                new PseudoClassSelector("focus")
+        ));
+        DescendantSelector selector = new DescendantSelector(
+                parentSelector,
+                new ClassSelector("child")
+        );
+
+        Styleable parent = createStyleable("Panel", "parent", Collections.<String>emptySet());
+        Styleable child = createStyleable("Span", null, new HashSet<>(Arrays.asList("child")));
+        List<Styleable> ancestors = Arrays.asList(parent);
+
+        // State provider that returns focused state for parent
+        PseudoClassStateProvider focusedProvider = element ->
+                element.cssId().map(id -> id.equals("parent")).orElse(false)
+                        ? PseudoClassState.ofFocused()
+                        : PseudoClassState.NONE;
+
+        // State provider that returns unfocused state
+        PseudoClassStateProvider unfocusedProvider = element -> PseudoClassState.NONE;
+
+        // Should match when parent is focused
+        assertThat(selector.matches(child, focusedProvider, ancestors))
+                .as("#parent:focus .child should match when parent is focused").isTrue();
+
+        // Should NOT match when parent is not focused
+        assertThat(selector.matches(child, unfocusedProvider, ancestors))
+                .as("#parent:focus .child should NOT match when parent is not focused").isFalse();
+    }
+
+    @Test
+    void childSelectorWithStateProviderMatchesFocusedParent() {
+        // Selector: Panel:focus > Button
+        CompoundSelector parentSelector = new CompoundSelector(Arrays.<Selector>asList(
+                new TypeSelector("Panel"),
+                new PseudoClassSelector("focus")
+        ));
+        ChildSelector selector = new ChildSelector(
+                parentSelector,
+                new TypeSelector("Button")
+        );
+
+        Styleable panel = createStyleable("Panel", "myPanel", Collections.<String>emptySet());
+        Styleable button = createStyleable("Button", null, Collections.<String>emptySet());
+        List<Styleable> ancestors = Arrays.asList(panel);
+
+        // State provider that returns focused state for panel
+        PseudoClassStateProvider focusedProvider = element ->
+                "Panel".equals(element.styleType()) ? PseudoClassState.ofFocused() : PseudoClassState.NONE;
+
+        // Should match when parent is focused
+        assertThat(selector.matches(button, focusedProvider, ancestors))
+                .as("Panel:focus > Button should match when panel is focused").isTrue();
+
+        // Should NOT match with NONE state (old method)
+        assertThat(selector.matches(button, PseudoClassState.NONE, ancestors))
+                .as("Panel:focus > Button should NOT match with NONE state").isFalse();
+    }
+
+    @Test
+    void allMatchStateMatchesAnyPseudoClass() {
+        PseudoClassState allMatch = PseudoClassState.allMatch();
+
+        assertThat(allMatch.has("focus")).as("allMatch should match :focus").isTrue();
+        assertThat(allMatch.has("hover")).as("allMatch should match :hover").isTrue();
+        assertThat(allMatch.has("disabled")).as("allMatch should match :disabled").isTrue();
+        assertThat(allMatch.has("active")).as("allMatch should match :active").isTrue();
+        assertThat(allMatch.has("selected")).as("allMatch should match :selected").isTrue();
+        assertThat(allMatch.has("first-child")).as("allMatch should match :first-child").isTrue();
+        assertThat(allMatch.has("last-child")).as("allMatch should match :last-child").isTrue();
+        assertThat(allMatch.has("nth-child(odd)")).as("allMatch should match :nth-child(odd)").isTrue();
     }
 
     @Test

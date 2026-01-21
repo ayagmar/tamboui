@@ -6,6 +6,7 @@ package dev.tamboui.css.selector;
 
 import dev.tamboui.css.Styleable;
 import dev.tamboui.css.cascade.PseudoClassState;
+import dev.tamboui.css.cascade.PseudoClassStateProvider;
 
 import java.util.List;
 
@@ -37,6 +38,26 @@ public interface Selector {
      * @return true if this selector matches the element
      */
     boolean matches(Styleable element, PseudoClassState state, List<Styleable> ancestors);
+
+    /**
+     * Tests whether this selector matches the given element, using a state provider
+     * for dynamic pseudo-class resolution.
+     * <p>
+     * This method is needed for descendant selectors like {@code #parent:focus .child}
+     * where the :focus pseudo-class must be evaluated on the ancestor element.
+     * <p>
+     * The default implementation delegates to {@link #matches(Styleable, PseudoClassState, List)}
+     * using the state from the provider for the target element. Combinator selectors
+     * (like DescendantSelector) override this to properly evaluate ancestor states.
+     *
+     * @param element       the element to test
+     * @param stateProvider provides pseudo-class state for any element
+     * @param ancestors     the ancestor chain from root to parent (not including element)
+     * @return true if this selector matches the element
+     */
+    default boolean matches(Styleable element, PseudoClassStateProvider stateProvider, List<Styleable> ancestors) {
+        return matches(element, stateProvider.stateFor(element), ancestors);
+    }
 
     /**
      * Returns a CSS string representation of this selector.

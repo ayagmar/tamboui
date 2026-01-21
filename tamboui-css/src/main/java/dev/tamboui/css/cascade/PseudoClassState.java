@@ -14,6 +14,15 @@ import java.util.Objects;
  * <p>
  * For positional pseudo-classes like :nth-child(even), the nthChild field
  * stores the 1-based position (0 means position is not set).
+ * <p>
+ * <b>Usage Context:</b>
+ * <ul>
+ *   <li><b>CSS Styling (during render):</b> All pseudo-classes work via
+ *       {@code RenderContext.childStyle()} which accepts position and state</li>
+ *   <li><b>TFX Effects (post-render):</b> Only {@code :focus} is supported
+ *       because it's tracked by FocusManager. Other pseudo-classes require
+ *       state/position info that isn't preserved after rendering.</li>
+ * </ul>
  */
 public final class PseudoClassState {
 
@@ -24,6 +33,12 @@ public final class PseudoClassState {
             false, false, false, false, false, false, false, 0
     );
 
+    private static final PseudoClassState FOCUSED = new PseudoClassState(true, false, false, false, false, false, false, 0);
+    private static final PseudoClassState HOVERED = new PseudoClassState(false, true, false, false, false, false, false, 0);
+    private static final PseudoClassState DISABLED = new PseudoClassState(false, false, true, false, false, false, false, 0);
+    private static final PseudoClassState SELECTED = new PseudoClassState(false, false, false, false, true, false, false, 0);
+    private static final PseudoClassState ALL_MATCH = new PseudoClassState(true, true, true, true, true, true, true, 1);
+
     private final boolean focused;
     private final boolean hovered;
     private final boolean disabled;
@@ -32,20 +47,6 @@ public final class PseudoClassState {
     private final boolean firstChild;
     private final boolean lastChild;
     private final int nthChild; // 1-based position, 0 means not set
-
-    /**
-     * @deprecated Use the constructor with nthChild parameter instead.
-     */
-    @Deprecated
-    public PseudoClassState(boolean focused,
-                            boolean hovered,
-                            boolean disabled,
-                            boolean active,
-                            boolean selected,
-                            boolean firstChild,
-                            boolean lastChild) {
-        this(focused, hovered, disabled, active, selected, firstChild, lastChild, 0);
-    }
 
     public PseudoClassState(boolean focused,
                             boolean hovered,
@@ -66,31 +67,39 @@ public final class PseudoClassState {
     }
 
     /**
-     * Creates a state with only the focused flag set.
+     * Returns a state with only the focused flag set.
      */
     public static PseudoClassState ofFocused() {
-        return new PseudoClassState(true, false, false, false, false, false, false);
+        return FOCUSED;
     }
 
     /**
-     * Creates a state with only the hovered flag set.
+     * Returns a state with only the hovered flag set.
      */
     public static PseudoClassState ofHovered() {
-        return new PseudoClassState(false, true, false, false, false, false, false);
+        return HOVERED;
     }
 
     /**
-     * Creates a state with only the disabled flag set.
+     * Returns a state with only the disabled flag set.
      */
     public static PseudoClassState ofDisabled() {
-        return new PseudoClassState(false, false, true, false, false, false, false);
+        return DISABLED;
     }
 
     /**
-     * Creates a state with only the selected flag set.
+     * Returns a state with only the selected flag set.
      */
     public static PseudoClassState ofSelected() {
-        return new PseudoClassState(false, false, false, false, true, false, false);
+        return SELECTED;
+    }
+
+    /**
+     * Returns a state with all pseudo-classes matching.
+     * Useful for lenient/structural matching where pseudo-class state should be ignored.
+     */
+    public static PseudoClassState allMatch() {
+        return ALL_MATCH;
     }
 
     public boolean isFocused() {

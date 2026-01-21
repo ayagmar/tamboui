@@ -246,6 +246,9 @@ Style.EMPTY
 
 == Text System
 
+{project-name} provides a hierarchical text model (`Text` > `Line` > `Span`) for styled terminal output.
+For a convenient way to create styled text from markup strings, see link:markup.html[Markup Text].
+
 === Text
 
 `Text` represents multi-line styled text:

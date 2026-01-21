@@ -4,11 +4,13 @@
  */
 package dev.tamboui.tfx.toolkit;
 
+import dev.tamboui.style.StyledAreaRegistry;
 import dev.tamboui.tfx.Effect;
 import dev.tamboui.tfx.TFxDuration;
 import dev.tamboui.toolkit.app.ToolkitPostRenderProcessor;
 import dev.tamboui.toolkit.element.Element;
 import dev.tamboui.toolkit.element.ElementRegistry;
+import dev.tamboui.toolkit.focus.FocusManager;
 import dev.tamboui.tui.EventHandler;
 import dev.tamboui.tui.Renderer;
 import dev.tamboui.tui.event.TickEvent;
@@ -195,26 +197,36 @@ public final class ToolkitEffects {
      * The wrapper:
      * <ul>
      *   <li>Calls the wrapped renderer first</li>
-     *   <li>Expands pending selector effects to element instances</li>
+     *   <li>Expands pending selector effects to element and styled area instances</li>
      *   <li>Processes all active effects on the buffer with dynamic area lookup</li>
      * </ul>
+     * <p>
+     * When a StyledAreaRegistry is provided, effects can target styled spans
+     * using CSS selectors like {@code .highlight} or {@code #myPanel .highlight}.
+     * <p>
+     * When a FocusManager is provided, pseudo-class selectors like {@code :focus} are supported.
      *
-     * @param renderer        the renderer to wrap
-     * @param elementRegistry the element registry containing element areas
+     * @param renderer           the renderer to wrap
+     * @param elementRegistry    the element registry containing element areas
+     * @param styledAreaRegistry the styled area registry
+     * @param focusManager       the focus manager for pseudo-class state
      * @return a wrapped renderer
      */
-    public Renderer wrapRenderer(Renderer renderer, ElementRegistry elementRegistry) {
+    public Renderer wrapRenderer(Renderer renderer,
+                                 ElementRegistry elementRegistry,
+                                 StyledAreaRegistry styledAreaRegistry,
+                                 FocusManager focusManager) {
         return frame -> {
             // Render the UI first
             renderer.render(frame);
 
             // Expand pending selector effects
-            registry.expandSelectors(elementRegistry);
+            registry.expandSelectors(elementRegistry, styledAreaRegistry);
 
             // Process effects on the buffer with dynamic area lookup
             if (registry.isRunning()) {
                 TFxDuration delta = TFxDuration.fromJavaDuration(lastElapsed);
-                registry.processEffects(delta, frame.buffer(), frame.area(), elementRegistry);
+                registry.processEffects(delta, frame.buffer(), frame.area(), elementRegistry, styledAreaRegistry, focusManager);
             }
         };
     }
@@ -226,6 +238,10 @@ public final class ToolkitEffects {
      * processes all active effects on the buffer. Areas are looked up dynamically
      * from the element registry each frame, so effects automatically follow
      * elements when the terminal resizes.
+     * <p>
+     * When the Frame has a StyledAreaRegistry configured, effects can also target
+     * styled spans using CSS selectors like {@code .highlight} or
+     * {@code #myPanel .highlight}.
      * <p>
      * <b>Usage:</b>
      * <pre>{@code
@@ -242,14 +258,14 @@ public final class ToolkitEffects {
      * @return a post-render processor for ToolkitRunner
      */
     public ToolkitPostRenderProcessor asPostRenderProcessor() {
-        return (frame, elementRegistry, elapsed) -> {
+        return (frame, elementRegistry, styledAreaRegistry, focusManager, elapsed) -> {
             // Expand pending selector effects
-            registry.expandSelectors(elementRegistry);
+            registry.expandSelectors(elementRegistry, styledAreaRegistry);
 
             // Process effects on the buffer with dynamic area lookup
             if (registry.isRunning()) {
                 TFxDuration delta = TFxDuration.fromJavaDuration(elapsed);
-                registry.processEffects(delta, frame.buffer(), frame.area(), elementRegistry);
+                registry.processEffects(delta, frame.buffer(), frame.area(), elementRegistry, styledAreaRegistry, focusManager);
             }
         };
     }

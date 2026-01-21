@@ -9,6 +9,7 @@ module dev.tamboui.toolkit {
     requires transitive dev.tamboui.widgets;
     requires transitive dev.tamboui.tui;
     requires transitive dev.tamboui.css;
+    requires java.logging;
 
     exports dev.tamboui.toolkit;
     exports dev.tamboui.toolkit.app;

@@ -14,6 +14,7 @@ import dev.tamboui.text.Span;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.BiConsumer;
 
 /**
  * A buffer that stores cells for a rectangular area.
@@ -24,6 +25,7 @@ public final class Buffer {
 
     private final Rect area;
     private final Cell[] content;
+    private BiConsumer<Style, Rect> styledContentListener;
 
     private Buffer(Rect area, Cell[] content) {
         this.area = area;
@@ -91,6 +93,19 @@ public final class Buffer {
         }
 
         return buffer;
+    }
+
+    /**
+     * Sets a listener to be notified when styled content is written to this buffer.
+     * <p>
+     * The listener receives the style and area for each span written to the buffer.
+     * This allows external systems (like Frame) to track styled areas for
+     * effect targeting without Buffer needing to know about registries.
+     *
+     * @param listener the listener, or null to disable notifications
+     */
+    public void setStyledContentListener(BiConsumer<Style, Rect> listener) {
+        this.styledContentListener = listener;
     }
 
     /**
@@ -211,6 +226,9 @@ public final class Buffer {
     /**
      * Sets a span at the given position.
      * Returns the x position after the last character written.
+     * <p>
+     * If a styled content listener is set, it will be notified with the
+     * span's style and area.
      *
      * @param x the x coordinate
      * @param y the y coordinate
@@ -218,7 +236,19 @@ public final class Buffer {
      * @return the x position after the last character written
      */
     public int setSpan(int x, int y, Span span) {
-        return setString(x, y, span.content(), span.style());
+        int startX = x;
+        int endX = setString(x, y, span.content(), span.style());
+
+        // Notify listener of styled content
+        if (styledContentListener != null) {
+            int width = endX - startX;
+            if (width > 0) {
+                Rect spanArea = new Rect(startX, y, width, 1);
+                styledContentListener.accept(span.style(), spanArea);
+            }
+        }
+
+        return endX;
     }
 
     /**

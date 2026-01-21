@@ -151,8 +151,12 @@ public final class ElementRegistry {
 
         /**
          * Builds the ancestor chain for selector matching.
+         * <p>
+         * Returns the ancestors in order from root to immediate parent.
+         *
+         * @return the ancestor chain
          */
-        List<Styleable> ancestors() {
+        public List<Styleable> ancestors() {
             List<Styleable> ancestors = new ArrayList<>();
             ElementInfo current = parent;
             while (current != null) {

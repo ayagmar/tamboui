@@ -6,6 +6,7 @@ package dev.tamboui.css.selector;
 
 import dev.tamboui.css.Styleable;
 import dev.tamboui.css.cascade.PseudoClassState;
+import dev.tamboui.css.cascade.PseudoClassStateProvider;
 
 import java.util.List;
 import java.util.Objects;
@@ -47,6 +48,8 @@ public final class ChildSelector implements Selector {
         }
 
         // Then, check if the immediate parent matches the parent selector
+        // Note: This uses NONE for the parent, so pseudo-classes on parent won't match.
+        // Use matches(element, stateProvider, ancestors) for proper pseudo-class support.
         if (ancestors.isEmpty()) {
             return false;
         }
@@ -54,6 +57,24 @@ public final class ChildSelector implements Selector {
         Styleable parentElement = ancestors.get(ancestors.size() - 1);
         List<Styleable> parentAncestors = ancestors.subList(0, ancestors.size() - 1);
         return parent.matches(parentElement, PseudoClassState.NONE, parentAncestors);
+    }
+
+    @Override
+    public boolean matches(Styleable element, PseudoClassStateProvider stateProvider, List<Styleable> ancestors) {
+        // First, the child selector must match the element
+        if (!child.matches(element, stateProvider, ancestors)) {
+            return false;
+        }
+
+        // Then, check if the immediate parent matches the parent selector
+        // Use the state provider to get the correct pseudo-class state for the parent
+        if (ancestors.isEmpty()) {
+            return false;
+        }
+
+        Styleable parentElement = ancestors.get(ancestors.size() - 1);
+        List<Styleable> parentAncestors = ancestors.subList(0, ancestors.size() - 1);
+        return parent.matches(parentElement, stateProvider, parentAncestors);
     }
 
     @Override

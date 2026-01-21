@@ -13,7 +13,6 @@ import dev.tamboui.style.Style;
 import dev.tamboui.terminal.Frame;
 import dev.tamboui.toolkit.event.EventRouter;
 import dev.tamboui.toolkit.focus.FocusManager;
-import dev.tamboui.terminal.Frame;
 import dev.tamboui.toolkit.elements.ErrorPlaceholder;
 import dev.tamboui.tui.bindings.Bindings;
 import dev.tamboui.tui.bindings.BindingSets;
@@ -236,22 +235,49 @@ public final class DefaultRenderContext implements RenderContext {
 
     @Override
     public void renderChild(Element child, Frame frame, Rect area) {
+        String childId = child.id();
+
         if (faultTolerant) {
             try {
-                child.render(frame, area, this);
-                registerElement(child, area);
+                // Push the child's context key only for the child's render scope.
+                // If the child fails and we fall back to an ErrorPlaceholder, we must not
+                // keep the child's context key active, otherwise placeholder output would
+                // be incorrectly attributed to the child.
+                if (childId != null) {
+                    frame.pushContextKey(childId);
+                }
+                try {
+                    child.render(frame, area, this);
+                    registerElement(child, area);
+                    return;
+                } finally {
+                    if (childId != null) {
+                        frame.popContextKey();
+                    }
+                }
             } catch (Throwable t) {
-                // Render error placeholder instead of the failed child
-                ErrorPlaceholder placeholder = ErrorPlaceholder.from(t, child.id());
+                // Render error placeholder instead of the failed child (no child context key active)
+                ErrorPlaceholder placeholder = ErrorPlaceholder.from(t, childId);
                 try {
                     placeholder.render(frame, area, this);
                 } catch (Throwable ignored) {
                     // Even the placeholder failed - nothing more we can do
                 }
+                return;
             }
-        } else {
-            child.render(frame, area, this);
-            registerElement(child, area);
+        }
+
+        // Non-fault-tolerant rendering: always attribute output to the child.
+        if (childId != null) {
+            frame.pushContextKey(childId);
+        }
+        try {
+                child.render(frame, area, this);
+                registerElement(child, area);
+        } finally {
+            if (childId != null) {
+                frame.popContextKey();
+            }
         }
     }
 

@@ -7,11 +7,15 @@ package dev.tamboui.terminal;
 import dev.tamboui.buffer.Buffer;
 import dev.tamboui.layout.Position;
 import dev.tamboui.layout.Rect;
+import dev.tamboui.style.StyledAreaRegistry;
+import dev.tamboui.style.Tags;
 import dev.tamboui.widget.RawOutputCapable;
 import dev.tamboui.widget.StatefulWidget;
 import dev.tamboui.widget.Widget;
 
 import java.io.OutputStream;
+import java.util.ArrayDeque;
+import java.util.Deque;
 import java.util.Optional;
 
 /**
@@ -25,6 +29,7 @@ public final class Frame {
     private final OutputStream rawOutput;
     private Position cursorPosition;
     private boolean cursorVisible;
+    private final Deque<String> contextKeyStack = new ArrayDeque<>();
 
     Frame(Buffer buffer, OutputStream rawOutput) {
         this.buffer = buffer;
@@ -158,5 +163,63 @@ public final class Frame {
      */
     OutputStream rawOutput() {
         return rawOutput;
+    }
+
+    /**
+     * Sets the styled area registry for tracking styled content.
+     * <p>
+     * When set, styled content written to the buffer with Tags will be
+     * automatically registered in the registry for effect targeting.
+     *
+     * @param registry the registry, or null to disable tracking
+     */
+    public void setStyledAreaRegistry(StyledAreaRegistry registry) {
+        if (registry == null) {
+            buffer.setStyledContentListener(null);
+        } else {
+            buffer.setStyledContentListener((style, area) -> {
+                Tags tags = style.extension(Tags.class, Tags.empty());
+                if (!tags.isEmpty()) {
+                    registry.register(style, area, currentContextKey());
+                }
+            });
+        }
+    }
+
+    /**
+     * Pushes a context key onto the stack.
+     * <p>
+     * The context key is used to associate styled areas with a parent context.
+     * Typically, this is called when entering an element's render scope with
+     * the element's ID as the context key.
+     *
+     * @param contextKey the context key (typically an element ID)
+     */
+    public void pushContextKey(String contextKey) {
+        if (contextKey != null) {
+            contextKeyStack.push(contextKey);
+        }
+    }
+
+    /**
+     * Pops the most recent context key from the stack.
+     * <p>
+     * This should be called when exiting an element's render scope.
+     */
+    public void popContextKey() {
+        if (!contextKeyStack.isEmpty()) {
+            contextKeyStack.pop();
+        }
+    }
+
+    /**
+     * Returns the current context key (top of the stack).
+     * <p>
+     * This is used to associate styled areas with their containing element.
+     *
+     * @return the current context key, or null if no context is active
+     */
+    public String currentContextKey() {
+        return contextKeyStack.isEmpty() ? null : contextKeyStack.peek();
     }
 }

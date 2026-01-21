@@ -6,6 +6,7 @@ package dev.tamboui.css.selector;
 
 import dev.tamboui.css.Styleable;
 import dev.tamboui.css.cascade.PseudoClassState;
+import dev.tamboui.css.cascade.PseudoClassStateProvider;
 
 import java.util.List;
 import java.util.Objects;
@@ -47,10 +48,32 @@ public final class DescendantSelector implements Selector {
         }
 
         // Then, check if any ancestor matches the ancestor selector
+        // Note: This uses NONE for ancestors, so pseudo-classes on ancestors won't match.
+        // Use matches(element, stateProvider, ancestors) for proper pseudo-class support.
         for (int i = ancestors.size() - 1; i >= 0; i--) {
             Styleable ancestorElement = ancestors.get(i);
             List<Styleable> ancestorAncestors = ancestors.subList(0, i);
             if (ancestor.matches(ancestorElement, PseudoClassState.NONE, ancestorAncestors)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    @Override
+    public boolean matches(Styleable element, PseudoClassStateProvider stateProvider, List<Styleable> ancestors) {
+        // First, the descendant selector must match the element
+        if (!descendant.matches(element, stateProvider, ancestors)) {
+            return false;
+        }
+
+        // Then, check if any ancestor matches the ancestor selector
+        // Use the state provider to get the correct pseudo-class state for each ancestor
+        for (int i = ancestors.size() - 1; i >= 0; i--) {
+            Styleable ancestorElement = ancestors.get(i);
+            List<Styleable> ancestorAncestors = ancestors.subList(0, i);
+            if (ancestor.matches(ancestorElement, stateProvider, ancestorAncestors)) {
                 return true;
             }
         }

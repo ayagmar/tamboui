@@ -75,6 +75,9 @@ Installation, hello world examples, and running demos.
 === link:core-concepts.html[Core Concepts]
 Understanding the rendering model, buffer system, layout, and styling.
 
+=== link:markup.html[Markup Text]
+BBCode-style markup for creating styled text with colors, modifiers, and custom tags.
+
 === link:widgets.html[Widgets Reference]
 Comprehensive guide to all available widgets with examples.
 
