@@ -16,7 +16,6 @@ import dev.tamboui.layout.Flex;
 import dev.tamboui.layout.Layout;
 import dev.tamboui.layout.Rect;
 import dev.tamboui.style.Color;
-import dev.tamboui.style.Style;
 import dev.tamboui.terminal.Frame;
 import dev.tamboui.text.Line;
 import dev.tamboui.text.Span;
@@ -24,7 +23,7 @@ import dev.tamboui.tui.event.KeyCode;
 import dev.tamboui.tui.event.KeyEvent;
 import dev.tamboui.widgets.Clear;
 import dev.tamboui.widgets.block.Block;
-import dev.tamboui.layout.BorderType;
+import dev.tamboui.widgets.block.BorderType;
 import dev.tamboui.widgets.block.Borders;
 import dev.tamboui.widgets.block.Title;
 

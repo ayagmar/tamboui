@@ -16,11 +16,14 @@ import dev.tamboui.style.Overflow;
 import dev.tamboui.style.PropertyDefinition;
 import dev.tamboui.style.StylePropertyResolver;
 import dev.tamboui.style.Style;
-import dev.tamboui.layout.BorderType;
+import dev.tamboui.widgets.block.Block;
+import dev.tamboui.widgets.block.BorderType;
 import dev.tamboui.layout.Padding;
 
 import java.util.Collections;
 import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -40,12 +43,14 @@ import java.util.Set;
  */
 public final class CssStyleResolver implements StylePropertyResolver {
 
-    private static final CssStyleResolver EMPTY = new CssStyleResolver(TypedPropertyMap.empty());
+    private static final CssStyleResolver EMPTY = new CssStyleResolver(TypedPropertyMap.empty(), Collections.emptyMap());
 
     private final TypedPropertyMap properties;
+    private final Map<String, String> rawValues;
 
-    private CssStyleResolver(TypedPropertyMap properties) {
+    private CssStyleResolver(TypedPropertyMap properties, Map<String, String> rawValues) {
         this.properties = properties;
+        this.rawValues = rawValues;
     }
 
     /**
@@ -63,6 +68,14 @@ public final class CssStyleResolver implements StylePropertyResolver {
 
     /**
      * Retrieves a typed property value using the given property definition.
+     * <p>
+     * The resolution order is:
+     * <ol>
+     *   <li>Check for a pre-converted value in the typed property map</li>
+     *   <li>Check for a raw CSS value and convert using the property's converter</li>
+     * </ol>
+     * This allows widget-defined properties to be resolved from CSS without
+     * requiring the CSS engine to know about all properties upfront.
      *
      * @param property the property definition
      * @param <T>      the type of the property value
@@ -70,7 +83,19 @@ public final class CssStyleResolver implements StylePropertyResolver {
      */
     @Override
     public <T> Optional<T> get(PropertyDefinition<T> property) {
-        return properties.get(property);
+        // First, check the typed property map
+        Optional<T> typed = properties.get(property);
+        if (typed.isPresent()) {
+            return typed;
+        }
+
+        // Fall back to lazy conversion from raw values
+        String rawValue = rawValues.get(property.name());
+        if (rawValue != null) {
+            return property.convert(rawValue);
+        }
+
+        return Optional.empty();
     }
 
     // ═══════════════════════════════════════════════════════════════
@@ -133,7 +158,7 @@ public final class CssStyleResolver implements StylePropertyResolver {
      * @return the border type
      */
     public Optional<BorderType> borderType() {
-        return get(StandardProperties.BORDER_TYPE);
+        return get(Block.BORDER_TYPE);
     }
 
     /**
@@ -142,7 +167,7 @@ public final class CssStyleResolver implements StylePropertyResolver {
      * @return the border color
      */
     public Optional<Color> borderColor() {
-        return get(StandardProperties.BORDER_COLOR);
+        return get(Block.BORDER_COLOR);
     }
 
     /**
@@ -219,7 +244,7 @@ public final class CssStyleResolver implements StylePropertyResolver {
      * @return the border-chars value
      */
     public Optional<String> borderChars() {
-        return get(StandardProperties.BORDER_CHARS);
+        return get(Block.BORDER_CHARS);
     }
 
     /**
@@ -228,7 +253,7 @@ public final class CssStyleResolver implements StylePropertyResolver {
      * @return the border-top value
      */
     public Optional<String> borderTop() {
-        return get(StandardProperties.BORDER_TOP);
+        return get(Block.BORDER_TOP);
     }
 
     /**
@@ -237,7 +262,7 @@ public final class CssStyleResolver implements StylePropertyResolver {
      * @return the border-bottom value
      */
     public Optional<String> borderBottom() {
-        return get(StandardProperties.BORDER_BOTTOM);
+        return get(Block.BORDER_BOTTOM);
     }
 
     /**
@@ -246,7 +271,7 @@ public final class CssStyleResolver implements StylePropertyResolver {
      * @return the border-left value
      */
     public Optional<String> borderLeft() {
-        return get(StandardProperties.BORDER_LEFT);
+        return get(Block.BORDER_LEFT);
     }
 
     /**
@@ -255,7 +280,7 @@ public final class CssStyleResolver implements StylePropertyResolver {
      * @return the border-right value
      */
     public Optional<String> borderRight() {
-        return get(StandardProperties.BORDER_RIGHT);
+        return get(Block.BORDER_RIGHT);
     }
 
     /**
@@ -264,7 +289,7 @@ public final class CssStyleResolver implements StylePropertyResolver {
      * @return the border-top-left value
      */
     public Optional<String> borderTopLeft() {
-        return get(StandardProperties.BORDER_TOP_LEFT);
+        return get(Block.BORDER_TOP_LEFT);
     }
 
     /**
@@ -273,7 +298,7 @@ public final class CssStyleResolver implements StylePropertyResolver {
      * @return the border-top-right value
      */
     public Optional<String> borderTopRight() {
-        return get(StandardProperties.BORDER_TOP_RIGHT);
+        return get(Block.BORDER_TOP_RIGHT);
     }
 
     /**
@@ -282,7 +307,7 @@ public final class CssStyleResolver implements StylePropertyResolver {
      * @return the border-bottom-left value
      */
     public Optional<String> borderBottomLeft() {
-        return get(StandardProperties.BORDER_BOTTOM_LEFT);
+        return get(Block.BORDER_BOTTOM_LEFT);
     }
 
     /**
@@ -291,7 +316,7 @@ public final class CssStyleResolver implements StylePropertyResolver {
      * @return the border-bottom-right value
      */
     public Optional<String> borderBottomRight() {
-        return get(StandardProperties.BORDER_BOTTOM_RIGHT);
+        return get(Block.BORDER_BOTTOM_RIGHT);
     }
 
     // ═══════════════════════════════════════════════════════════════
@@ -327,7 +352,7 @@ public final class CssStyleResolver implements StylePropertyResolver {
      * @return true if any properties are set
      */
     public boolean hasProperties() {
-        return !properties.isEmpty();
+        return !properties.isEmpty() || !rawValues.isEmpty();
     }
 
     /**
@@ -344,7 +369,8 @@ public final class CssStyleResolver implements StylePropertyResolver {
         if (fallback == null) {
             return this;
         }
-        return new CssStyleResolver(properties.withFallback(fallback.properties));
+        // Raw values are not inherited - only typed properties with inheritable flag
+        return new CssStyleResolver(properties.withFallback(fallback.properties), this.rawValues);
     }
 
     /**
@@ -361,6 +387,7 @@ public final class CssStyleResolver implements StylePropertyResolver {
      */
     public static final class Builder {
         private final TypedPropertyMap.Builder properties = TypedPropertyMap.builder();
+        private final Map<String, String> rawValues = new HashMap<>();
         private final Set<Modifier> modifiers = EnumSet.noneOf(Modifier.class);
 
         private Builder() {
@@ -377,6 +404,25 @@ public final class CssStyleResolver implements StylePropertyResolver {
         public <T> Builder set(PropertyDefinition<T> property, T value) {
             if (value != null) {
                 properties.put(property, value);
+            }
+            return this;
+        }
+
+        /**
+         * Sets a raw property value for lazy conversion.
+         * <p>
+         * Raw values are stored by property name and converted lazily when
+         * accessed via {@link CssStyleResolver#get(PropertyDefinition)}.
+         * This enables widget-defined properties to be resolved from CSS
+         * without requiring the CSS engine to know all property definitions.
+         *
+         * @param propertyName the CSS property name
+         * @param value        the raw CSS value (already variable-resolved)
+         * @return this builder
+         */
+        public Builder setRaw(String propertyName, String value) {
+            if (propertyName != null && value != null) {
+                rawValues.put(propertyName, value);
             }
             return this;
         }
@@ -452,7 +498,7 @@ public final class CssStyleResolver implements StylePropertyResolver {
          * @return this builder
          */
         public Builder borderType(BorderType borderType) {
-            return set(StandardProperties.BORDER_TYPE, borderType);
+            return set(Block.BORDER_TYPE, borderType);
         }
 
         /**
@@ -525,12 +571,15 @@ public final class CssStyleResolver implements StylePropertyResolver {
             if (!modifiers.isEmpty()) {
                 properties.put(StandardProperties.TEXT_STYLE, modifiers);
             }
-            return new CssStyleResolver(properties.build());
+            Map<String, String> finalRawValues = rawValues.isEmpty()
+                    ? Collections.emptyMap()
+                    : Collections.unmodifiableMap(new HashMap<>(rawValues));
+            return new CssStyleResolver(properties.build(), finalRawValues);
         }
     }
 
     @Override
     public String toString() {
-        return "CssStyleResolver{properties=" + properties + "}";
+        return "CssStyleResolver{properties=" + properties + ", rawValues=" + rawValues + "}";
     }
 }

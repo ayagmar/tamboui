@@ -9,6 +9,7 @@ import dev.tamboui.layout.Rect;
 import dev.tamboui.style.Color;
 import dev.tamboui.style.ColorConverter;
 import dev.tamboui.style.PropertyDefinition;
+import dev.tamboui.style.PropertyRegistry;
 import dev.tamboui.style.StylePropertyResolver;
 import dev.tamboui.style.StandardProperties;
 import dev.tamboui.style.Style;
@@ -49,6 +50,10 @@ public final class Tabs implements StatefulWidget<TabsState> {
      */
     public static final PropertyDefinition<Color> HIGHLIGHT_COLOR =
             PropertyDefinition.of("highlight-color", ColorConverter.INSTANCE);
+
+    static {
+        PropertyRegistry.register(HIGHLIGHT_COLOR);
+    }
 
     private final List<Line> titles;
     private final Block block;

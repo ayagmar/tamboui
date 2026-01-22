@@ -215,11 +215,12 @@ Widgets can support CSS styling by accepting a `StylePropertyResolver` and using
 
 === Defining Custom Properties
 
-Define custom properties as static constants using `PropertyDefinition`:
+Define custom properties as static constants using `PropertyDefinition` and register them with `PropertyRegistry`:
 
 [source,java]
 ----
 import dev.tamboui.style.PropertyDefinition;
+import dev.tamboui.style.PropertyRegistry;
 import dev.tamboui.style.ColorConverter;
 import dev.tamboui.style.Color;
 
@@ -228,9 +229,22 @@ public class MyGauge implements Widget {
     public static final PropertyDefinition<Color> BAR_COLOR =
         PropertyDefinition.of("bar-color", ColorConverter.INSTANCE);
 
+    // Register the property so style resolvers recognize it
+    static {
+        PropertyRegistry.register(BAR_COLOR);
+    }
+
     // ...
 }
 ----
+
+TIP: For multiple properties, use `PropertyRegistry.registerAll(PROP1, PROP2, ...)`.
+
+Registering properties with `PropertyRegistry` is important because:
+
+* Style resolvers use the registry to validate property names
+* Unregistered properties may trigger warnings or errors depending on configuration
+* Registration enables the property converter to be used during style resolution
 
 This allows users to style your widget with CSS:
 

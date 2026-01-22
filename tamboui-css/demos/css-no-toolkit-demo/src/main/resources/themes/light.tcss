@@ -12,6 +12,11 @@ $highlight-bg: #d0d0d0;
     color: $fg-primary;
 }
 
+/* Layout containers need background to fill gaps between panels */
+Row, Column {
+    background: $bg-primary;
+}
+
 /* Panel styling */
 Panel {
     background: $bg-primary;

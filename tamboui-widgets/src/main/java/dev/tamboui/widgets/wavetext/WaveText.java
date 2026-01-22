@@ -10,6 +10,7 @@ import dev.tamboui.style.Color;
 import dev.tamboui.style.DoubleConverter;
 import dev.tamboui.style.IntegerConverter;
 import dev.tamboui.style.PropertyDefinition;
+import dev.tamboui.style.PropertyRegistry;
 import dev.tamboui.style.StandardProperties;
 import dev.tamboui.style.Style;
 import dev.tamboui.style.StylePropertyResolver;
@@ -93,6 +94,10 @@ public final class WaveText implements StatefulWidget<WaveTextState> {
      */
     public static final PropertyDefinition<Double> SPEED =
             PropertyDefinition.of("wave-speed", DoubleConverter.INSTANCE);
+
+    static {
+        PropertyRegistry.registerAll(DIM_FACTOR, PEAK_WIDTH, PEAK_COUNT, SPEED);
+    }
 
     private final String text;
     private final Color color;

@@ -10,6 +10,7 @@ import dev.tamboui.layout.Rect;
 import dev.tamboui.style.Color;
 import dev.tamboui.style.ColorConverter;
 import dev.tamboui.style.PropertyDefinition;
+import dev.tamboui.style.PropertyRegistry;
 import dev.tamboui.style.StylePropertyResolver;
 import dev.tamboui.style.StandardProperties;
 import dev.tamboui.style.Style;
@@ -74,6 +75,10 @@ public final class BarChart implements Widget {
      */
     public static final PropertyDefinition<Color> LABEL_COLOR =
             PropertyDefinition.of("label-color", ColorConverter.INSTANCE);
+
+    static {
+        PropertyRegistry.registerAll(BAR_COLOR, VALUE_COLOR, LABEL_COLOR);
+    }
 
     /**
      * Symbol set for rendering bar fills.

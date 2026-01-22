@@ -4,7 +4,6 @@
  */
 package dev.tamboui.toolkit.elements;
 
-import dev.tamboui.css.cascade.CssStyleResolver;
 import dev.tamboui.css.cascade.PseudoClassState;
 import dev.tamboui.toolkit.element.RenderContext;
 import dev.tamboui.toolkit.element.StyledElement;
@@ -13,7 +12,7 @@ import dev.tamboui.style.Color;
 import dev.tamboui.style.Style;
 import dev.tamboui.terminal.Frame;
 import dev.tamboui.widgets.block.Block;
-import dev.tamboui.layout.BorderType;
+import dev.tamboui.widgets.block.BorderType;
 import dev.tamboui.widgets.block.Borders;
 import dev.tamboui.widgets.block.Title;
 import dev.tamboui.text.Span;

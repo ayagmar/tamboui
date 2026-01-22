@@ -11,6 +11,7 @@ import dev.tamboui.layout.Rect;
 import dev.tamboui.style.Color;
 import dev.tamboui.style.ColorConverter;
 import dev.tamboui.style.PropertyDefinition;
+import dev.tamboui.style.PropertyRegistry;
 import dev.tamboui.style.StylePropertyResolver;
 import dev.tamboui.style.StandardProperties;
 import dev.tamboui.style.Style;
@@ -46,6 +47,10 @@ public final class TextArea implements StatefulWidget<TextAreaState> {
      */
     public static final PropertyDefinition<Color> LINE_NUMBER_COLOR =
             PropertyDefinition.of("line-number-color", ColorConverter.INSTANCE);
+
+    static {
+        PropertyRegistry.registerAll(CURSOR_COLOR, PLACEHOLDER_COLOR, LINE_NUMBER_COLOR);
+    }
 
     private final Block block;
     private final Style style;

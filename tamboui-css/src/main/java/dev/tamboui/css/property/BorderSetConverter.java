@@ -4,7 +4,7 @@
  */
 package dev.tamboui.css.property;
 
-import dev.tamboui.layout.BorderSet;
+import dev.tamboui.widgets.block.BorderSet;
 
 import java.util.ArrayList;
 import java.util.List;

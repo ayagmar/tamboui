@@ -108,14 +108,19 @@ class CssRenderingTest {
         Cell cell0 = buffer.get(0, 0);
         System.out.println("Cell at (0,0): symbol='" + cell0.symbol() + "' style=" + cell0.style());
 
-        // Check that cell 10 (no text) - Row doesn't fill background since * doesn't set it
+        // Check that cell 10 (no text) - Row fills its background from CSS rule
         Cell cell10 = buffer.get(10, 0);
         System.out.println("Cell at (10,0): symbol='" + cell10.symbol() + "' style=" + cell10.style());
 
         // TextElement has foreground from CSS
         assertThat(cell0.style().fg()).isPresent();
-        // Row doesn't have background since * doesn't set it
-        assertThat(cell0.style().bg()).isEmpty();
+        // Row has background from "Row, Column" CSS rule (#eeeeee in light theme)
+        assertThat(cell0.style().bg()).isPresent();
+        assertThat(cell0.style().bg().get()).isInstanceOf(Color.Rgb.class);
+        Color.Rgb rowBg = (Color.Rgb) cell0.style().bg().get();
+        assertThat(rowBg.r()).isEqualTo(0xee);
+        assertThat(rowBg.g()).isEqualTo(0xee);
+        assertThat(rowBg.b()).isEqualTo(0xee);
     }
 
     @Test
@@ -129,14 +134,19 @@ class CssRenderingTest {
         Cell cell0 = buffer.get(0, 0);
         System.out.println("Cell at (0,0): symbol='" + cell0.symbol() + "' style=" + cell0.style());
 
-        // Check that cell on row 1 (no text) - Column doesn't fill background since * doesn't set it
+        // Check that cell on row 1 (no text) - Column fills its background from CSS rule
         Cell cell01 = buffer.get(0, 1);
         System.out.println("Cell at (0,1): symbol='" + cell01.symbol() + "' style=" + cell01.style());
 
         // TextElement has foreground from CSS
         assertThat(cell0.style().fg()).isPresent();
-        // Column doesn't have background since * doesn't set it
-        assertThat(cell0.style().bg()).isEmpty();
+        // Column has background from "Row, Column" CSS rule (#eeeeee in light theme)
+        assertThat(cell0.style().bg()).isPresent();
+        assertThat(cell0.style().bg().get()).isInstanceOf(Color.Rgb.class);
+        Color.Rgb colBg = (Color.Rgb) cell0.style().bg().get();
+        assertThat(colBg.r()).isEqualTo(0xee);
+        assertThat(colBg.g()).isEqualTo(0xee);
+        assertThat(colBg.b()).isEqualTo(0xee);
     }
 
     @Test

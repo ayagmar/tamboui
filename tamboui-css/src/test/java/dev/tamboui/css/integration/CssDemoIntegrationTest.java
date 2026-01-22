@@ -265,8 +265,8 @@ class CssDemoIntegrationTest {
         }
 
         @Test
-        @DisplayName("Row - gets white foreground from * (no background)")
-        void row_inheritsFromUniversal() {
+        @DisplayName("Row - gets white foreground from *, black background from Row rule")
+        void row_hasBackgroundFromRowRule() {
             Styleable row = createStyleable("Row", null, Collections.emptySet());
             CssStyleResolver resolved = styleEngine.resolve(row);
             Style style = resolved.toStyle();
@@ -274,13 +274,14 @@ class CssDemoIntegrationTest {
             // Gets foreground from * selector
             assertThat(style.fg()).isPresent();
             assertThat(style.fg().get()).isEqualTo(Color.WHITE);
-            // No background - Row should be transparent over parent backgrounds
-            assertThat(style.bg()).isEmpty();
+            // Background from Row rule: background: $bg-primary (black)
+            assertThat(style.bg()).isPresent();
+            assertThat(style.bg().get()).isEqualTo(Color.BLACK);
         }
 
         @Test
-        @DisplayName("Column - gets white foreground from * (no background)")
-        void column_inheritsFromUniversal() {
+        @DisplayName("Column - gets white foreground from *, black background from Column rule")
+        void column_hasBackgroundFromColumnRule() {
             Styleable column = createStyleable("Column", null, Collections.emptySet());
             CssStyleResolver resolved = styleEngine.resolve(column);
             Style style = resolved.toStyle();
@@ -288,8 +289,9 @@ class CssDemoIntegrationTest {
             // Gets foreground from * selector
             assertThat(style.fg()).isPresent();
             assertThat(style.fg().get()).isEqualTo(Color.WHITE);
-            // No background - Column should be transparent over parent backgrounds
-            assertThat(style.bg()).isEmpty();
+            // Background from Column rule: background: $bg-primary (black)
+            assertThat(style.bg()).isPresent();
+            assertThat(style.bg().get()).isEqualTo(Color.BLACK);
         }
     }
 
@@ -560,8 +562,8 @@ class CssDemoIntegrationTest {
         }
 
         @Test
-        @DisplayName("Row - gets #1a1a1a foreground from * (no background)")
-        void row_inheritsFromUniversal() {
+        @DisplayName("Row - gets #1a1a1a foreground from *, #eeeeee background from Row rule")
+        void row_hasBackgroundFromRowRule() {
             Styleable row = createStyleable("Row", null, Collections.emptySet());
             CssStyleResolver resolved = styleEngine.resolve(row);
             Style style = resolved.toStyle();
@@ -571,13 +573,18 @@ class CssDemoIntegrationTest {
             assertThat(style.fg().get()).isInstanceOf(Color.Rgb.class);
             Color.Rgb fg = (Color.Rgb) style.fg().get();
             assertThat(fg.r()).isEqualTo(0x1a);
-            // No background - Row should be transparent over parent backgrounds
-            assertThat(style.bg()).isEmpty();
+            // Background from Row rule: background: $bg-primary (#eeeeee)
+            assertThat(style.bg()).isPresent();
+            assertThat(style.bg().get()).isInstanceOf(Color.Rgb.class);
+            Color.Rgb bg = (Color.Rgb) style.bg().get();
+            assertThat(bg.r()).isEqualTo(0xee);
+            assertThat(bg.g()).isEqualTo(0xee);
+            assertThat(bg.b()).isEqualTo(0xee);
         }
 
         @Test
-        @DisplayName("Column - gets #1a1a1a foreground from * (no background)")
-        void column_inheritsFromUniversal() {
+        @DisplayName("Column - gets #1a1a1a foreground from *, #eeeeee background from Column rule")
+        void column_hasBackgroundFromColumnRule() {
             Styleable column = createStyleable("Column", null, Collections.emptySet());
             CssStyleResolver resolved = styleEngine.resolve(column);
             Style style = resolved.toStyle();
@@ -587,8 +594,13 @@ class CssDemoIntegrationTest {
             assertThat(style.fg().get()).isInstanceOf(Color.Rgb.class);
             Color.Rgb fg = (Color.Rgb) style.fg().get();
             assertThat(fg.r()).isEqualTo(0x1a);
-            // No background - Column should be transparent over parent backgrounds
-            assertThat(style.bg()).isEmpty();
+            // Background from Column rule: background: $bg-primary (#eeeeee)
+            assertThat(style.bg()).isPresent();
+            assertThat(style.bg().get()).isInstanceOf(Color.Rgb.class);
+            Color.Rgb bg = (Color.Rgb) style.bg().get();
+            assertThat(bg.r()).isEqualTo(0xee);
+            assertThat(bg.g()).isEqualTo(0xee);
+            assertThat(bg.b()).isEqualTo(0xee);
         }
     }
 

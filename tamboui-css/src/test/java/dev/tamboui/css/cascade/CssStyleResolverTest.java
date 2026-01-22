@@ -9,7 +9,7 @@ import dev.tamboui.layout.Constraint;
 import dev.tamboui.style.Color;
 import dev.tamboui.style.Modifier;
 import dev.tamboui.style.Style;
-import dev.tamboui.layout.BorderType;
+import dev.tamboui.widgets.block.BorderType;
 import dev.tamboui.layout.Padding;
 import org.junit.jupiter.api.Test;
 

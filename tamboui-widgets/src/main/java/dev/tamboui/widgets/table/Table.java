@@ -11,6 +11,7 @@ import dev.tamboui.layout.Rect;
 import dev.tamboui.style.Color;
 import dev.tamboui.style.ColorConverter;
 import dev.tamboui.style.PropertyDefinition;
+import dev.tamboui.style.PropertyRegistry;
 import dev.tamboui.style.StylePropertyResolver;
 import dev.tamboui.style.StandardProperties;
 import dev.tamboui.style.Style;
@@ -62,6 +63,10 @@ public final class Table implements StatefulWidget<TableState> {
      */
     public static final PropertyDefinition<Color> HIGHLIGHT_COLOR =
             PropertyDefinition.of("highlight-color", ColorConverter.INSTANCE);
+
+    static {
+        PropertyRegistry.register(HIGHLIGHT_COLOR);
+    }
 
     private final List<Row> rows;
     private final List<Constraint> widths;

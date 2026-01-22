@@ -5,8 +5,6 @@
 package dev.tamboui.style;
 
 import dev.tamboui.layout.Alignment;
-import dev.tamboui.layout.BorderType;
-import dev.tamboui.layout.BorderTypeConverter;
 import dev.tamboui.layout.Constraint;
 import dev.tamboui.layout.ConstraintConverter;
 import dev.tamboui.layout.Direction;
@@ -68,7 +66,6 @@ public final class StandardProperties {
     public static final String NAME_PADDING = "padding";
     public static final String NAME_MARGIN = "margin";
     public static final String NAME_TEXT_ALIGN = "text-align";
-    public static final String NAME_BORDER_TYPE = "border-type";
     public static final String NAME_FLEX = "flex";
     public static final String NAME_DIRECTION = "direction";
     public static final String NAME_SPACING = "spacing";
@@ -97,17 +94,6 @@ public final class StandardProperties {
                     .inheritable()
                     .build();
 
-    /**
-     * The {@code border-type} property for border style.
-     * This property is inheritable - nested panels inherit border type.
-     * Default: {@link BorderType#PLAIN}
-     */
-    public static final PropertyDefinition<BorderType> BORDER_TYPE =
-            PropertyDefinition.builder(NAME_BORDER_TYPE, BorderTypeConverter.INSTANCE)
-                    .inheritable()
-                    .defaultValue(BorderType.PLAIN)
-                    .build();
-
     // ═══════════════════════════════════════════════════════════════
     // Non-inheritable properties
     // ═══════════════════════════════════════════════════════════════
@@ -125,13 +111,6 @@ public final class StandardProperties {
      */
     public static final PropertyDefinition<Color> BACKGROUND_COLOR =
             PropertyDefinition.of(NAME_BACKGROUND_COLOR, ColorConverter.INSTANCE);
-
-    /**
-     * The {@code border-color} property.
-     * This property is NOT inheritable.
-     */
-    public static final PropertyDefinition<Color> BORDER_COLOR =
-            PropertyDefinition.of("border-color", ColorConverter.INSTANCE);
 
     /**
      * The {@code padding} property for inner spacing.
@@ -210,74 +189,6 @@ public final class StandardProperties {
                     .build();
 
     // ═══════════════════════════════════════════════════════════════
-    // Border character properties (strings)
-    // ═══════════════════════════════════════════════════════════════
-
-    /**
-     * The {@code border-chars} property for custom border character sets.
-     * Format: 8 quoted strings (top-h, bottom-h, left-v, right-v, tl, tr, bl, br).
-     * This property is NOT inheritable.
-     */
-    public static final PropertyDefinition<String> BORDER_CHARS =
-            PropertyDefinition.of("border-chars", StringConverter.INSTANCE);
-
-    /**
-     * The {@code border-top} property for the top horizontal border character.
-     * This property is NOT inheritable.
-     */
-    public static final PropertyDefinition<String> BORDER_TOP =
-            PropertyDefinition.of("border-top", BorderCharConverter.INSTANCE);
-
-    /**
-     * The {@code border-bottom} property for the bottom horizontal border character.
-     * This property is NOT inheritable.
-     */
-    public static final PropertyDefinition<String> BORDER_BOTTOM =
-            PropertyDefinition.of("border-bottom", BorderCharConverter.INSTANCE);
-
-    /**
-     * The {@code border-left} property for the left vertical border character.
-     * This property is NOT inheritable.
-     */
-    public static final PropertyDefinition<String> BORDER_LEFT =
-            PropertyDefinition.of("border-left", BorderCharConverter.INSTANCE);
-
-    /**
-     * The {@code border-right} property for the right vertical border character.
-     * This property is NOT inheritable.
-     */
-    public static final PropertyDefinition<String> BORDER_RIGHT =
-            PropertyDefinition.of("border-right", BorderCharConverter.INSTANCE);
-
-    /**
-     * The {@code border-top-left} property for the top-left corner character.
-     * This property is NOT inheritable.
-     */
-    public static final PropertyDefinition<String> BORDER_TOP_LEFT =
-            PropertyDefinition.of("border-top-left", BorderCharConverter.INSTANCE);
-
-    /**
-     * The {@code border-top-right} property for the top-right corner character.
-     * This property is NOT inheritable.
-     */
-    public static final PropertyDefinition<String> BORDER_TOP_RIGHT =
-            PropertyDefinition.of("border-top-right", BorderCharConverter.INSTANCE);
-
-    /**
-     * The {@code border-bottom-left} property for the bottom-left corner character.
-     * This property is NOT inheritable.
-     */
-    public static final PropertyDefinition<String> BORDER_BOTTOM_LEFT =
-            PropertyDefinition.of("border-bottom-left", BorderCharConverter.INSTANCE);
-
-    /**
-     * The {@code border-bottom-right} property for the bottom-right corner character.
-     * This property is NOT inheritable.
-     */
-    public static final PropertyDefinition<String> BORDER_BOTTOM_RIGHT =
-            PropertyDefinition.of("border-bottom-right", BorderCharConverter.INSTANCE);
-
-    // ═══════════════════════════════════════════════════════════════
     // Registry lookup
     // ═══════════════════════════════════════════════════════════════
 
@@ -286,10 +197,8 @@ public final class StandardProperties {
     static {
         register(COLOR);
         register(TEXT_STYLE);
-        register(BORDER_TYPE);
         register(BACKGROUND);
         register(BACKGROUND_COLOR);
-        register(BORDER_COLOR);
         register(PADDING);
         register(MARGIN);
         register(TEXT_ALIGN);
@@ -299,19 +208,11 @@ public final class StandardProperties {
         register(WIDTH);
         register(HEIGHT);
         register(TEXT_OVERFLOW);
-        register(BORDER_CHARS);
-        register(BORDER_TOP);
-        register(BORDER_BOTTOM);
-        register(BORDER_LEFT);
-        register(BORDER_RIGHT);
-        register(BORDER_TOP_LEFT);
-        register(BORDER_TOP_RIGHT);
-        register(BORDER_BOTTOM_LEFT);
-        register(BORDER_BOTTOM_RIGHT);
     }
 
     private static void register(PropertyDefinition<?> property) {
         BY_NAME.put(property.name(), property);
+        PropertyRegistry.register(property);
     }
 
     /**

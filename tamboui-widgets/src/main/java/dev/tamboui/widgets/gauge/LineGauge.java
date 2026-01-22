@@ -10,6 +10,7 @@ import dev.tamboui.layout.Rect;
 import dev.tamboui.style.Color;
 import dev.tamboui.style.ColorConverter;
 import dev.tamboui.style.PropertyDefinition;
+import dev.tamboui.style.PropertyRegistry;
 import dev.tamboui.style.StylePropertyResolver;
 import dev.tamboui.style.StandardProperties;
 import dev.tamboui.style.Style;
@@ -64,6 +65,10 @@ public final class LineGauge implements Widget {
      */
     public static final PropertyDefinition<Color> UNFILLED_COLOR =
             PropertyDefinition.of("unfilled-color", ColorConverter.INSTANCE);
+
+    static {
+        PropertyRegistry.registerAll(FILLED_COLOR, UNFILLED_COLOR);
+    }
 
     private final double ratio;
     private final Line label;

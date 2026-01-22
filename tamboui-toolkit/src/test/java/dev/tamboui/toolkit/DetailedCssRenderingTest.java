@@ -226,25 +226,29 @@ class DetailedCssRenderingTest {
         }
 
         @Test
-        @DisplayName("Row does not fill area (no background from *)")
-        void row_noBackgroundFromUniversalSelector() {
+        @DisplayName("Row fills area with background from Row CSS rule")
+        void row_fillsBackgroundFromRowRule() {
             Row row = new Row(new TextElement("Hello"));
             row.render(frame, new Rect(0, 0, 20, 1), context);
 
-            // Check cell beyond text content - Row doesn't fill since * doesn't set background
+            // Check cell beyond text content - Row fills its background from CSS rule
             Cell emptyCell = buffer.get(15, 0);
-            assertThat(emptyCell.style().bg()).isEmpty();
+            assertThat(emptyCell.style().bg()).isPresent();
+            // Dark theme: Row { background: $bg-primary } which is BLACK
+            assertThat(emptyCell.style().bg().get()).isEqualTo(Color.BLACK);
         }
 
         @Test
-        @DisplayName("Column does not fill area (no background from *)")
-        void column_noBackgroundFromUniversalSelector() {
+        @DisplayName("Column fills area with background from Column CSS rule")
+        void column_fillsBackgroundFromColumnRule() {
             Column column = new Column(new TextElement("Hello"));
             column.render(frame, new Rect(0, 0, 20, 5), context);
 
-            // Check cell below text content - Column doesn't fill since * doesn't set background
+            // Check cell below text content - Column fills its background from CSS rule
             Cell emptyCell = buffer.get(0, 3);
-            assertThat(emptyCell.style().bg()).isEmpty();
+            assertThat(emptyCell.style().bg()).isPresent();
+            // Dark theme: Column { background: $bg-primary } which is BLACK
+            assertThat(emptyCell.style().bg().get()).isEqualTo(Color.BLACK);
         }
     }
 
@@ -465,25 +469,35 @@ class DetailedCssRenderingTest {
         }
 
         @Test
-        @DisplayName("Row does not fill area (no background from *)")
-        void row_noBackgroundFromUniversalSelector() {
+        @DisplayName("Row fills area with background from Row CSS rule")
+        void row_fillsBackgroundFromRowRule() {
             Row row = new Row(new TextElement("Hello"));
             row.render(frame, new Rect(0, 0, 20, 1), context);
 
-            // Check cell beyond text content - Row doesn't fill since * doesn't set background
+            // Check cell beyond text content - Row fills its background from CSS rule
             Cell emptyCell = buffer.get(15, 0);
-            assertThat(emptyCell.style().bg()).isEmpty();
+            assertThat(emptyCell.style().bg()).isPresent();
+            // Light theme: Row { background: $bg-primary } which is #eeeeee
+            Color.Rgb bgColor = (Color.Rgb) emptyCell.style().bg().get();
+            assertThat(bgColor.r()).isEqualTo(0xee);
+            assertThat(bgColor.g()).isEqualTo(0xee);
+            assertThat(bgColor.b()).isEqualTo(0xee);
         }
 
         @Test
-        @DisplayName("Column does not fill area (no background from *)")
-        void column_noBackgroundFromUniversalSelector() {
+        @DisplayName("Column fills area with background from Column CSS rule")
+        void column_fillsBackgroundFromColumnRule() {
             Column column = new Column(new TextElement("Hello"));
             column.render(frame, new Rect(0, 0, 20, 5), context);
 
-            // Check cell below text content - Column doesn't fill since * doesn't set background
+            // Check cell below text content - Column fills its background from CSS rule
             Cell emptyCell = buffer.get(0, 3);
-            assertThat(emptyCell.style().bg()).isEmpty();
+            assertThat(emptyCell.style().bg()).isPresent();
+            // Light theme: Column { background: $bg-primary } which is #eeeeee
+            Color.Rgb bgColor = (Color.Rgb) emptyCell.style().bg().get();
+            assertThat(bgColor.r()).isEqualTo(0xee);
+            assertThat(bgColor.g()).isEqualTo(0xee);
+            assertThat(bgColor.b()).isEqualTo(0xee);
         }
     }
 

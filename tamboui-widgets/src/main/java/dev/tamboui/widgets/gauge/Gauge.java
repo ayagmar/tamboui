@@ -10,6 +10,7 @@ import dev.tamboui.layout.Rect;
 import dev.tamboui.style.Color;
 import dev.tamboui.style.ColorConverter;
 import dev.tamboui.style.PropertyDefinition;
+import dev.tamboui.style.PropertyRegistry;
 import dev.tamboui.style.StylePropertyResolver;
 import dev.tamboui.style.StandardProperties;
 import dev.tamboui.style.Style;
@@ -57,6 +58,10 @@ public final class Gauge implements Widget {
      */
     public static final PropertyDefinition<Color> GAUGE_COLOR =
             PropertyDefinition.of("gauge-color", ColorConverter.INSTANCE);
+
+    static {
+        PropertyRegistry.register(GAUGE_COLOR);
+    }
 
     private final double ratio;
     private final Line label;

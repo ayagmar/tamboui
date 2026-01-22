@@ -9,6 +9,7 @@ import dev.tamboui.layout.Rect;
 import dev.tamboui.style.Color;
 import dev.tamboui.style.ColorConverter;
 import dev.tamboui.style.PropertyDefinition;
+import dev.tamboui.style.PropertyRegistry;
 import dev.tamboui.style.StylePropertyResolver;
 import dev.tamboui.style.Style;
 import dev.tamboui.widget.StatefulWidget;
@@ -62,6 +63,10 @@ public final class Scrollbar implements StatefulWidget<ScrollbarState> {
      */
     public static final PropertyDefinition<Color> TRACK_COLOR =
             PropertyDefinition.of("track-color", ColorConverter.INSTANCE);
+
+    static {
+        PropertyRegistry.registerAll(THUMB_COLOR, TRACK_COLOR);
+    }
 
     /**
      * Scrollbar symbol set for rendering.

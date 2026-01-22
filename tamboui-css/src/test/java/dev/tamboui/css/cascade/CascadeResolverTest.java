@@ -6,10 +6,7 @@ package dev.tamboui.css.cascade;
 
 import dev.tamboui.css.Styleable;
 import dev.tamboui.css.engine.StyleEngine;
-import dev.tamboui.css.model.Stylesheet;
-import dev.tamboui.css.parser.CssParser;
-import dev.tamboui.layout.BorderType;
-import dev.tamboui.style.Color;
+import dev.tamboui.widgets.block.BorderType;
 import dev.tamboui.style.Style;
 import org.junit.jupiter.api.Test;
 

@@ -747,6 +747,37 @@ public static final PropertyDefinition<Color> COLOR =
         .build();
 ----
 
+=== PropertyRegistry
+
+The `PropertyRegistry` is a registry where all property definitions must be registered for the style system to recognize them:
+
+[source,java]
+----
+import dev.tamboui.style.PropertyRegistry;
+
+// Register a single property
+PropertyRegistry.register(MY_PROPERTY);
+
+// Register multiple properties at once
+PropertyRegistry.registerAll(PROPERTY_A, PROPERTY_B, PROPERTY_C);
+----
+
+When a widget defines custom properties, it should register them in a static initializer block:
+
+[source,java]
+----
+public class MyWidget {
+    public static final PropertyDefinition<Color> BAR_COLOR = ...;
+    public static final PropertyDefinition<Integer> BAR_WIDTH = ...;
+
+    static {
+        PropertyRegistry.registerAll(BAR_COLOR, BAR_WIDTH);
+    }
+}
+----
+
+Unregistered properties may trigger warnings or errors depending on the style engine configuration.
+
 === StandardProperties
 
 The `StandardProperties` class defines all built-in core properties. It serves as the central registry for properties that all widgets can use:

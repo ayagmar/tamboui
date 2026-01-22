@@ -2,7 +2,7 @@
  * Copyright (c) 2025 TamboUI Contributors
  * SPDX-License-Identifier: MIT
  */
-package dev.tamboui.layout;
+package dev.tamboui.widgets.block;
 
 import dev.tamboui.style.PropertyConverter;
 
