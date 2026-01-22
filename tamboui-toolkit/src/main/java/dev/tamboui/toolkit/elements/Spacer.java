@@ -61,6 +61,26 @@ public final class Spacer implements Element {
     }
 
     @Override
+    public int preferredWidth() {
+        // If spacer has a fixed length constraint, return it
+        if (layoutConstraint instanceof Constraint.Length) {
+            return ((Constraint.Length) layoutConstraint).value();
+        }
+        // For fill() and other constraints, return 0 (will expand during layout)
+        return 0;
+    }
+
+    @Override
+    public int preferredHeight() {
+        // If spacer has a fixed length constraint, return it
+        if (layoutConstraint instanceof Constraint.Length) {
+            return ((Constraint.Length) layoutConstraint).value();
+        }
+        // For fill() and other constraints, return 0 (will expand during layout)
+        return 0;
+    }
+
+    @Override
     public void render(Frame frame, Rect area, RenderContext context) {
         // Spacer renders nothing
     }
