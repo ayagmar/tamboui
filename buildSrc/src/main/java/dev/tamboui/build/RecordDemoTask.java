@@ -28,6 +28,7 @@ import org.gradle.process.ExecResult;
 import javax.inject.Inject;
 import java.io.File;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.file.Files;
 import java.util.Locale;
 
@@ -161,8 +162,8 @@ public abstract class RecordDemoTask extends DefaultTask {
 
             // Ensure stdout/stderr go to real streams, not Gradle's logging
             // This is needed for AnsiTerminalCapture to work properly
-            spec.setStandardOutput(System.out);
-            spec.setErrorOutput(System.err);
+            spec.setStandardOutput(OutputStream.nullOutputStream());
+            spec.setErrorOutput(OutputStream.nullOutputStream());
 
             // Don't fail if the process is killed due to timeout
             spec.setIgnoreExitValue(true);
