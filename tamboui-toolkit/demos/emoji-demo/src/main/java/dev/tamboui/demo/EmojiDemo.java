@@ -141,13 +141,24 @@ public class EmojiDemo {
 
         try (var runner = ToolkitRunner.create(config)) {
             runner.run(() -> {
-                // Apply text filter
-                String filterText = filterState.text().toLowerCase(Locale.ROOT);
+                // Apply text filter - match all words anywhere in the name
+                String filterText = filterState.text().toLowerCase(Locale.ROOT).trim();
                 if (filterText.isEmpty()) {
                     filteredEmojis = new ArrayList<>(allEmojis);
                 } else {
+                    // Split filter text into words and match all of them
+                    String[] filterWords = filterText.split("\\s+");
                     filteredEmojis = allEmojis.stream()
-                        .filter(item -> item.name.toLowerCase(Locale.ROOT).contains(filterText))
+                        .filter(item -> {
+                            String itemName = item.name.toLowerCase(Locale.ROOT);
+                            // All filter words must be present in the item name
+                            for (String word : filterWords) {
+                                if (!itemName.contains(word)) {
+                                    return false;
+                                }
+                            }
+                            return true;
+                        })
                         .collect(Collectors.toList());
                 }
                 
