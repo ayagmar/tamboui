@@ -14,7 +14,8 @@ import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
 import java.util.Locale;
-import java.nio.file.Paths;
+import java.util.concurrent.TimeUnit;
+
 import dev.tamboui.export.BufferSvgExporter;
 import dev.tamboui.buffer.Buffer;
 /**
@@ -29,7 +30,7 @@ final class InteractionPlayer {
     private final List<Interaction> interactions;
     private final Deque<Integer> pendingBytes = new ArrayDeque<>();
     private int currentIndex = 0;
-    private long waitUntil = 0;
+    private long waitUntilNanos = 0;
     private final Buffer buffer;
 
     InteractionPlayer(List<Interaction> interactions, Buffer buffer) {
@@ -376,7 +377,7 @@ final class InteractionPlayer {
      */
     boolean isFinished() {
         // Not finished if there's an active wait
-        if (waitUntil > 0 && System.currentTimeMillis() < waitUntil) {
+        if (waitUntilNanos > 0 && System.nanoTime() < waitUntilNanos) {
             return false;
         }
         return currentIndex >= interactions.size() && pendingBytes.isEmpty();
@@ -408,20 +409,21 @@ final class InteractionPlayer {
         }
 
         // Check if we're waiting
-        if (waitUntil > 0) {
-            long remaining = waitUntil - System.currentTimeMillis();
-            if (remaining > 0) {
+        if (waitUntilNanos > 0) {
+            long remainingNanos = waitUntilNanos - System.nanoTime();
+            if (remainingNanos > 0) {
+                long remainingMs = TimeUnit.NANOSECONDS.toMillis(remainingNanos);
                 try {
-                    Thread.sleep(Math.min(remaining, maxWaitMs));
+                    Thread.sleep(Math.min(remainingMs, maxWaitMs));
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                 }
                 // Still waiting
-                if (System.currentTimeMillis() < waitUntil) {
+                if (System.nanoTime() < waitUntilNanos) {
                     return -2;
                 }
             }
-            waitUntil = 0;
+            waitUntilNanos = 0;
         }
 
         // Process next interaction
@@ -430,7 +432,7 @@ final class InteractionPlayer {
 
             if (interaction instanceof Interaction.Wait) {
                 Interaction.Wait wait = (Interaction.Wait) interaction;
-                waitUntil = System.currentTimeMillis() + wait.millis();
+                waitUntilNanos = System.nanoTime() + TimeUnit.MILLISECONDS.toNanos(wait.millis());
                 return -2; // Timeout to trigger redraw
             } else if (interaction instanceof Interaction.KeyPress) {
                 Interaction.KeyPress keyPress = (Interaction.KeyPress) interaction;
