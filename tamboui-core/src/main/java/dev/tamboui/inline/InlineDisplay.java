@@ -517,9 +517,8 @@ public final class InlineDisplay implements AutoCloseable {
      * @param newHeight the new height in lines
      */
     private void resizeDisplay(int newHeight) {
-        if (newHeight < 0 || newHeight > height) {
-            // Clamp to valid range
-            newHeight = Math.max(0, Math.min(newHeight, height));
+        if (newHeight < 0) {
+            newHeight = 0;
         }
 
         if (newHeight == currentHeight) {

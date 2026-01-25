@@ -23,9 +23,9 @@ import java.util.function.Consumer;
 final class InlineViewport {
 
     private final InlineDisplay display;
-    private final Buffer buffer;
-    private final Rect area;
-    private final Frame frame;
+    private Buffer buffer;
+    private Rect area;
+    private Frame frame;
     private int contentHeight;  // Current content height to allocate
 
     /**
@@ -38,7 +38,7 @@ final class InlineViewport {
         this.area = Rect.of(display.width(), display.height());
         this.buffer = Buffer.empty(area);
         this.frame = Frame.forTesting(buffer);
-        this.contentHeight = display.height();  // Default to full height
+        this.contentHeight = display.height();  // Default to initial height
     }
 
     /**
@@ -73,12 +73,20 @@ final class InlineViewport {
      * <p>
      * This determines how many terminal lines will be allocated
      * for the inline display. The display will grow or shrink
-     * accordingly on the next draw() call.
+     * accordingly on the next draw() call. If the requested height
+     * exceeds the current buffer size, the buffer is resized.
      *
      * @param height the desired content height in lines
      */
     void setContentHeight(int height) {
-        this.contentHeight = Math.max(0, Math.min(height, area.height()));
+        height = Math.max(0, height);
+        // Grow buffer if needed
+        if (height > area.height()) {
+            this.area = Rect.of(area.width(), height);
+            this.buffer = Buffer.empty(area);
+            this.frame = Frame.forTesting(buffer);
+        }
+        this.contentHeight = height;
     }
 
     /**

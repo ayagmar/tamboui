@@ -21,11 +21,6 @@ import dev.tamboui.tui.InlineTuiConfig;
  *     private double progress = 0.0;
  *
  *     @Override
- *     protected int height() {
- *         return 3;
- *     }
- *
- *     @Override
  *     protected Element render() {
  *         return column(
  *             waveText("Installing packages...").cyan(),
@@ -61,13 +56,17 @@ public abstract class InlineApp {
     private InlineToolkitRunner runner;
 
     /**
-     * Returns the height of the inline display in lines.
+     * Returns the initial height of the inline display in lines.
      * <p>
-     * Override this method to specify the display height.
+     * The display will automatically grow beyond this if the content
+     * requires more space. Override this method to specify a starting height.
+     * The default is 1 line.
      *
-     * @return the display height
+     * @return the initial display height
      */
-    protected abstract int height();
+    protected int height() {
+        return 1;
+    }
 
     /**
      * Renders the application UI.
