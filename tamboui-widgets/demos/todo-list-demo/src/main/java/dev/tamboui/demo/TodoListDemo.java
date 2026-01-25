@@ -18,6 +18,7 @@ import dev.tamboui.terminal.BackendFactory;
 import dev.tamboui.terminal.Frame;
 import dev.tamboui.terminal.Terminal;
 import dev.tamboui.text.Line;
+import dev.tamboui.text.MarkupParser;
 import dev.tamboui.text.Span;
 import dev.tamboui.text.Text;
 import dev.tamboui.widgets.block.Block;
@@ -75,10 +76,10 @@ public class TodoListDemo {
 
     public TodoListDemo() {
         // Initialize with default todo items
-        todoItems.add(new TodoItem(Status.TODO, "Rewrite everything with Rust!",
-            "I can't hold my inner voice. He tells me to rewrite the complete universe with Rust"));
-        todoItems.add(new TodoItem(Status.COMPLETED, "Rewrite all of your tui apps with Ratatui",
-            "Yes, you heard that right. Go and replace your tui with Ratatui."));
+        todoItems.add(new TodoItem(Status.TODO, "Rewrite everything with your programming language of choice!",
+            "I can't hold my inner voice. He tells me to rewrite the complete universe with Java"));
+        todoItems.add(new TodoItem(Status.COMPLETED, "Rewrite all of your tui apps with TamboUI",
+            "Yes, you heard that right. Go and replace your tui with TamboUI."));
         todoItems.add(new TodoItem(Status.TODO, "Pet your cat",
             "Minnak loves to be pet by you! Don't forget to pet and give some treats!"));
         todoItems.add(new TodoItem(Status.TODO, "Walk with your dog",
@@ -179,17 +180,11 @@ public class TodoListDemo {
                 ? Color.indexed(235)  // Dark gray (similar to SLATE.c950)
                 : Color.indexed(236); // Slightly lighter (similar to SLATE.c900)
 
-            Line line;
+            Text line;
             if (todoItem.status == Status.TODO) {
-                line = Line.from(
-                    Span.raw(" ☐ "),
-                    Span.raw(todoItem.todo).fg(Color.indexed(250)) // Light gray text
-                );
+                line = MarkupParser.parse("[light-gray] :black_square_button: " + todoItem.todo);
             } else {
-                line = Line.from(
-                    Span.raw(" ✓ "),
-                    Span.raw(todoItem.todo).fg(Color.GREEN)
-                );
+                line = MarkupParser.parse("[green] :white_check_mark: " + todoItem.todo);
             }
 
             ListItem item = ListItem.from(line)
