@@ -604,6 +604,14 @@ These properties control how elements are sized and positioned within their cont
 |`direction`
 |Layout direction for panels
 |`direction: horizontal;` `direction: vertical;`
+
+|`column-count`
+|Number of columns in ColumnsElement
+|`column-count: 3;`
+
+|`column-order`
+|Ordering mode for ColumnsElement children
+|`column-order: row-first;` `column-order: column-first;`
 |===
 
 ===== Constraint Values

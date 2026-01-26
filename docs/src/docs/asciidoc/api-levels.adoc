@@ -529,7 +529,7 @@ public class MyApp extends ToolkitApp {
 }
 ----
 
-The static import `dev.tamboui.toolkit.Toolkit.*` gives you all the element factories: `text()`, `panel()`, `row()`, `column()`, `list()`, `table()`, and more.
+The static import `dev.tamboui.toolkit.Toolkit.*` gives you all the element factories: `text()`, `panel()`, `row()`, `column()`, `columns()`, `list()`, `table()`, and more.
 
 === Layout
 
@@ -548,6 +548,26 @@ column(
     text("Footer")
 )
 ----
+
+For multi-column grid layouts, use `columns()`:
+
+[source,java]
+----
+// Auto-detects column count based on available width and child widths
+columns(item1, item2, item3, item4, item5, item6)
+    .spacing(1)
+
+// Explicit column count
+columns(item1, item2, item3, item4)
+    .columnCount(2)
+
+// Column-first ordering (fills top-to-bottom, then left-to-right)
+columns(item1, item2, item3, item4)
+    .columnCount(2)
+    .columnFirst()
+----
+
+CSS properties for columns: `column-count`, `column-order` ("row-first" or "column-first"), `spacing`, `margin`, `flex`.
 
 Use `spacer()` to push things apart:
 

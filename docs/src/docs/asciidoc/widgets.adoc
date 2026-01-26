@@ -71,6 +71,10 @@ include::_attributes.adoc[]
 |Stateful
 |Single-line text input
 
+|<<columns,Columns>>
+|Stateless
+|Multi-column grid layout
+
 |<<clear,Clear>>
 |Stateless
 |Clears an area (for widget layering)
@@ -115,6 +119,62 @@ Clears an area by filling it with spaces. Useful before rendering overlays:
 Clear.INSTANCE.render(dialogArea, buffer);
 // Then render your dialog on top
 ----
+
+== Layout Widgets
+
+[[columns]]
+=== Columns
+
+A grid layout widget that arranges children into a fixed number of columns.
+Children are placed into cells whose positions are determined by the ordering mode.
+
+[source,java]
+----
+Columns columns = Columns.builder()
+    .children(widget1, widget2, widget3, widget4)
+    .columnCount(2)
+    .spacing(1)
+    .order(ColumnOrder.ROW_FIRST)
+    .build();
+
+columns.render(area, buffer);
+----
+
+Column ordering modes:
+
+* `ColumnOrder.ROW_FIRST` (default) - Items fill left-to-right, then top-to-bottom (like reading text)
+* `ColumnOrder.COLUMN_FIRST` - Items fill top-to-bottom, then left-to-right (like newspaper columns)
+
+Builder options:
+
+* `children(Widget...)` / `children(List<Widget>)` - The child widgets to arrange
+* `columnCount(int)` - Number of columns (required, defaults to 1)
+* `spacing(int)` - Gap between columns in cells (default: 0)
+* `flex(Flex)` - How remaining space is distributed (default: `Flex.START`)
+* `order(ColumnOrder)` - Child ordering mode (default: `ROW_FIRST`)
+* `columnWidths(Constraint...)` - Per-column width constraints (default: `fill()` for all)
+* `rowHeights(int...)` - Explicit row heights (default: equal distribution)
+
+[source,java]
+----
+// Custom column widths and row-first ordering
+Columns grid = Columns.builder()
+    .children(headerWidget, contentWidget, sidebarWidget, footerWidget)
+    .columnCount(2)
+    .columnWidths(Constraint.length(20), Constraint.fill())
+    .rowHeights(3, 10)
+    .spacing(1)
+    .build();
+
+// Column-first ordering: fills top-to-bottom per column
+Columns newspaperLayout = Columns.builder()
+    .children(article1, article2, article3, article4)
+    .columnCount(2)
+    .order(ColumnOrder.COLUMN_FIRST)
+    .build();
+----
+
+NOTE: The widget-level `Columns` requires an explicit column count. For auto-detection based on child widths, use `ColumnsElement` in the Toolkit DSL (via the `columns()` factory method), which computes the column count from available width and child preferred widths.
 
 == Text Widgets
 
@@ -578,6 +638,15 @@ textInput(inputState).placeholder("Enter name...")
 // Layout
 row(left, right).spacing(1)
 column(top, middle, bottom).spacing(1)
+
+// Multi-column grid (auto-detects column count from child widths)
+columns(item1, item2, item3, item4, item5, item6)
+    .spacing(1)
+
+// Explicit column count with column-first ordering
+columns(child1, child2, child3, child4)
+    .columnCount(2)
+    .columnFirst()
 ----
 
 See link:api-levels.html[API Levels] for more details on the Toolkit DSL.
