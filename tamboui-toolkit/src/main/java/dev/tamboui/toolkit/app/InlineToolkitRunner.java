@@ -86,6 +86,16 @@ public final class InlineToolkitRunner implements AutoCloseable {
     }
 
     /**
+     * Creates an InlineToolkitRunner with an initial height of 1.
+     *
+     * @return a new InlineToolkitRunner
+     * @throws Exception if terminal initialization fails
+     */
+    public static InlineToolkitRunner create() throws Exception {
+        return create(InlineTuiConfig.defaults(1));
+    }
+
+    /**
      * Creates an InlineToolkitRunner with the specified height.
      *
      * @param height the number of lines for the inline display
@@ -187,14 +197,17 @@ public final class InlineToolkitRunner implements AutoCloseable {
     }
 
     /**
-     * Prints an element above the viewport as a single line.
+     * Prints an element above the viewport.
      * <p>
-     * The element is rendered to a temporary buffer and converted to an ANSI string.
+     * The element is rendered to a temporary buffer sized to the element's preferred height
+     * and converted to an ANSI string.
      *
      * @param element the element to print
      */
     public void println(Element element) {
-        Buffer buf = Buffer.empty(Rect.of(tuiRunner.width(), 1));
+        int width = tuiRunner.width();
+        int height = Math.max(1, element.preferredHeight(width, RenderContext.empty()));
+        Buffer buf = Buffer.empty(Rect.of(width, height));
         Frame frame = Frame.forTesting(buf);
         element.render(frame, frame.area(), RenderContext.empty());
         tuiRunner.println(buf.toAnsiStringTrimmed());

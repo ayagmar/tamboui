@@ -536,7 +536,10 @@ public final class Buffer {
 
         for (int y = area.top(); y < area.bottom(); y++) {
             if (y > area.top()) {
-                result.append("\n");
+                // Use \r\n to ensure the cursor returns to column 0 on each new line.
+                // A bare \n only moves the cursor down without a carriage return when
+                // the terminal has OPOST disabled (e.g. the Panama backend's raw mode).
+                result.append("\r\n");
             }
 
             for (int x = area.left(); x < area.right(); x++) {
@@ -609,7 +612,10 @@ public final class Buffer {
 
         for (int y = area.top(); y < area.bottom(); y++) {
             if (y > area.top()) {
-                result.append("\n");
+                // Use \r\n to ensure the cursor returns to column 0 on each new line.
+                // A bare \n only moves the cursor down without a carriage return when
+                // the terminal has OPOST disabled (e.g. the Panama backend's raw mode).
+                result.append("\r\n");
             }
 
             // Find the last non-empty cell in this row (skip continuation cells)

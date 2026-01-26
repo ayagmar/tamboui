@@ -237,8 +237,34 @@ class BufferTest {
         String result = buffer.toAnsiString();
 
         assertThat(result).contains("ABC");
-        assertThat(result).contains("\n");
+        assertThat(result).contains("\r\n");
         assertThat(result).contains("XYZ");
+    }
+
+    @Test
+    @DisplayName("toAnsiString and toAnsiStringTrimmed use \\r\\n line separators for raw mode compatibility")
+    void ansiStringUsesCarriageReturnLineFeed() {
+        // When OPOST is disabled (e.g. the Panama backend's raw mode), a bare \n
+        // only moves the cursor down without returning to column 0. Using \r\n
+        // ensures lines start at the left edge regardless of the output processing mode.
+        Buffer buffer = Buffer.empty(new Rect(0, 0, 3, 3));
+        buffer.setString(0, 0, "AAA", Style.EMPTY);
+        buffer.setString(0, 1, "BBB", Style.EMPTY);
+        buffer.setString(0, 2, "CCC", Style.EMPTY);
+
+        String ansi = buffer.toAnsiString();
+        String trimmed = buffer.toAnsiStringTrimmed();
+
+        // Both methods must use \r\n, not bare \n
+        assertThat(ansi).contains("AAA\r\nBBB\r\nCCC");
+        assertThat(trimmed).contains("AAA\r\nBBB\r\nCCC");
+
+        // Verify there are no bare \n (i.e., every \n is preceded by \r)
+        String ansiWithoutCrLf = ansi.replace("\r\n", "");
+        assertThat(ansiWithoutCrLf).doesNotContain("\n");
+
+        String trimmedWithoutCrLf = trimmed.replace("\r\n", "");
+        assertThat(trimmedWithoutCrLf).doesNotContain("\n");
     }
 
     @Test

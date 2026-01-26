@@ -11,6 +11,7 @@ import dev.tamboui.toolkit.elements.CanvasElement;
 import dev.tamboui.toolkit.elements.ChartElement;
 import dev.tamboui.toolkit.elements.GenericWidgetElement;
 import dev.tamboui.toolkit.elements.Column;
+import dev.tamboui.toolkit.elements.Columns;
 import dev.tamboui.toolkit.elements.DialogElement;
 import dev.tamboui.toolkit.elements.GaugeElement;
 import dev.tamboui.toolkit.elements.LazyElement;
@@ -339,6 +340,47 @@ public final class Toolkit {
      */
     public static Column column() {
         return new Column();
+    }
+
+    // ==================== Columns ====================
+
+    /**
+     * Creates a multi-column grid layout.
+     *
+     * @param children the child elements
+     * @return a new columns layout
+     */
+    public static Columns columns(Element... children) {
+        return new Columns(children);
+    }
+
+    /**
+     * Creates an empty columns layout.
+     *
+     * @return a new empty columns layout
+     */
+    public static Columns columns() {
+        return new Columns();
+    }
+
+    /**
+     * Creates a multi-column grid layout from a collection.
+     *
+     * @param children the child elements
+     * @return a new columns layout
+     */
+    public static Columns columns(Collection<? extends Element> children) {
+        return new Columns(children);
+    }
+
+    /**
+     * Creates a columns layout with lazy content.
+     *
+     * @param contentSupplier the supplier that provides the content
+     * @return a new columns layout
+     */
+    public static Columns columns(Supplier<? extends Element> contentSupplier) {
+        return new Columns(new LazyElement(contentSupplier));
     }
 
     // ==================== Dialog ====================
