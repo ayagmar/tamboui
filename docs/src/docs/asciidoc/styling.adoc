@@ -628,6 +628,30 @@ These properties control how elements are sized and positioned within their cont
 |`grid-gutter`
 |Gutter spacing for GridElement — uniform or horizontal/vertical
 |`grid-gutter: 2;` `grid-gutter: 1 2;`
+
+|`dock-top-height`
+|Height constraint for DockElement top region
+|`dock-top-height: 3;`
+
+|`dock-bottom-height`
+|Height constraint for DockElement bottom region
+|`dock-bottom-height: 3;`
+
+|`dock-left-width`
+|Width constraint for DockElement left region
+|`dock-left-width: 20;`
+
+|`dock-right-width`
+|Width constraint for DockElement right region
+|`dock-right-width: fill;`
+
+|`content-align`
+|Content alignment for StackElement children
+|`content-align: center;` `content-align: top-left;` `content-align: stretch;`
+
+|`flow-row-spacing`
+|Vertical spacing between rows in FlowElement
+|`flow-row-spacing: 1;`
 |===
 
 ===== Constraint Values

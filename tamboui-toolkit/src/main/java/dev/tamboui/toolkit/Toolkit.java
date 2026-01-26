@@ -10,6 +10,8 @@ import dev.tamboui.toolkit.elements.CalendarElement;
 import dev.tamboui.toolkit.elements.CanvasElement;
 import dev.tamboui.toolkit.elements.ChartElement;
 import dev.tamboui.toolkit.elements.GenericWidgetElement;
+import dev.tamboui.toolkit.elements.DockElement;
+import dev.tamboui.toolkit.elements.FlowElement;
 import dev.tamboui.toolkit.elements.GridElement;
 import dev.tamboui.toolkit.elements.Column;
 import dev.tamboui.toolkit.elements.ColumnsElement;
@@ -23,6 +25,7 @@ import dev.tamboui.toolkit.elements.Row;
 import dev.tamboui.toolkit.elements.ScrollbarElement;
 import dev.tamboui.toolkit.elements.Spacer;
 import dev.tamboui.toolkit.elements.SparklineElement;
+import dev.tamboui.toolkit.elements.StackElement;
 import dev.tamboui.toolkit.elements.TableElement;
 import dev.tamboui.toolkit.elements.TabsElement;
 import dev.tamboui.toolkit.elements.TextElement;
@@ -423,6 +426,93 @@ public final class Toolkit {
      */
     public static GridElement grid(Supplier<? extends Element> contentSupplier) {
         return new GridElement(new LazyElement(contentSupplier));
+    }
+
+    // ==================== Dock ====================
+
+    /**
+     * Creates an empty dock layout.
+     * <p>
+     * Regions are added via named methods:
+     * <pre>{@code
+     * dock()
+     *     .top(text("Header"))
+     *     .bottom(text("Footer"))
+     *     .left(text("Sidebar"))
+     *     .center(text("Content"))
+     * }</pre>
+     *
+     * @return a new dock layout
+     */
+    public static DockElement dock() {
+        return new DockElement();
+    }
+
+    // ==================== Stack ====================
+
+    /**
+     * Creates a stack layout with the given children.
+     * <p>
+     * Children render on top of each other (painter's algorithm).
+     *
+     * @param children the child elements
+     * @return a new stack layout
+     */
+    public static StackElement stack(Element... children) {
+        return new StackElement(children);
+    }
+
+    /**
+     * Creates an empty stack layout.
+     *
+     * @return a new empty stack layout
+     */
+    public static StackElement stack() {
+        return new StackElement();
+    }
+
+    /**
+     * Creates a stack layout from a collection.
+     *
+     * @param children the child elements
+     * @return a new stack layout
+     */
+    public static StackElement stack(Collection<? extends Element> children) {
+        return new StackElement(children);
+    }
+
+    // ==================== Flow ====================
+
+    /**
+     * Creates a flow layout with the given children.
+     * <p>
+     * Children flow left-to-right and wrap to the next line
+     * when exceeding the available width.
+     *
+     * @param children the child elements
+     * @return a new flow layout
+     */
+    public static FlowElement flow(Element... children) {
+        return new FlowElement(children);
+    }
+
+    /**
+     * Creates an empty flow layout.
+     *
+     * @return a new empty flow layout
+     */
+    public static FlowElement flow() {
+        return new FlowElement();
+    }
+
+    /**
+     * Creates a flow layout from a collection.
+     *
+     * @param children the child elements
+     * @return a new flow layout
+     */
+    public static FlowElement flow(Collection<? extends Element> children) {
+        return new FlowElement(children);
     }
 
     // ==================== Dialog ====================

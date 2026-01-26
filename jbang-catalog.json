@@ -76,6 +76,9 @@
     "jtop-demo": {
       "script-ref": "tamboui-toolkit/demos/jtop-demo/src/main/java/dev/tamboui/demo/JTopDemo.java"
     },
+    "layout-demo": {
+      "script-ref": "tamboui-toolkit/demos/layout-demo/src/main/java/dev/tamboui/demo/LayoutDemo.java"
+    },
     "newyear-demo": {
       "script-ref": "tamboui-toolkit/demos/newyear-demo/src/main/java/dev/tamboui/demo/NewYearDemo.java"
     },
@@ -121,6 +124,12 @@
     "colors-rgb-demo": {
       "script-ref": "tamboui-widgets/demos/colors-rgb-demo/src/main/java/dev/tamboui/demo/ColorsRgbDemo.java"
     },
+    "dock-demo": {
+      "script-ref": "tamboui-widgets/demos/dock-demo/src/main/java/dev/tamboui/demo/DockDemo.java"
+    },
+    "flow-demo": {
+      "script-ref": "tamboui-widgets/demos/flow-demo/src/main/java/dev/tamboui/demo/FlowDemo.java"
+    },
     "gauge-demo": {
       "script-ref": "tamboui-widgets/demos/gauge-demo/src/main/java/dev/tamboui/demo/GaugeDemo.java"
     },
@@ -141,6 +150,9 @@
     },
     "sparkline-demo": {
       "script-ref": "tamboui-widgets/demos/sparkline-demo/src/main/java/dev/tamboui/demo/SparklineDemo.java"
+    },
+    "stack-demo": {
+      "script-ref": "tamboui-widgets/demos/stack-demo/src/main/java/dev/tamboui/demo/StackDemo.java"
     },
     "table-demo": {
       "script-ref": "tamboui-widgets/demos/table-demo/src/main/java/dev/tamboui/demo/TableDemo.java"

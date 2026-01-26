@@ -79,6 +79,18 @@ include::_attributes.adoc[]
 |Stateless
 |CSS Grid-inspired layout with constraints and gutter
 
+|<<dock,Dock>>
+|Stateless
+|5-region layout (top, bottom, left, right, center)
+
+|<<stack,Stack>>
+|Stateless
+|Overlapping layers (painter's algorithm)
+
+|<<flow,Flow>>
+|Stateless
+|Wrap layout (flow left-to-right, wrap on overflow)
+
 |<<clear,Clear>>
 |Stateless
 |Clears an area (for widget layering)
@@ -241,6 +253,87 @@ Grid uniform = Grid.builder()
 ----
 
 NOTE: The widget-level `Grid` requires an explicit column count. For auto-sizing based on child count (`ceil(sqrt(n))` columns) and CSS property support, use `GridElement` in the Toolkit DSL (via the `grid()` factory method).
+
+[[dock]]
+=== Dock
+
+A 5-region dock layout widget that arranges children into top, bottom, left, right, and center regions — the most common TUI application structure (header + sidebar + content + footer).
+
+[source,java]
+----
+Dock dock = Dock.builder()
+    .top(headerWidget)
+    .bottom(statusBarWidget)
+    .left(sidebarWidget)
+    .right(outlineWidget)
+    .center(editorWidget)
+    .topHeight(Constraint.length(3))
+    .bottomHeight(Constraint.length(1))
+    .leftWidth(Constraint.length(20))
+    .rightWidth(Constraint.length(20))
+    .build();
+
+dock.render(area, buffer);
+----
+
+Builder options:
+
+* `.top(Widget)` / `.bottom(Widget)` / `.left(Widget)` / `.right(Widget)` / `.center(Widget)` - Set region widgets (all optional)
+* `.topHeight(Constraint)` - Height constraint for the top region (default: `length(1)`)
+* `.bottomHeight(Constraint)` - Height constraint for the bottom region (default: `length(1)`)
+* `.leftWidth(Constraint)` - Width constraint for the left region (default: `length(10)`)
+* `.rightWidth(Constraint)` - Width constraint for the right region (default: `length(10)`)
+
+Rendering algorithm: Top and bottom take full width, then the remaining middle area is split horizontally into left, center, and right. Omitted regions are skipped — for example, setting only `center` gives a full-area layout.
+
+[[stack]]
+=== Stack
+
+An overlapping layers widget where children render on top of each other using a painter's algorithm (last child on top). Essential for dialogs, popups, floating overlays, and any scenario where UI elements need to overlap.
+
+[source,java]
+----
+Stack stack = Stack.builder()
+    .children(backgroundWidget, dialogWidget)
+    .alignment(ContentAlignment.STRETCH)
+    .build();
+
+stack.render(area, buffer);
+----
+
+Builder options:
+
+* `.children(Widget...)` / `.children(List<Widget>)` - The child widgets to stack
+* `.alignment(ContentAlignment)` - How children are positioned (default: `STRETCH`)
+
+Alignment modes: `TOP_LEFT`, `TOP_CENTER`, `TOP_RIGHT`, `CENTER_LEFT`, `CENTER`, `CENTER_RIGHT`, `BOTTOM_LEFT`, `BOTTOM_CENTER`, `BOTTOM_RIGHT`, `STRETCH`.
+
+[[flow]]
+=== Flow
+
+A wrap layout widget where items flow left-to-right and wrap to the next line when exceeding the available width. Useful for tag clouds, button groups, chip lists, and similar layouts where items should wrap naturally.
+
+[source,java]
+----
+Flow flow = Flow.builder()
+    .item(tag1Widget, 8)
+    .item(tag2Widget, 12)
+    .item(tag3Widget, 6)
+    .horizontalSpacing(1)
+    .verticalSpacing(1)
+    .build();
+
+flow.render(area, buffer);
+----
+
+Builder options:
+
+* `.item(Widget, int width)` / `.item(Widget, int width, int height)` - Add an item with explicit size
+* `.items(List<FlowItem>)` - Set items from a list
+* `.horizontalSpacing(int)` - Gap between items on the same row (default: 0)
+* `.verticalSpacing(int)` - Gap between rows (default: 0)
+
+NOTE: The widget-level `Flow` requires explicit item widths via `FlowItem` since the `Widget` interface has no `preferredWidth()` method. For auto-measurement, use `FlowElement` in the Toolkit DSL (via the `flow()` factory method), which auto-measures children via `Element.preferredWidth()`.
 
 == Text Widgets
 
@@ -724,6 +817,24 @@ grid(header, content, sidebar, footer)
     .gridSize(2, 2)
     .gridColumns(Constraint.length(20), Constraint.fill())
     .gutter(1, 0)
+
+// 5-region dock layout
+dock()
+    .top(text("Header").bold())
+    .bottom(text("Footer").dim())
+    .left(list("Nav 1", "Nav 2", "Nav 3"))
+    .center(text("Main Content"))
+    .topHeight(Constraint.length(3))
+    .leftWidth(Constraint.length(20))
+
+// Overlapping layers (last child on top)
+stack(backgroundElement, dialogElement)
+    .alignment(ContentAlignment.CENTER)
+
+// Wrap layout (items flow and wrap)
+flow(tag1, tag2, tag3, tag4, tag5)
+    .spacing(1)
+    .rowSpacing(1)
 ----
 
 See link:api-levels.html[API Levels] for more details on the Toolkit DSL.
