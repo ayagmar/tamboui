@@ -15,6 +15,7 @@ import dev.tamboui.widgets.block.Block;
 import dev.tamboui.widgets.block.BorderType;
 import dev.tamboui.widgets.block.Borders;
 import dev.tamboui.widgets.block.Title;
+import dev.tamboui.text.CharWidth;
 import dev.tamboui.text.Span;
 import dev.tamboui.widgets.tabs.Tabs;
 import dev.tamboui.widgets.tabs.TabsState;
@@ -180,16 +181,16 @@ public final class TabsElement extends StyledElement<TabsElement> {
 
         // Calculate width of all tab titles
         for (String title : titles) {
-            width += title.length();
+            width += CharWidth.of(title);
         }
 
         // Add padding for each tab
-        int paddingPerTab = paddingLeft.length() + paddingRight.length();
+        int paddingPerTab = CharWidth.of(paddingLeft) + CharWidth.of(paddingRight);
         width += paddingPerTab * titles.size();
 
         // Add dividers between tabs (n-1 dividers for n tabs)
         if (titles.size() > 1) {
-            width += divider.length() * (titles.size() - 1);
+            width += CharWidth.of(divider) * (titles.size() - 1);
         }
 
         // Add border width if there's a border

@@ -366,6 +366,16 @@ class TabsElementTest {
     }
 
     @Test
+    @DisplayName("preferredWidth() accounts for wide characters in titles")
+    void preferredWidth_wideCharactersInTitles() {
+        // 🔥 is 2 cells wide, "App" is 3 cells → total title width = 5
+        // Divider " | " = 3 cells, "Logs" = 4 cells
+        // Total: 5 + 3 + 4 = 12
+        TabsElement element = tabs("\uD83D\uDD25App", "Logs").divider(" | ");
+        assertThat(element.preferredWidth()).isEqualTo(12);
+    }
+
+    @Test
     @DisplayName("width: fit constraint programmatically")
     void widthFitProgrammatic() {
         // Programmatic constraint
