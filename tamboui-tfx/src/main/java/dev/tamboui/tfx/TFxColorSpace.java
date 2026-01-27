@@ -171,23 +171,12 @@ public enum TFxColorSpace {
      * Converts a color to RGB components [r, g, b].
      */
     int[] toRgbComponents(Color color) {
-        if (color instanceof Color.Named) {
-            return toRgbComponents(((Color.Named) color).defaultValue());
-        } else if (color instanceof Color.Rgb) {
-            Color.Rgb rgb = (Color.Rgb) color;
-            return new int[]{rgb.r(), rgb.g(), rgb.b()};
-        } else if (color instanceof Color.Ansi) {
-            // Convert ANSI color to approximate RGB
-            Color.Ansi ansi = (Color.Ansi) color;
-            return ansiToRgb(ansi.color());
-        } else if (color instanceof Color.Indexed) {
-            // Convert indexed color to approximate RGB
-            Color.Indexed indexed = (Color.Indexed) color;
-            return indexedToRgb(indexed.index());
-        } else {
-            // Default to black for Reset or unknown
+        if (color instanceof Color.Reset) {
+            // Reset defaults to black for effects
             return new int[]{0, 0, 0};
         }
+        Color.Rgb rgb = color.toRgb();
+        return new int[]{rgb.r(), rgb.g(), rgb.b()};
     }
     
     /**

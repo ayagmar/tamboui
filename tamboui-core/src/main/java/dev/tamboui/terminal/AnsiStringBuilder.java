@@ -4,8 +4,6 @@
  */
 package dev.tamboui.terminal;
 
-import dev.tamboui.style.AnsiColor;
-import dev.tamboui.style.Color;
 import dev.tamboui.style.Hyperlink;
 import dev.tamboui.style.Modifier;
 import dev.tamboui.style.Style;
@@ -60,13 +58,13 @@ public final class AnsiStringBuilder {
         // Foreground color
         if (style.fg().isPresent()) {
             sb.append(";");
-            sb.append(colorToAnsiForeground(style.fg().get()));
+            sb.append(style.fg().get().toAnsiForeground());
         }
 
         // Background color
         if (style.bg().isPresent()) {
             sb.append(";");
-            sb.append(colorToAnsiBackground(style.bg().get()));
+            sb.append(style.bg().get().toAnsiBackground());
         }
 
         // Modifiers
@@ -77,7 +75,7 @@ public final class AnsiStringBuilder {
 
         // Underline color (if supported by terminal)
         if (style.underlineColor().isPresent()) {
-            String underlineAnsi = underlineColorToAnsi(style.underlineColor().get());
+            String underlineAnsi = style.underlineColor().get().toAnsiUnderline();
             if (!underlineAnsi.isEmpty()) {
                 sb.append(";").append(underlineAnsi);
             }
@@ -85,78 +83,6 @@ public final class AnsiStringBuilder {
 
         sb.append("m");
         return sb.toString();
-    }
-
-    /**
-     * Converts a {@link Color} to an ANSI foreground color code.
-     *
-     * @param color the color to convert
-     * @return the ANSI code string (without CSI prefix or 'm' suffix)
-     */
-    public static String colorToAnsiForeground(Color color) {
-        if (color instanceof Color.Named) {
-            // Named colors delegate to their default value
-            return colorToAnsiForeground(((Color.Named) color).defaultValue());
-        } else if (color instanceof Color.Reset) {
-            return "39";
-        } else if (color instanceof Color.Ansi) {
-            AnsiColor c = ((Color.Ansi) color).color();
-            return String.valueOf(c.fgCode());
-        } else if (color instanceof Color.Indexed) {
-            int idx = ((Color.Indexed) color).index();
-            return "38;5;" + idx;
-        } else if (color instanceof Color.Rgb) {
-            Color.Rgb rgb = (Color.Rgb) color;
-            return "38;2;" + rgb.r() + ";" + rgb.g() + ";" + rgb.b();
-        }
-        return "";
-    }
-
-    /**
-     * Converts a {@link Color} to an ANSI background color code.
-     *
-     * @param color the color to convert
-     * @return the ANSI code string (without CSI prefix or 'm' suffix)
-     */
-    public static String colorToAnsiBackground(Color color) {
-        if (color instanceof Color.Named) {
-            // Named colors delegate to their default value
-            return colorToAnsiBackground(((Color.Named) color).defaultValue());
-        } else if (color instanceof Color.Reset) {
-            return "49";
-        } else if (color instanceof Color.Ansi) {
-            AnsiColor c = ((Color.Ansi) color).color();
-            return String.valueOf(c.bgCode());
-        } else if (color instanceof Color.Indexed) {
-            int idx = ((Color.Indexed) color).index();
-            return "48;5;" + idx;
-        } else if (color instanceof Color.Rgb) {
-            Color.Rgb rgb = (Color.Rgb) color;
-            return "48;2;" + rgb.r() + ";" + rgb.g() + ";" + rgb.b();
-        }
-        return "";
-    }
-
-    /**
-     * Converts a {@link Color} to an ANSI underline color code.
-     * Note that underline colors are only supported by some terminal emulators.
-     *
-     * @param color the color to convert
-     * @return the ANSI code string (without CSI prefix or 'm' suffix),
-     *         or empty string if the color type doesn't support underline coloring
-     */
-    public static String underlineColorToAnsi(Color color) {
-        if (color instanceof Color.Named) {
-            // Named colors delegate to their default value
-            return underlineColorToAnsi(((Color.Named) color).defaultValue());
-        } else if (color instanceof Color.Indexed) {
-            int idx = ((Color.Indexed) color).index();
-            return "58;5;" + idx;
-        } else if (color instanceof Color.Rgb) {
-            Color.Rgb rgb = (Color.Rgb) color;
-            return "58;2;" + rgb.r() + ";" + rgb.g() + ";" + rgb.b();
-        }
-        return "";
     }
 
     /**

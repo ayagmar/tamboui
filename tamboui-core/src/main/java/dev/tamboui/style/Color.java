@@ -14,6 +14,21 @@ public interface Color {
      */
     final class Reset implements Color {
         @Override
+        public String toAnsiForeground() {
+            return "39";
+        }
+
+        @Override
+        public String toAnsiBackground() {
+            return "49";
+        }
+
+        @Override
+        public Rgb toRgb() {
+            return new Rgb(255, 255, 255);
+        }
+
+        @Override
         public boolean equals(Object o) {
             return o instanceof Reset;
         }
@@ -49,6 +64,21 @@ public interface Color {
          */
         public AnsiColor color() {
             return color;
+        }
+
+        @Override
+        public String toAnsiForeground() {
+            return String.valueOf(color.fgCode());
+        }
+
+        @Override
+        public String toAnsiBackground() {
+            return String.valueOf(color.bgCode());
+        }
+
+        @Override
+        public Rgb toRgb() {
+            return ansiToRgb(color);
         }
 
         @Override
@@ -95,6 +125,26 @@ public interface Color {
         /** Returns the palette index. */
         public int index() {
             return index;
+        }
+
+        @Override
+        public String toAnsiForeground() {
+            return "38;5;" + index;
+        }
+
+        @Override
+        public String toAnsiBackground() {
+            return "48;5;" + index;
+        }
+
+        @Override
+        public String toAnsiUnderline() {
+            return "58;5;" + index;
+        }
+
+        @Override
+        public Rgb toRgb() {
+            return indexedToRgb(index);
         }
 
         @Override
@@ -153,6 +203,21 @@ public interface Color {
          */
         public Color defaultValue() {
             return defaultValue;
+        }
+
+        @Override
+        public String toAnsiForeground() {
+            return defaultValue.toAnsiForeground();
+        }
+
+        @Override
+        public String toAnsiBackground() {
+            return defaultValue.toAnsiBackground();
+        }
+
+        @Override
+        public String toAnsiUnderline() {
+            return defaultValue.toAnsiUnderline();
         }
 
         @Override
@@ -221,6 +286,26 @@ public interface Color {
         /** Returns the blue component. */
         public int b() {
             return b;
+        }
+
+        @Override
+        public String toAnsiForeground() {
+            return "38;2;" + r + ";" + g + ";" + b;
+        }
+
+        @Override
+        public String toAnsiBackground() {
+            return "48;2;" + r + ";" + g + ";" + b;
+        }
+
+        @Override
+        public String toAnsiUnderline() {
+            return "58;2;" + r + ";" + g + ";" + b;
+        }
+
+        @Override
+        public Rgb toRgb() {
+            return this;
         }
 
         /**
@@ -322,6 +407,37 @@ public interface Color {
     }
 
     /**
+     * Converts this color to an ANSI foreground color code.
+     *
+     * @return the ANSI code string (without CSI prefix or 'm' suffix),
+     *         or empty string if not applicable
+     */
+    default String toAnsiForeground() {
+        return "";
+    }
+
+    /**
+     * Converts this color to an ANSI background color code.
+     *
+     * @return the ANSI code string (without CSI prefix or 'm' suffix),
+     *         or empty string if not applicable
+     */
+    default String toAnsiBackground() {
+        return "";
+    }
+
+    /**
+     * Converts this color to an ANSI underline color code.
+     * Note that underline colors are only supported by some terminal emulators.
+     *
+     * @return the ANSI code string (without CSI prefix or 'm' suffix),
+     *         or empty string if the color type doesn't support underline coloring
+     */
+    default String toAnsiUnderline() {
+        return "";
+    }
+
+    /**
      * Converts this color to RGB.
      * <p>
      * ANSI and indexed colors are converted using standard terminal color palettes.
@@ -330,19 +446,6 @@ public interface Color {
      * @return the RGB representation of this color
      */
     default Rgb toRgb() {
-        if (this instanceof Rgb) {
-            return (Rgb) this;
-        }
-        if (this instanceof Named) {
-            return ((Named) this).defaultValue().toRgb();
-        }
-        if (this instanceof Ansi) {
-            return ansiToRgb(((Ansi) this).color());
-        }
-        if (this instanceof Indexed) {
-            return indexedToRgb(((Indexed) this).index());
-        }
-        // Reset or unknown - default to white
         return new Rgb(255, 255, 255);
     }
 

@@ -87,4 +87,149 @@ class ColorTest {
         assertThat(rgb.g()).isEqualTo(0);
         assertThat(rgb.b()).isEqualTo(0);
     }
+
+    // toAnsiForeground tests
+
+    @Test
+    @DisplayName("Reset.toAnsiForeground returns 39")
+    void resetToAnsiForeground() {
+        assertThat(Color.RESET.toAnsiForeground()).isEqualTo("39");
+    }
+
+    @Test
+    @DisplayName("Ansi.toAnsiForeground returns foreground SGR code")
+    void ansiToAnsiForeground() {
+        Color color = new Color.Ansi(AnsiColor.RED);
+        assertThat(color.toAnsiForeground()).isEqualTo("31");
+
+        Color bright = new Color.Ansi(AnsiColor.BRIGHT_CYAN);
+        assertThat(bright.toAnsiForeground()).isEqualTo("96");
+    }
+
+    @Test
+    @DisplayName("Indexed.toAnsiForeground returns 38;5;index")
+    void indexedToAnsiForeground() {
+        Color color = new Color.Indexed(42);
+        assertThat(color.toAnsiForeground()).isEqualTo("38;5;42");
+    }
+
+    @Test
+    @DisplayName("Rgb.toAnsiForeground returns 38;2;r;g;b")
+    void rgbToAnsiForeground() {
+        Color color = new Color.Rgb(100, 150, 200);
+        assertThat(color.toAnsiForeground()).isEqualTo("38;2;100;150;200");
+    }
+
+    @Test
+    @DisplayName("Named.toAnsiForeground delegates to default value")
+    void namedToAnsiForeground() {
+        // Color.RED is Named with Ansi(RED) default → fgCode 31
+        assertThat(Color.RED.toAnsiForeground()).isEqualTo("31");
+    }
+
+    // toAnsiBackground tests
+
+    @Test
+    @DisplayName("Reset.toAnsiBackground returns 49")
+    void resetToAnsiBackground() {
+        assertThat(Color.RESET.toAnsiBackground()).isEqualTo("49");
+    }
+
+    @Test
+    @DisplayName("Ansi.toAnsiBackground returns background SGR code")
+    void ansiToAnsiBackground() {
+        Color color = new Color.Ansi(AnsiColor.RED);
+        assertThat(color.toAnsiBackground()).isEqualTo("41");
+
+        Color bright = new Color.Ansi(AnsiColor.BRIGHT_CYAN);
+        assertThat(bright.toAnsiBackground()).isEqualTo("106");
+    }
+
+    @Test
+    @DisplayName("Indexed.toAnsiBackground returns 48;5;index")
+    void indexedToAnsiBackground() {
+        Color color = new Color.Indexed(42);
+        assertThat(color.toAnsiBackground()).isEqualTo("48;5;42");
+    }
+
+    @Test
+    @DisplayName("Rgb.toAnsiBackground returns 48;2;r;g;b")
+    void rgbToAnsiBackground() {
+        Color color = new Color.Rgb(100, 150, 200);
+        assertThat(color.toAnsiBackground()).isEqualTo("48;2;100;150;200");
+    }
+
+    @Test
+    @DisplayName("Named.toAnsiBackground delegates to default value")
+    void namedToAnsiBackground() {
+        assertThat(Color.RED.toAnsiBackground()).isEqualTo("41");
+    }
+
+    // toAnsiUnderline tests
+
+    @Test
+    @DisplayName("Reset.toAnsiUnderline returns empty string")
+    void resetToAnsiUnderline() {
+        assertThat(Color.RESET.toAnsiUnderline()).isEmpty();
+    }
+
+    @Test
+    @DisplayName("Ansi.toAnsiUnderline returns empty string")
+    void ansiToAnsiUnderline() {
+        Color color = new Color.Ansi(AnsiColor.RED);
+        assertThat(color.toAnsiUnderline()).isEmpty();
+    }
+
+    @Test
+    @DisplayName("Indexed.toAnsiUnderline returns 58;5;index")
+    void indexedToAnsiUnderline() {
+        Color color = new Color.Indexed(42);
+        assertThat(color.toAnsiUnderline()).isEqualTo("58;5;42");
+    }
+
+    @Test
+    @DisplayName("Rgb.toAnsiUnderline returns 58;2;r;g;b")
+    void rgbToAnsiUnderline() {
+        Color color = new Color.Rgb(100, 150, 200);
+        assertThat(color.toAnsiUnderline()).isEqualTo("58;2;100;150;200");
+    }
+
+    @Test
+    @DisplayName("Named.toAnsiUnderline delegates to default value")
+    void namedToAnsiUnderline() {
+        // Ansi colors don't support underline color, so Named wrapping Ansi returns empty
+        assertThat(Color.RED.toAnsiUnderline()).isEmpty();
+
+        // Named wrapping Rgb should delegate
+        Color named = new Color.Named("custom", new Color.Rgb(10, 20, 30));
+        assertThat(named.toAnsiUnderline()).isEqualTo("58;2;10;20;30");
+    }
+
+    // toRgb polymorphic tests
+
+    @Test
+    @DisplayName("Rgb.toRgb returns this")
+    void rgbToRgbReturnsSelf() {
+        Color.Rgb rgb = new Color.Rgb(10, 20, 30);
+        assertThat(rgb.toRgb()).isSameAs(rgb);
+    }
+
+    @Test
+    @DisplayName("Reset.toRgb returns white")
+    void resetToRgb() {
+        Color.Rgb rgb = Color.RESET.toRgb();
+        assertThat(rgb.r()).isEqualTo(255);
+        assertThat(rgb.g()).isEqualTo(255);
+        assertThat(rgb.b()).isEqualTo(255);
+    }
+
+    @Test
+    @DisplayName("Indexed.toRgb converts via palette")
+    void indexedToRgb() {
+        // Index 0 = ANSI BLACK = (0, 0, 0)
+        Color.Rgb rgb = new Color.Indexed(0).toRgb();
+        assertThat(rgb.r()).isEqualTo(0);
+        assertThat(rgb.g()).isEqualTo(0);
+        assertThat(rgb.b()).isEqualTo(0);
+    }
 }

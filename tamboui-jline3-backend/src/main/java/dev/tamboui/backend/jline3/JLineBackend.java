@@ -8,8 +8,6 @@ import dev.tamboui.buffer.Cell;
 import dev.tamboui.buffer.CellUpdate;
 import dev.tamboui.layout.Position;
 import dev.tamboui.layout.Size;
-import dev.tamboui.style.AnsiColor;
-import dev.tamboui.style.Color;
 import dev.tamboui.style.Hyperlink;
 import dev.tamboui.style.Modifier;
 import dev.tamboui.style.Style;
@@ -343,13 +341,13 @@ public class JLineBackend implements Backend {
         // Foreground color
         style.fg().ifPresent(color -> {
             sb.append(";");
-            sb.append(colorToAnsi(color, true));
+            sb.append(color.toAnsiForeground());
         });
 
         // Background color
         style.bg().ifPresent(color -> {
             sb.append(";");
-            sb.append(colorToAnsi(color, false));
+            sb.append(color.toAnsiBackground());
         });
 
         // Modifiers
@@ -361,42 +359,11 @@ public class JLineBackend implements Backend {
         // Underline color (if supported)
         style.underlineColor().ifPresent(color -> {
             sb.append(";");
-            sb.append(underlineColorToAnsi(color));
+            sb.append(color.toAnsiUnderline());
         });
 
         sb.append("m");
         writer.print(sb.toString());
-    }
-
-    private String colorToAnsi(Color color, boolean foreground) {
-        if (color instanceof Color.Named) {
-            return colorToAnsi(((Color.Named) color).defaultValue(), foreground);
-        } else if (color instanceof Color.Reset) {
-            return foreground ? "39" : "49";
-        } else if (color instanceof Color.Ansi) {
-            AnsiColor c = ((Color.Ansi) color).color();
-            return String.valueOf(foreground ? c.fgCode() : c.bgCode());
-        } else if (color instanceof Color.Indexed) {
-            int idx = ((Color.Indexed) color).index();
-            return (foreground ? "38;5;" : "48;5;") + idx;
-        } else if (color instanceof Color.Rgb) {
-            Color.Rgb rgb = (Color.Rgb) color;
-            return (foreground ? "38;2;" : "48;2;") + rgb.r() + ";" + rgb.g() + ";" + rgb.b();
-        }
-        return "";
-    }
-
-    private String underlineColorToAnsi(Color color) {
-        if (color instanceof Color.Named) {
-            return underlineColorToAnsi(((Color.Named) color).defaultValue());
-        } else if (color instanceof Color.Indexed) {
-            int idx = ((Color.Indexed) color).index();
-            return "58;5;" + idx;
-        } else if (color instanceof Color.Rgb) {
-            Color.Rgb rgb = (Color.Rgb) color;
-            return "58;2;" + rgb.r() + ";" + rgb.g() + ";" + rgb.b();
-        }
-        return "";
     }
 
     /**

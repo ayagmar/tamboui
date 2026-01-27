@@ -11,8 +11,6 @@ import dev.tamboui.buffer.Cell;
 import dev.tamboui.buffer.CellUpdate;
 import dev.tamboui.layout.Position;
 import dev.tamboui.layout.Size;
-import dev.tamboui.style.AnsiColor;
-import dev.tamboui.style.Color;
 import dev.tamboui.style.Hyperlink;
 import dev.tamboui.style.Modifier;
 import dev.tamboui.style.Style;
@@ -358,13 +356,13 @@ public class PanamaBackend implements Backend {
         // Foreground color
         style.fg().ifPresent(color -> {
             outputBuffer.append((byte) ';');
-            appendColorToAnsi(color, true);
+            outputBuffer.appendAscii(color.toAnsiForeground());
         });
 
         // Background color
         style.bg().ifPresent(color -> {
             outputBuffer.append((byte) ';');
-            appendColorToAnsi(color, false);
+            outputBuffer.appendAscii(color.toAnsiBackground());
         });
 
         // Modifiers
@@ -375,49 +373,14 @@ public class PanamaBackend implements Backend {
 
         // Underline color (if supported)
         style.underlineColor().ifPresent(color -> {
-            outputBuffer.append((byte) ';');
-            appendUnderlineColorToAnsi(color);
+            String s = color.toAnsiUnderline();
+            if (!s.isEmpty()) {
+                outputBuffer.append((byte) ';');
+                outputBuffer.appendAscii(s);
+            }
         });
 
         outputBuffer.append((byte) 'm');
-    }
-
-    private void appendColorToAnsi(Color color, boolean foreground) {
-        if (color instanceof Color.Named named) {
-            appendColorToAnsi(named.defaultValue(), foreground);
-        } else if (color instanceof Color.Reset) {
-            outputBuffer.appendInt(foreground ? 39 : 49);
-        } else if (color instanceof Color.Ansi ansi) {
-            outputBuffer.appendInt(foreground ? ansi.color().fgCode() : ansi.color().bgCode());
-        } else if (color instanceof Color.Indexed indexed) {
-            outputBuffer.appendInt(foreground ? 38 : 48)
-                    .appendAscii(";5;")
-                    .appendInt(indexed.index());
-        } else if (color instanceof Color.Rgb rgb) {
-            outputBuffer.appendInt(foreground ? 38 : 48)
-                    .appendAscii(";2;")
-                    .appendInt(rgb.r())
-                    .append((byte) ';')
-                    .appendInt(rgb.g())
-                    .append((byte) ';')
-                    .appendInt(rgb.b());
-        }
-    }
-
-    private void appendUnderlineColorToAnsi(Color color) {
-        if (color instanceof Color.Named named) {
-            appendUnderlineColorToAnsi(named.defaultValue());
-            return;
-        } else if (color instanceof Color.Indexed indexed) {
-            outputBuffer.appendAscii("58;5;").appendInt(indexed.index());
-        } else if (color instanceof Color.Rgb rgb) {
-            outputBuffer.appendAscii("58;2;")
-                    .appendInt(rgb.r())
-                    .append((byte) ';')
-                    .appendInt(rgb.g())
-                    .append((byte) ';')
-                    .appendInt(rgb.b());
-        }
     }
 
     /**

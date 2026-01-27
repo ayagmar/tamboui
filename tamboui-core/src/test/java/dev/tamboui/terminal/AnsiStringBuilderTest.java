@@ -4,7 +4,6 @@ a * Copyright TamboUI Contributors
  */
 package dev.tamboui.terminal;
 
-import dev.tamboui.style.AnsiColor;
 import dev.tamboui.style.Color;
 import dev.tamboui.style.Hyperlink;
 import dev.tamboui.style.Modifier;
@@ -84,90 +83,6 @@ class AnsiStringBuilderTest {
         assertThat(result).contains(";36");  // cyan fg
         assertThat(result).contains(";45");  // magenta bg
         assertThat(result).contains(";1");   // bold
-    }
-
-    @Test
-    @DisplayName("colorToAnsiForeground with Reset")
-    void foregroundReset() {
-        String result = AnsiStringBuilder.colorToAnsiForeground(Color.RESET);
-        assertThat(result).isEqualTo("39");
-    }
-
-    @Test
-    @DisplayName("colorToAnsiForeground with ANSI color")
-    void foregroundAnsiColor() {
-        String result = AnsiStringBuilder.colorToAnsiForeground(Color.RED);
-        assertThat(result).isEqualTo("31");
-    }
-
-    @Test
-    @DisplayName("colorToAnsiForeground with bright ANSI color")
-    void foregroundBrightAnsiColor() {
-        String result = AnsiStringBuilder.colorToAnsiForeground(new Color.Ansi(AnsiColor.BRIGHT_RED));
-        assertThat(result).isEqualTo("91");
-    }
-
-    @Test
-    @DisplayName("colorToAnsiForeground with indexed color")
-    void foregroundIndexedColor() {
-        String result = AnsiStringBuilder.colorToAnsiForeground(Color.indexed(123));
-        assertThat(result).isEqualTo("38;5;123");
-    }
-
-    @Test
-    @DisplayName("colorToAnsiForeground with RGB color")
-    void foregroundRgbColor() {
-        String result = AnsiStringBuilder.colorToAnsiForeground(Color.rgb(100, 150, 200));
-        assertThat(result).isEqualTo("38;2;100;150;200");
-    }
-
-    @Test
-    @DisplayName("colorToAnsiBackground with Reset")
-    void backgroundReset() {
-        String result = AnsiStringBuilder.colorToAnsiBackground(Color.RESET);
-        assertThat(result).isEqualTo("49");
-    }
-
-    @Test
-    @DisplayName("colorToAnsiBackground with ANSI color")
-    void backgroundAnsiColor() {
-        String result = AnsiStringBuilder.colorToAnsiBackground(Color.RED);
-        assertThat(result).isEqualTo("41");
-    }
-
-    @Test
-    @DisplayName("colorToAnsiBackground with indexed color")
-    void backgroundIndexedColor() {
-        String result = AnsiStringBuilder.colorToAnsiBackground(Color.indexed(45));
-        assertThat(result).isEqualTo("48;5;45");
-    }
-
-    @Test
-    @DisplayName("colorToAnsiBackground with RGB color")
-    void backgroundRgbColor() {
-        String result = AnsiStringBuilder.colorToAnsiBackground(Color.rgb(255, 128, 64));
-        assertThat(result).isEqualTo("48;2;255;128;64");
-    }
-
-    @Test
-    @DisplayName("underlineColorToAnsi with indexed color")
-    void underlineIndexedColor() {
-        String result = AnsiStringBuilder.underlineColorToAnsi(Color.indexed(200));
-        assertThat(result).isEqualTo("58;5;200");
-    }
-
-    @Test
-    @DisplayName("underlineColorToAnsi with RGB color")
-    void underlineRgbColor() {
-        String result = AnsiStringBuilder.underlineColorToAnsi(Color.rgb(10, 20, 30));
-        assertThat(result).isEqualTo("58;2;10;20;30");
-    }
-
-    @Test
-    @DisplayName("underlineColorToAnsi with unsupported color returns empty")
-    void underlineUnsupportedColor() {
-        String result = AnsiStringBuilder.underlineColorToAnsi(Color.RED);
-        assertThat(result).isEmpty();
     }
 
     @Test
