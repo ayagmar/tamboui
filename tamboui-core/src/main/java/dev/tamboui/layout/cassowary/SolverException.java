@@ -4,6 +4,8 @@
  */
 package dev.tamboui.layout.cassowary;
 
+import dev.tamboui.layout.LayoutException;
+
 /**
  * Base exception for Cassowary solver errors.
  */
