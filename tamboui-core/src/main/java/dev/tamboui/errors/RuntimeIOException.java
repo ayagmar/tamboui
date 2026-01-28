@@ -4,8 +4,6 @@
  */
 package dev.tamboui.errors;
 
-import java.io.IOException;
-
 /**
  * Exception thrown when a terminal I/O operation fails.
  * <p>
@@ -13,26 +11,29 @@ import java.io.IOException;
  * such as reading from or writing to the terminal, setting terminal attributes,
  * or querying terminal state.
  *
+ * NOTE: This is similar to java.io.UncheckedExcpetion, but does not share name to avoid
+ * ambiguity
+ *
  * @see TamboUIException
  */
-public class TerminalIOException extends TamboUIException {
+public class RuntimeIOException extends TamboUIException {
 
     /**
-     * Creates a new terminal I/O exception with the given message.
+     * Creates a new runtime/unchecked IO exception with the given message.
      *
      * @param message the error message
      */
-    public TerminalIOException(String message) {
+    public RuntimeIOException(String message) {
         super(message);
     }
 
     /**
-     * Creates a new terminal I/O exception with the given message and cause.
+     * Creates a new runtime/unchecked I/O exception with the given message and cause.
      *
      * @param message the error message
      * @param cause   the underlying IOException
      */
-    public TerminalIOException(String message, Throwable cause) {
+    public RuntimeIOException(String message, Throwable cause) {
         super(message, cause);
     }
 

@@ -185,7 +185,7 @@ TamboUI uses a consistent exception hierarchy for framework errors.
 - **`TamboUIException`** (`dev.tamboui.errors.TamboUIException`) - Abstract base exception for all TamboUI framework errors
  - Extends `RuntimeException` (unchecked)
  - Abstract base class that all TamboUI exceptions extend
- - **`TerminalIOException`** (`dev.tamboui.errors.TerminalIOException`) - Extends `TamboUIException`
+ - **`TerminalIOException`** (`dev.tamboui.errors.RuntimeIOException`) - Extends `TamboUIException`
  - Used specifically for terminal I/O errors (wraps `IOException` from backend operations)
  - **`BackendException`** (`dev.tamboui.terminal.BackendException`) - Extends `TamboUIException`
  - Used for backend-related errors that are not specifically terminal I/O (e.g. native failures, provider lookup)

@@ -5,7 +5,7 @@
 package dev.tamboui.widgets.block;
 
 import dev.tamboui.buffer.Buffer;
-import dev.tamboui.errors.TerminalIOException;
+import dev.tamboui.errors.RuntimeIOException;
 import dev.tamboui.layout.Alignment;
 import dev.tamboui.layout.Padding;
 import dev.tamboui.layout.Rect;
@@ -677,7 +677,7 @@ class BlockTest {
     private String loadResourceFile(String resourcePath) throws IOException {
         try (InputStream is = getClass().getClassLoader().getResourceAsStream(resourcePath)) {
             if (is == null) {
-                throw new TerminalIOException("Resource not found: " + resourcePath);
+                throw new RuntimeIOException("Resource not found: " + resourcePath);
             }
             try (Scanner scanner = new Scanner(is, StandardCharsets.UTF_8.name())) {
                 scanner.useDelimiter("\\A");

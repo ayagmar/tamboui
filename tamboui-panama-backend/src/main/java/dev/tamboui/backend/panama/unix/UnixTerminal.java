@@ -6,7 +6,7 @@ package dev.tamboui.backend.panama.unix;
 
 import dev.tamboui.terminal.BackendException;
 import dev.tamboui.backend.panama.PlatformTerminal;
-import dev.tamboui.errors.TerminalIOException;
+import dev.tamboui.errors.RuntimeIOException;
 import dev.tamboui.layout.Size;
 
 import java.io.IOException;
@@ -93,7 +93,7 @@ public final class UnixTerminal implements PlatformTerminal {
         } else {
             fd = LibC.open(DEV_TTY, LibC.O_RDWR);
             if (fd < 0) {
-                throw new TerminalIOException("Failed to open " + DEV_TTY + " (errno=" + LibC.getLastErrno() + ")");
+                throw new RuntimeIOException("Failed to open " + DEV_TTY + " (errno=" + LibC.getLastErrno() + ")");
             }
         }
         this.ttyFd = fd;
@@ -113,7 +113,7 @@ public final class UnixTerminal implements PlatformTerminal {
         if (tcgetattrResult != 0) {
             LibC.close(ttyFd);
             arena.close();
-            throw new TerminalIOException("Failed to get terminal attributes");
+            throw new RuntimeIOException("Failed to get terminal attributes");
         }
 
         // Copy to current
@@ -197,7 +197,7 @@ public final class UnixTerminal implements PlatformTerminal {
 
         // Re-read current attributes
         if (LibC.tcgetattr(ttyFd, currentTermios) != 0) {
-            throw new TerminalIOException("Failed to get terminal attributes");
+            throw new RuntimeIOException("Failed to get terminal attributes");
         }
 
         // Get current flags
@@ -229,7 +229,7 @@ public final class UnixTerminal implements PlatformTerminal {
         clearControlChar(currentTermios, LibC.VTIME);
 
         if (LibC.tcsetattr(ttyFd, LibC.TCSAFLUSH, currentTermios) != 0) {
-            throw new TerminalIOException("Failed to set terminal attributes");
+            throw new RuntimeIOException("Failed to set terminal attributes");
         }
 
         rawModeEnabled = true;
@@ -246,7 +246,7 @@ public final class UnixTerminal implements PlatformTerminal {
         }
 
         if (LibC.tcsetattr(ttyFd, LibC.TCSAFLUSH, savedTermios) != 0) {
-            throw new TerminalIOException("Failed to restore terminal attributes");
+            throw new RuntimeIOException("Failed to restore terminal attributes");
         }
 
         rawModeEnabled = false;
@@ -267,7 +267,7 @@ public final class UnixTerminal implements PlatformTerminal {
                 return new Size(cols, rows);
             }
         }
-        throw new TerminalIOException("Failed to get terminal size (errno=" + LibC.getLastErrno() + ")");
+        throw new RuntimeIOException("Failed to get terminal size (errno=" + LibC.getLastErrno() + ")");
     }
 
     /**
@@ -348,7 +348,7 @@ public final class UnixTerminal implements PlatformTerminal {
             while (written < chunkSize) {
                 long result = LibC.write(ttyFd, writeBuffer.asSlice(written), chunkSize - written);
                 if (result < 0) {
-                    throw new TerminalIOException("Write failed (errno=" + LibC.getLastErrno() + ")");
+                    throw new RuntimeIOException("Write failed (errno=" + LibC.getLastErrno() + ")");
                 }
                 written += result;
             }
@@ -512,7 +512,7 @@ public final class UnixTerminal implements PlatformTerminal {
                 checkResizePending();
                 continue;
             }
-            throw new TerminalIOException("poll() failed (errno=" + LibC.getLastErrno() + ")");
+            throw new RuntimeIOException("poll() failed (errno=" + LibC.getLastErrno() + ")");
         }
 
         if (result == 0) {

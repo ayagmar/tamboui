@@ -6,7 +6,7 @@ package dev.tamboui.image;
 
 import javax.imageio.ImageIO;
 
-import dev.tamboui.errors.TerminalIOException;
+import dev.tamboui.errors.RuntimeIOException;
 
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
@@ -120,7 +120,7 @@ public final class ImageData {
         try (InputStream is = Files.newInputStream(path)) {
             BufferedImage image = ImageIO.read(is);
             if (image == null) {
-                throw new TerminalIOException("Unable to read image: " + path);
+                throw new RuntimeIOException("Unable to read image: " + path);
             }
             return fromBufferedImage(image);
         }
@@ -136,11 +136,11 @@ public final class ImageData {
     public static ImageData fromResource(String resourcePath) throws IOException {
         try (InputStream is = ImageData.class.getResourceAsStream(resourcePath)) {
             if (is == null) {
-                throw new TerminalIOException("Resource not found: " + resourcePath);
+                throw new RuntimeIOException("Resource not found: " + resourcePath);
             }
             BufferedImage image = ImageIO.read(is);
             if (image == null) {
-                throw new TerminalIOException("Unable to read image resource: " + resourcePath);
+                throw new RuntimeIOException("Unable to read image resource: " + resourcePath);
             }
             return fromBufferedImage(image);
         }
@@ -157,7 +157,7 @@ public final class ImageData {
         try (InputStream is = new ByteArrayInputStream(data)) {
             BufferedImage image = ImageIO.read(is);
             if (image == null) {
-                throw new TerminalIOException("Unable to decode image data");
+                throw new RuntimeIOException("Unable to decode image data");
             }
             return fromBufferedImage(image);
         }

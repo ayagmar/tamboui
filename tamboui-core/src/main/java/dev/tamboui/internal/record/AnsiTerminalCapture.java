@@ -12,7 +12,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
-import dev.tamboui.errors.TerminalIOException;
+import dev.tamboui.errors.RuntimeIOException;
 
 /**
  * Captures raw bytes written to System.out for recording inline demos.
@@ -70,7 +70,7 @@ public final class AnsiTerminalCapture extends OutputStream {
         try {
             System.setOut(new PrintStream(instance, true, "UTF-8"));
         } catch (UnsupportedEncodingException e) {
-            throw new TerminalIOException("UTF-8 not supported", e);
+            throw new RuntimeIOException("UTF-8 not supported", e);
         }
     }
 

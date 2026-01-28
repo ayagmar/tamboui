@@ -14,7 +14,7 @@ import java.lang.foreign.ValueLayout;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.VarHandle;
 
-import dev.tamboui.errors.TerminalIOException;
+import dev.tamboui.errors.RuntimeIOException;
 import dev.tamboui.terminal.BackendException;
 
 /**
@@ -143,7 +143,7 @@ public final class Kernel32 {
         try {
             return (MemorySegment) GET_STD_HANDLE.invokeExact(stdHandle);
         } catch (Throwable t) {
-            throw new TerminalIOException("GetStdHandle failed", t);
+            throw new RuntimeIOException("GetStdHandle failed", t);
         }
     }
 

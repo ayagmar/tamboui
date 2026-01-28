@@ -4,7 +4,7 @@
  */
 package dev.tamboui.tui.bindings;
 
-import dev.tamboui.errors.TerminalIOException;
+import dev.tamboui.errors.RuntimeIOException;
 import dev.tamboui.tui.TuiException;
 import dev.tamboui.tui.event.KeyCode;
 import dev.tamboui.tui.event.MouseButton;
@@ -14,9 +14,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
@@ -67,11 +65,11 @@ public final class BindingSets {
         try (InputStream in = BindingSets.class.getClassLoader()
                 .getResourceAsStream(BINDINGS_RESOURCE_PATH + resourceName)) {
             if (in == null) {
-                throw new TerminalIOException("Built-in bindings not found: " + resourceName);
+                throw new RuntimeIOException("Built-in bindings not found: " + resourceName);
             }
             return load(in, base);
         } catch (IOException e) {
-            throw new TerminalIOException("Failed to load built-in bindings: " + resourceName, e);
+            throw new RuntimeIOException("Failed to load built-in bindings: " + resourceName, e);
         }
     }
 
@@ -306,7 +304,7 @@ public final class BindingSets {
         try (InputStream in = classLoader.getResourceAsStream(
                 resourcePath.startsWith("/") ? resourcePath.substring(1) : resourcePath)) {
             if (in == null) {
-                throw new TerminalIOException("Resource not found: " + resourcePath);
+                throw new RuntimeIOException("Resource not found: " + resourcePath);
             }
             return load(in);
         }
@@ -427,14 +425,14 @@ public final class BindingSets {
 
         // Should start with "Mouse."
         if (!remaining.toLowerCase().startsWith("mouse.")) {
-            throw new TerminalIOException("Invalid mouse trigger (expected Mouse.Button.Kind): " + text);
+            throw new RuntimeIOException("Invalid mouse trigger (expected Mouse.Button.Kind): " + text);
         }
         remaining = remaining.substring(6); // Remove "Mouse."
 
         // Parse button and kind
         String[] parts = remaining.split("\\.");
         if (parts.length < 1 || parts.length > 2) {
-            throw new TerminalIOException("Invalid mouse trigger format: " + text);
+            throw new RuntimeIOException("Invalid mouse trigger format: " + text);
         }
 
         MouseButton button = MouseButton.NONE;
@@ -444,17 +442,17 @@ public final class BindingSets {
             // Format: Button.Kind
             button = MOUSE_BUTTONS.get(parts[0].toLowerCase());
             if (button == null) {
-                throw new TerminalIOException("Unknown mouse button: " + parts[0]);
+                throw new RuntimeIOException("Unknown mouse button: " + parts[0]);
             }
             kind = MOUSE_KINDS.get(parts[1].toLowerCase());
             if (kind == null) {
-                throw new TerminalIOException("Unknown mouse event kind: " + parts[1]);
+                throw new RuntimeIOException("Unknown mouse event kind: " + parts[1]);
             }
         } else {
             // Format: Kind only (for scroll events)
             kind = MOUSE_KINDS.get(parts[0].toLowerCase());
             if (kind == null) {
-                throw new TerminalIOException("Unknown mouse event kind: " + parts[0]);
+                throw new RuntimeIOException("Unknown mouse event kind: " + parts[0]);
             }
         }
 
