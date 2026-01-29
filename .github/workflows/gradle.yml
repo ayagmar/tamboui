@@ -24,6 +24,9 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
 
+      - name: Set up JBang
+        uses: jbangdev/setup-jbang@vmain
+
       - name: Execute Gradle build
         run: ./gradlew build
 
