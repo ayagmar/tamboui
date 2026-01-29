@@ -291,6 +291,18 @@ public final class ScrollbarElement extends StyledElement<ScrollbarElement> {
     }
 
     @Override
+    public int preferredWidth() {
+        // Scrollbar is 1 cell wide for vertical orientation
+        return orientation.isVertical() ? 1 : (state != null ? state.contentLength() : 10);
+    }
+
+    @Override
+    public int preferredHeight() {
+        // Scrollbar is 1 cell tall for horizontal orientation
+        return orientation.isVertical() ? (state != null ? state.contentLength() : 10) : 1;
+    }
+
+    @Override
     protected void renderContent(Frame frame, Rect area, RenderContext context) {
         if (area.isEmpty()) {
             return;

@@ -178,6 +178,19 @@ public final class GaugeElement extends StyledElement<GaugeElement> {
     }
 
     @Override
+    public int preferredWidth() {
+        // Label width + some space for the gauge bar
+        int labelWidth = label != null ? label.length() : 4; // "75%" default
+        return labelWidth + 10;
+    }
+
+    @Override
+    public int preferredHeight() {
+        // Gauge is typically 1 row, 3 if bordered (top + content + bottom)
+        return (title != null || borderType != null) ? 3 : 1;
+    }
+
+    @Override
     public Map<String, String> styleAttributes() {
         Map<String, String> attrs = new LinkedHashMap<>(super.styleAttributes());
         if (title != null) {

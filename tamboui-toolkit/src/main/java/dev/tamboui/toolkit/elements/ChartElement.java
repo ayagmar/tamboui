@@ -183,6 +183,20 @@ public final class ChartElement extends StyledElement<ChartElement> {
     }
 
     @Override
+    public int preferredWidth() {
+        // Charts need reasonable width for axis labels and data display
+        int borderWidth = (title != null || borderType != null) ? 2 : 0;
+        return 40 + borderWidth;
+    }
+
+    @Override
+    public int preferredHeight() {
+        // Charts need reasonable height for visibility
+        int borderHeight = (title != null || borderType != null) ? 2 : 0;
+        return 10 + borderHeight;
+    }
+
+    @Override
     public Map<String, String> styleAttributes() {
         Map<String, String> attrs = new LinkedHashMap<>(super.styleAttributes());
         if (title != null) {

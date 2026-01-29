@@ -446,6 +446,20 @@ public final class MarkupTextAreaElement extends StyledElement<MarkupTextAreaEle
     }
 
     @Override
+    public int preferredWidth() {
+        // Return max line width from parsed text
+        ensureTextParsed();
+        int maxWidth = 0;
+        for (Line line : parsedText.lines()) {
+            maxWidth = Math.max(maxWidth, line.width());
+        }
+        // Add line number width and border
+        int lineNumWidth = showLineNumbers ? String.valueOf(parsedText.lines().size()).length() + lineNumberSeparator.length() : 0;
+        int borderWidth = (title != null || borderType != null) ? 2 : 0;
+        return maxWidth + lineNumWidth + borderWidth;
+    }
+
+    @Override
     public Constraint constraint() {
         if (layoutConstraint != null) {
             return layoutConstraint;

@@ -180,15 +180,16 @@ class TableElementTest {
     }
 
     @Test
-    @DisplayName("preferredHeight returns 0 (unknown) for table elements")
-    void preferredHeightReturnsZero() {
+    @DisplayName("preferredHeight returns content height for table elements")
+    void preferredHeightReturnsContentHeight() {
         TableElement element = table()
             .header("Name", "Age")
             .row("Alice", "30")
             .row("Bob", "25");
 
-        assertThat(element.preferredHeight()).isZero();
-        assertThat(element.preferredHeight(80, RenderContext.empty())).isZero();
+        // 1 header row + 2 data rows = 3
+        assertThat(element.preferredHeight()).isEqualTo(3);
+        assertThat(element.preferredHeight(80, RenderContext.empty())).isEqualTo(3);
     }
 
     @Test

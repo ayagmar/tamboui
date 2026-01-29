@@ -632,8 +632,12 @@ public final class Panel extends ContainerElement<Panel> {
                             : childCss.heightConstraint().orElse(null);
                 }
             }
-            // Default to fill() so children expand to use available space
-            constraints.add(c != null ? c : Constraint.fill());
+            // Handle null constraint by querying preferred size
+            if (c == null) {
+                int preferred = isHorizontal ? child.preferredWidth() : child.preferredHeight();
+                c = preferred > 0 ? Constraint.length(preferred) : Constraint.fill();
+            }
+            constraints.add(c);
         }
 
         Layout layout = effectiveDirection == Direction.HORIZONTAL

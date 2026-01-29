@@ -223,6 +223,23 @@ public final class TextInputElement extends StyledElement<TextInputElement> {
     }
 
     @Override
+    public int preferredWidth() {
+        // Use max of placeholder width and current value width, plus border
+        int valueWidth = state != null ? state.text().length() : 0;
+        int placeholderWidth = placeholder != null ? placeholder.length() : 0;
+        int contentWidth = Math.max(valueWidth, placeholderWidth);
+        // Add minimum width for usability and border if present
+        int borderWidth = (title != null || borderType != null) ? 2 : 0;
+        return Math.max(contentWidth, 10) + borderWidth;
+    }
+
+    @Override
+    public int preferredHeight() {
+        // Single-line input: 1 row, or 3 if bordered
+        return (title != null || borderType != null) ? 3 : 1;
+    }
+
+    @Override
     public Map<String, String> styleAttributes() {
         Map<String, String> attrs = new LinkedHashMap<>(super.styleAttributes());
         if (title != null) {

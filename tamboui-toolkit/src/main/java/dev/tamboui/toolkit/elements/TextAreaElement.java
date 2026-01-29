@@ -252,6 +252,34 @@ public final class TextAreaElement extends StyledElement<TextAreaElement> {
     }
 
     @Override
+    public int preferredWidth() {
+        // Calculate max line width from content
+        int maxWidth = 0;
+        if (state != null) {
+            String text = state.text();
+            for (String line : text.split("\n", -1)) {
+                maxWidth = Math.max(maxWidth, line.length());
+            }
+        }
+        // Add minimum width, line number width if applicable, and border
+        int lineNumWidth = showLineNumbers ? 5 : 0;
+        int borderWidth = (title != null || borderType != null) ? 2 : 0;
+        return Math.max(maxWidth, 20) + lineNumWidth + borderWidth;
+    }
+
+    @Override
+    public int preferredHeight() {
+        // Return line count plus border
+        int lineCount = 1;
+        if (state != null) {
+            String text = state.text();
+            lineCount = text.isEmpty() ? 1 : text.split("\n", -1).length;
+        }
+        int borderHeight = (title != null || borderType != null) ? 2 : 0;
+        return lineCount + borderHeight;
+    }
+
+    @Override
     public boolean isFocusable() {
         return true;
     }

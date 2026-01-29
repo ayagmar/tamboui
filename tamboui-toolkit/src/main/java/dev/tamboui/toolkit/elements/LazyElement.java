@@ -50,6 +50,24 @@ public final class LazyElement implements Element {
     }
 
     @Override
+    public int preferredWidth() {
+        // Evaluate to get preferred width if not yet rendered
+        if (lastElement == null) {
+            lastElement = supplier.get();
+        }
+        return lastElement != null ? lastElement.preferredWidth() : 0;
+    }
+
+    @Override
+    public int preferredHeight() {
+        // Evaluate to get preferred height if not yet rendered
+        if (lastElement == null) {
+            lastElement = supplier.get();
+        }
+        return lastElement != null ? lastElement.preferredHeight() : 0;
+    }
+
+    @Override
     public Constraint constraint() {
         // Evaluate to get constraint if not yet rendered
         if (lastElement == null) {

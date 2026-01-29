@@ -145,6 +145,7 @@ class ConstraintCssTest {
             setupBuffer(40, 1);
 
             // .parent-row .child-text { width: fit; }
+            // .parent-row { flex: center; }
             row(
                 text("Short").addClass("child-text"),
                 text("Rest")
@@ -152,9 +153,12 @@ class ConstraintCssTest {
              .render(frame, new Rect(0, 0, 40, 1), context);
 
             // With width: fit, "Short" takes only 5 columns
-            assertThat(buffer).hasSymbolAt(0, 0, "S");
-            // With flex: center on parent-row, rest of space is distributed
-            // So "Rest" won't be immediately after "Short"
+            // "Rest" also fits to its preferred width of 4 columns
+            // Total: 9 columns in 40-column buffer
+            // With flex: center, content is centered: (40 - 9) / 2 = 15
+            assertThat(buffer).hasSymbolAt(15, 0, "S");
+            // "Rest" starts at position 20 (15 + 5)
+            assertThat(buffer).hasSymbolAt(20, 0, "R");
         }
     }
 
