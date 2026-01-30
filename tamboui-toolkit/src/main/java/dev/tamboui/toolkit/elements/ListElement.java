@@ -516,6 +516,45 @@ public final class ListElement<T> extends StyledElement<ListElement<T>> {
     }
 
     @Override
+    public int preferredWidth() {
+        // Calculate max width from items
+        int maxWidth = 0;
+        List<StyledElement<?>> effectiveItems;
+        if (data != null && itemRenderer != null) {
+            effectiveItems = new ArrayList<>(data.size());
+            for (T item : data) {
+                effectiveItems.add(itemRenderer.apply(item));
+            }
+        } else {
+            effectiveItems = items;
+        }
+
+        for (StyledElement<?> item : effectiveItems) {
+            maxWidth = Math.max(maxWidth, item.preferredWidth());
+        }
+
+        // Add highlight symbol width and border width if present
+        String effectiveSymbol = highlightSymbol != null ? highlightSymbol : DEFAULT_HIGHLIGHT_SYMBOL;
+        int symbolWidth = effectiveSymbol.length();
+        int borderWidth = (title != null || borderType != null) ? 2 : 0;
+
+        return maxWidth + symbolWidth + borderWidth;
+    }
+
+    @Override
+    public int preferredHeight() {
+        // Return number of items + border height if present
+        int itemCount;
+        if (data != null) {
+            itemCount = data.size();
+        } else {
+            itemCount = items.size();
+        }
+        int borderHeight = (title != null || borderType != null) ? 2 : 0;
+        return itemCount + borderHeight;
+    }
+
+    @Override
     public Map<String, String> styleAttributes() {
         Map<String, String> attrs = new LinkedHashMap<>(super.styleAttributes());
         if (title != null) {

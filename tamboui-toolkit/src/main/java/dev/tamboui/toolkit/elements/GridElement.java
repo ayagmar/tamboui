@@ -434,7 +434,15 @@ public final class GridElement extends ContainerElement<GridElement> {
                 if (effectiveGridColumns != null && !effectiveGridColumns.isEmpty()) {
                     hConstraints.add(effectiveGridColumns.get(c % effectiveGridColumns.size()));
                 } else {
-                    hConstraints.add(Constraint.fill());
+                    // Find max preferred width of children in this column
+                    int maxPreferred = 0;
+                    for (int row = 0; row < rows; row++) {
+                        int childIndex = row * cols + c;
+                        if (childIndex < childCount) {
+                            maxPreferred = Math.max(maxPreferred, children.get(childIndex).preferredWidth());
+                        }
+                    }
+                    hConstraints.add(maxPreferred > 0 ? Constraint.length(maxPreferred) : Constraint.fill());
                 }
                 if (hGutter > 0 && c < cols - 1) {
                     hConstraints.add(Constraint.length(hGutter));

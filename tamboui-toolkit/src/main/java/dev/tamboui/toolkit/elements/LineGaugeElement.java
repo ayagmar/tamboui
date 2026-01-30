@@ -182,6 +182,19 @@ public final class LineGaugeElement extends StyledElement<LineGaugeElement> {
     }
 
     @Override
+    public int preferredWidth() {
+        // Label width + a reasonable gauge width
+        int labelWidth = label != null ? label.length() : 0;
+        return labelWidth + 20;
+    }
+
+    @Override
+    public int preferredHeight() {
+        // LineGauge is always 1 row
+        return 1;
+    }
+
+    @Override
     public Map<String, String> styleAttributes() {
         Map<String, String> attrs = new LinkedHashMap<>(super.styleAttributes());
         if (label != null) {

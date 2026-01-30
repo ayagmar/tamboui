@@ -267,6 +267,75 @@ public final class TableElement extends StyledElement<TableElement> {
     }
 
     @Override
+    public int preferredWidth() {
+        // Sum of column widths from constraints + column spacing
+        int totalWidth = 0;
+        int numCols = 0;
+
+        // Determine number of columns from header or first row
+        if (header != null) {
+            numCols = header.cells().size();
+        } else if (!rows.isEmpty()) {
+            numCols = rows.get(0).cells().size();
+        }
+
+        if (!widths.isEmpty()) {
+            // Use constraint widths
+            for (Constraint w : widths) {
+                if (w instanceof Constraint.Length) {
+                    totalWidth += ((Constraint.Length) w).value();
+                } else {
+                    totalWidth += 10; // Default column width
+                }
+            }
+            // Cycle if fewer widths than columns
+            for (int i = widths.size(); i < numCols; i++) {
+                Constraint w = widths.get(i % widths.size());
+                if (w instanceof Constraint.Length) {
+                    totalWidth += ((Constraint.Length) w).value();
+                } else {
+                    totalWidth += 10;
+                }
+            }
+        } else {
+            // Default width per column
+            totalWidth = numCols * 10;
+        }
+
+        // Add column spacing
+        if (numCols > 1) {
+            totalWidth += columnSpacing * (numCols - 1);
+        }
+
+        // Add highlight symbol width
+        String effectiveSymbol = highlightSymbol != null ? highlightSymbol : DEFAULT_HIGHLIGHT_SYMBOL;
+        totalWidth += effectiveSymbol.length();
+
+        // Add border width if present
+        if (title != null || borderType != null) {
+            totalWidth += 2;
+        }
+
+        return totalWidth;
+    }
+
+    @Override
+    public int preferredHeight() {
+        // Header + rows + footer + border
+        int height = rows.size();
+        if (header != null) {
+            height++;
+        }
+        if (footer != null) {
+            height++;
+        }
+        if (title != null || borderType != null) {
+            height += 2;
+        }
+        return height;
+    }
+
+    @Override
     public Map<String, String> styleAttributes() {
         Map<String, String> attrs = new LinkedHashMap<>(super.styleAttributes());
         if (title != null) {

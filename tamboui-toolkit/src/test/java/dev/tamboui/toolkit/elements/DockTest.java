@@ -282,4 +282,98 @@ class DockTest {
             BufferAssertions.assertThat(buffer).hasSymbolAt(0, 2, "C");
         }
     }
+
+    // ==================== Fit content tests ====================
+
+    @Nested
+    @DisplayName("Fit content (preferred size) behavior")
+    class FitContentTests {
+
+        @Test
+        @DisplayName("panel with row fits to content height (3 = borders + 1 row)")
+        void panelWithRowFitsToContent() {
+            Rect area = new Rect(0, 0, 40, 10);
+            Buffer buffer = Buffer.empty(area);
+            Frame frame = Frame.forTesting(buffer);
+
+            // Panel with a row should have height 3: top border + row content + bottom border
+            dock()
+                .top(panel(() -> row(text("Header"))))
+                .center(text("C"))
+                .render(frame, area, RenderContext.empty());
+
+            // Top panel border at y=0
+            BufferAssertions.assertThat(buffer).hasSymbolAt(0, 0, "┌");
+            // Panel content (Header) at y=1
+            BufferAssertions.assertThat(buffer).hasSymbolAt(1, 1, "H");
+            // Panel bottom border at y=2
+            BufferAssertions.assertThat(buffer).hasSymbolAt(0, 2, "└");
+            // Center at y=3 (after 3-row panel)
+            BufferAssertions.assertThat(buffer).hasSymbolAt(0, 3, "C");
+        }
+
+        @Test
+        @DisplayName("panel with multiple texts in column fits height")
+        void panelWithColumnFitsHeight() {
+            Rect area = new Rect(0, 0, 40, 10);
+            Buffer buffer = Buffer.empty(area);
+            Frame frame = Frame.forTesting(buffer);
+
+            // Panel with 2 text lines should have height 4: borders(2) + lines(2)
+            dock()
+                .top(panel(text("Line1"), text("Line2")))
+                .center(text("C"))
+                .render(frame, area, RenderContext.empty());
+
+            // Panel top border at y=0
+            BufferAssertions.assertThat(buffer).hasSymbolAt(0, 0, "┌");
+            // Line1 at y=1
+            BufferAssertions.assertThat(buffer).hasSymbolAt(1, 1, "L");
+            // Line2 at y=2
+            BufferAssertions.assertThat(buffer).hasSymbolAt(1, 2, "L");
+            // Panel bottom border at y=3
+            BufferAssertions.assertThat(buffer).hasSymbolAt(0, 3, "└");
+            // Center at y=4
+            BufferAssertions.assertThat(buffer).hasSymbolAt(0, 4, "C");
+        }
+
+        @Test
+        @DisplayName("explicit constraint overrides fit content")
+        void explicitConstraintOverridesFitContent() {
+            Rect area = new Rect(0, 0, 40, 10);
+            Buffer buffer = Buffer.empty(area);
+            Frame frame = Frame.forTesting(buffer);
+
+            // Even with panel (preferred 3), explicit constraint wins
+            dock()
+                .top(panel(() -> row(text("Header"))), Constraint.length(5))
+                .center(text("C"))
+                .render(frame, area, RenderContext.empty());
+
+            // Center at y=5 (not y=3)
+            BufferAssertions.assertThat(buffer).hasSymbolAt(0, 5, "C");
+        }
+
+        @Test
+        @DisplayName("bottom panel also fits content")
+        void bottomPanelFitsContent() {
+            Rect area = new Rect(0, 0, 40, 10);
+            Buffer buffer = Buffer.empty(area);
+            Frame frame = Frame.forTesting(buffer);
+
+            dock()
+                .center(text("C"))
+                .bottom(panel(() -> row(text("Footer"))))
+                .render(frame, area, RenderContext.empty());
+
+            // Center at y=0 (top of remaining area)
+            BufferAssertions.assertThat(buffer).hasSymbolAt(0, 0, "C");
+            // Bottom panel starts at y=7 (10-3=7)
+            BufferAssertions.assertThat(buffer).hasSymbolAt(0, 7, "┌");
+            // Footer text at y=8
+            BufferAssertions.assertThat(buffer).hasSymbolAt(1, 8, "F");
+            // Bottom panel bottom border at y=9
+            BufferAssertions.assertThat(buffer).hasSymbolAt(0, 9, "└");
+        }
+    }
 }

@@ -225,6 +225,20 @@ public final class SparklineElement extends StyledElement<SparklineElement> {
     }
 
     @Override
+    public int preferredWidth() {
+        // Sparkline width is typically the data point count
+        int width = data != null ? data.length : 10;
+        int borderWidth = (title != null || borderType != null) ? 2 : 0;
+        return Math.max(width, 10) + borderWidth;
+    }
+
+    @Override
+    public int preferredHeight() {
+        // Sparkline is typically 1 row, or 3 if bordered
+        return (title != null || borderType != null) ? 3 : 1;
+    }
+
+    @Override
     public Map<String, String> styleAttributes() {
         Map<String, String> attrs = new LinkedHashMap<>(super.styleAttributes());
         if (title != null) {

@@ -58,12 +58,11 @@ public class FileManagerView implements Element {
     @Override
     public void render(Frame frame, Rect area, RenderContext context) {
 
-        // Build and render the UI tree
-        Element ui = column(
-                header(),
-                browserRow(context),
-                helpBar()
-        );
+        // Build and render the UI tree using Dock layout
+        Element ui = dock()
+                .top(header(), Constraint.length(1))
+                .center(browserRow(context))
+                .bottom(helpBar(), Constraint.length(1));
         ui.render(frame, area, context);
 
         // Render dialog on top if present

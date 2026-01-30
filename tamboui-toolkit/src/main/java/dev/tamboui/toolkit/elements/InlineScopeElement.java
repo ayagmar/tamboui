@@ -197,16 +197,21 @@ public final class InlineScopeElement extends ContainerElement<InlineScopeElemen
         List<Constraint> constraints = new ArrayList<>();
         for (Element child : children) {
             Constraint c = child.constraint();
-            // Handle Fit constraint
-            if (c instanceof Constraint.Fit) {
+            // Handle null or Fit constraint by querying preferred height
+            if (c == null) {
+                // First try text element special case
+                if (child instanceof TextElement) {
+                    c = ((TextElement) child).calculateHeightConstraint();
+                }
+                if (c == null) {
+                    int preferred = child.preferredHeight();
+                    c = preferred > 0 ? Constraint.length(preferred) : Constraint.fill();
+                }
+            } else if (c instanceof Constraint.Fit) {
                 int preferred = child.preferredHeight();
-                c = preferred > 0 ? Constraint.length(preferred) : null;
+                c = preferred > 0 ? Constraint.length(preferred) : Constraint.fill();
             }
-            // Calculate default constraint for text elements
-            if (c == null && child instanceof TextElement) {
-                c = ((TextElement) child).calculateHeightConstraint();
-            }
-            constraints.add(c != null ? c : Constraint.fill());
+            constraints.add(c);
         }
 
         // Layout children vertically

@@ -57,8 +57,8 @@ public class ToolkitDemo {
 
         try (var runner = ToolkitRunner.create(config)) {
             var panels = new FloatingPanelsArea();
-            runner.run(() -> column(
-                    panel(() -> row(
+            runner.run(() -> dock()
+                    .top(panel(() -> row(
                             text(" TamboUI Widget Playground ").bold().cyan(),
                             spacer(),
                             text(" [1-6] Add Panel ").dim(),
@@ -66,9 +66,9 @@ public class ToolkitDemo {
                             text(" [Drag] Move ").dim(),
                             text(" [x] Delete ").dim(),
                             text(" [q] Quit ").dim()
-                    )).rounded().borderColor(Color.DARK_GRAY).length(3),
-                    panels
-            ));
+                    )).rounded().borderColor(Color.DARK_GRAY))
+                    .center(panels)
+            );
         }
     }
 

@@ -178,39 +178,33 @@ public class DemoSelector extends ToolkitApp {
             descriptionContent = text("");
         }
 
-        return column(
+        return dock()
                 // Header
-                panel(
+                .top(panel(
                         text(" TamboUI Demo Selector ").bold().cyan()
-                ).rounded().borderColor(Color.CYAN).length(3),
+                ).rounded().borderColor(Color.CYAN))
 
-                // Main content
-                row(
-                        // Demo list
-                        panel(
-                                demoList.items(lines)
-                        )
-                                .title(title)
-                                .rounded()
-                                .borderColor(filter.isEmpty() ? Color.WHITE : Color.YELLOW)
-                                .id("demo-list")
-                                .focusable()
-                                .onKeyEvent(this::handleKey)
-                                .constraint(Constraint.percentage(50)),
+                // Demo list (left side)
+                .left(panel(
+                        demoList.items(lines)
+                )
+                        .title(title)
+                        .rounded()
+                        .borderColor(filter.isEmpty() ? Color.WHITE : Color.YELLOW)
+                        .id("demo-list")
+                        .focusable()
+                        .onKeyEvent(this::handleKey), Constraint.percentage(50))
 
-                        // Description panel
-                        panel(descriptionContent)
-                                .title("Description")
-                                .rounded()
-                                .borderColor(Color.DARK_GRAY)
-                                .constraint(Constraint.percentage(50))
-                ),
+                // Description panel (center/right)
+                .center(panel(descriptionContent)
+                        .title("Description")
+                        .rounded()
+                        .borderColor(Color.DARK_GRAY))
 
                 // Footer
-                panel(
+                .bottom(panel(
                         text(" Type: Filter | ←/→: Collapse/Expand | ↑↓: Navigate | PgUp/PgDn: Sections | Enter: Select | Ctrl+C: Quit ").dim()
-                ).rounded().borderColor(Color.DARK_GRAY).length(3)
-        );
+                ).rounded().borderColor(Color.DARK_GRAY));
     }
 
     private EventResult handleKey(KeyEvent event) {

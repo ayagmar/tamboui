@@ -99,9 +99,9 @@ public class CssDemo implements Element {
 
     @Override
     public void render(Frame frame, Rect area, RenderContext context) {
-        column(
+        dock()
             // Header
-            panel(() -> row(
+            .top(panel(() -> row(
                 text(" CSS Demo ").addClass("header"),
                 spacer(),
                 text(" Theme: ").addClass("dim"),
@@ -109,46 +109,43 @@ public class CssDemo implements Element {
                 text(" [t] Toggle ").addClass("dim"),
                 text(" [Tab] Focus ").addClass("dim"),
                 text(" [q] Quit ").addClass("dim")
-            )).rounded().length(3).addClass("status"),
+            )).rounded().addClass("status"))
 
-            // Main content
-            row(
-                // Left sidebar with navigation list
-                navList.length(20),
+            // Left sidebar with navigation list
+            .left(navList, Constraint.length(20))
 
-                // Center panel - Style Classes (focusable)
-                panel(() -> column(
-                    text("Primary Action").addClass("primary"),
-                    text("Secondary Info").addClass("secondary"),
-                    text("Warning Message").addClass("warning"),
-                    text("Error Message").addClass("error"),
-                    text("Success Message").addClass("success"),
-                    text("Info Message").addClass("info")
-                )).id("styles-panel").focusable().title("Style Classes").rounded().fill(),
+            // Center panel - Style Classes (focusable)
+            .center(panel(() -> column(
+                text("Primary Action").addClass("primary"),
+                text("Secondary Info").addClass("secondary"),
+                text("Warning Message").addClass("warning"),
+                text("Error Message").addClass("error"),
+                text("Success Message").addClass("success"),
+                text("Info Message").addClass("info")
+            )).id("styles-panel").focusable().title("Style Classes").rounded())
 
-                // Right panel - About (focusable)
-                panel(() -> column(
-                    text("This demo shows live CSS styling."),
-                    spacer(1),
-                    text("Try these features:"),
-                    text("  [t] Toggle dark/light theme"),
-                    text("  [Tab] Cycle focus between panels"),
-                    text("  [Up/Down] Navigate the list"),
-                    spacer(1),
-                    text("Notice how:").addClass("info"),
-                    text("  - Focused panels have colored borders"),
-                    text("  - List selection is highlighted"),
-                    text("  - Styles come from CSS files")
-                )).id("about-panel").focusable().title("About").rounded().fill()
-            ).fill(),
+            // Right panel - About (focusable)
+            .right(panel(() -> column(
+                text("This demo shows live CSS styling."),
+                spacer(1),
+                text("Try these features:"),
+                text("  [t] Toggle dark/light theme"),
+                text("  [Tab] Cycle focus between panels"),
+                text("  [Up/Down] Navigate the list"),
+                spacer(1),
+                text("Notice how:").addClass("info"),
+                text("  - Focused panels have colored borders"),
+                text("  - List selection is highlighted"),
+                text("  - Styles come from CSS files")
+            )).id("about-panel").focusable().title("About").rounded())
 
             // Footer
-            panel(() -> row(
+            .bottom(panel(() -> row(
                 text("Programmatic ").bold().cyan(),
                 text("+ CSS ").addClass("primary"),
                 text("= Powerful Styling").addClass("success")
-            )).rounded().length(3)
-        ).render(frame, area, context);
+            )).rounded())
+        .render(frame, area, context);
     }
 
     @Override
