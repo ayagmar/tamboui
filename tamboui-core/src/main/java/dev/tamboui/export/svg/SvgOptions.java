@@ -15,6 +15,7 @@ import dev.tamboui.export.ThemeColors;
 public final class SvgOptions implements ExportOptions {
 
     String title = "TamboUI";
+    boolean chrome = true;
     ThemeColors theme = ThemeColors.defaultTheme();
     String codeFormat = SvgExporter.DEFAULT_SVG_FORMAT;
     double fontAspectRatio = 0.61;
@@ -22,6 +23,18 @@ public final class SvgOptions implements ExportOptions {
 
     /** Creates default SVG export options. */
     public SvgOptions() {
+    }
+
+    /**
+     * Sets whether to include window chrome (frame, title, traffic-light buttons).
+     * When {@code false}, the SVG contains only the terminal content with minimal padding.
+     *
+     * @param chrome {@code true} to include chrome (default), {@code false} for content only
+     * @return this options instance
+     */
+    public SvgOptions chrome(boolean chrome) {
+        this.chrome = chrome;
+        return this;
     }
 
     /**

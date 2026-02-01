@@ -58,7 +58,7 @@ public final class ExportStep<O extends ExportOptions> {
     public void toFile(Path path) throws IOException {
         Objects.requireNonNull(path, "path");
         try (Writer writer = new OutputStreamWriter(Files.newOutputStream(path), UTF_8)) {
-            format.encoder().encode(request.buffer(), options, writer);
+            format.encoder().encode(request.buffer(), request.region(), options, writer);
         }
     }
 
@@ -82,7 +82,7 @@ public final class ExportStep<O extends ExportOptions> {
      */
     public void to(Writer out) throws IOException {
         Objects.requireNonNull(out, "out");
-        format.encoder().encode(request.buffer(), options, out);
+        format.encoder().encode(request.buffer(), request.region(), options, out);
         out.flush();
     }
 
@@ -93,7 +93,7 @@ public final class ExportStep<O extends ExportOptions> {
      */
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        format.encoder().encode(request.buffer(), options, sb);
+        format.encoder().encode(request.buffer(), request.region(), options, sb);
         return sb.toString();
     }
 

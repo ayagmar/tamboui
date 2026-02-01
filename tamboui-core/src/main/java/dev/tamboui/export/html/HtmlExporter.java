@@ -7,6 +7,7 @@ package dev.tamboui.export.html;
 import dev.tamboui.buffer.Buffer;
 import dev.tamboui.buffer.Cell;
 import dev.tamboui.export.ThemeColors;
+import dev.tamboui.layout.Rect;
 import dev.tamboui.style.Color;
 import dev.tamboui.style.Modifier;
 import dev.tamboui.style.Style;
@@ -35,15 +36,16 @@ public final class HtmlExporter {
     }
 
     /**
-     * Encodes the buffer to HTML and appends to the given output.
+     * Encodes the given region of the buffer to HTML and appends to the given output.
      * Used by the fluent export API.
      *
-     * @param buffer  the buffer to export
+     * @param buffer  the buffer to export from
+     * @param region  the rectangle to export (empty produces minimal HTML)
      * @param options export options
      * @param out     where to append the HTML
      */
-    static void encode(Buffer buffer, HtmlOptions options, Appendable out) {
-        String html = buildHtml(buffer, options);
+    static void encode(Buffer buffer, Rect region, HtmlOptions options, Appendable out) {
+        String html = buildHtml(buffer, region, options);
         try {
             out.append(html);
         } catch (java.io.IOException e) {
@@ -51,17 +53,22 @@ public final class HtmlExporter {
         }
     }
 
-    private static String buildHtml(Buffer buffer, HtmlOptions options) {
+    private static String buildHtml(Buffer buffer, Rect region, HtmlOptions options) {
         Objects.requireNonNull(buffer, "buffer");
+        Objects.requireNonNull(region, "region");
         Objects.requireNonNull(options, "options");
         Objects.requireNonNull(options.theme, "options.theme");
         Objects.requireNonNull(options.codeFormat, "options.codeFormat");
 
+        if (region.isEmpty()) {
+            return minimalHtml(options);
+        }
+
         ThemeColors themeColors = options.theme;
-        int widthCells = buffer.width();
-        int heightCells = buffer.height();
-        int baseX = buffer.area().x();
-        int baseY = buffer.area().y();
+        int widthCells = region.width();
+        int heightCells = region.height();
+        int baseX = region.x();
+        int baseY = region.y();
 
         final Map<String, Integer> cssToClassNo = new LinkedHashMap<>();
         int nextClassNo = 1;
@@ -133,6 +140,17 @@ public final class HtmlExporter {
             .replace("{stylesheet}", stylesheet.toString())
             .replace("{foreground}", foreground)
             .replace("{background}", background);
+    }
+
+    private static String minimalHtml(HtmlOptions options) {
+        ThemeColors theme = options.theme != null ? options.theme : ThemeColors.defaultTheme();
+        String fg = toHex(theme.foreground());
+        String bg = toHex(theme.background());
+        return options.codeFormat
+            .replace("{code}", "")
+            .replace("{stylesheet}", "")
+            .replace("{foreground}", fg)
+            .replace("{background}", bg);
     }
 
     private static String styleToHtmlCss(Style style, ThemeColors themeColors) {

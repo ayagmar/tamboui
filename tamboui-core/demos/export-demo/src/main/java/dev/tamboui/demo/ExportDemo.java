@@ -1,3 +1,5 @@
+//DEPS dev.tamboui:tamboui-core:LATEST
+//DEPS dev.tamboui:tamboui-widgets:LATEST
 /*
  * Copyright (c) 2026 TamboUI Contributors
  * SPDX-License-Identifier: MIT
@@ -30,18 +32,10 @@ import java.nio.file.Paths;
 import java.util.List;
 
 /**
- * Demo that renders a sample screen and exports the buffer to all export variants.
+ * Export demo: renders with widgets (no Toolkit), then exports the full buffer
+ * to SVG, HTML (stylesheet and inline), and text (plain and ANSI).
  * <p>
- * Runs without a terminal: builds a buffer, renders a title, table, and footer,
- * then writes:
- * <ul>
- *   <li>{@code export_demo.svg} – SVG</li>
- *   <li>{@code export_demo.html} – HTML (stylesheet / non-embedded styles)</li>
- *   <li>{@code export_demo_inline.html} – HTML (inline / embedded styles)</li>
- *   <li>{@code export_demo.txt} – plain text</li>
- *   <li>{@code export_demo_ansi.txt} – text with ANSI escape codes</li>
- * </ul>
- * Output directory: current working directory, or path given as first argument.
+ * Runs without a terminal. Output directory: current working directory, or path given as first argument.
  */
 public final class ExportDemo {
 
@@ -77,24 +71,24 @@ public final class ExportDemo {
 
         render(frame, area);
 
-        Path svgPath = outDir.resolve("export_demo.svg");
-        Path htmlPath = outDir.resolve("export_demo.html");
-        Path htmlInlinePath = outDir.resolve("export_demo_inline.html");
-        Path txtPath = outDir.resolve("export_demo.txt");
-        Path txtAnsiPath = outDir.resolve("export_demo_ansi.txt");
-        
-        buffer.export().svg().options(o -> o.title("TamboUI Export Demo")).toFile(svgPath);
-        buffer.export().html().toFile(htmlPath);
-        buffer.export().html().options(o -> o.inlineStyles(true)).toFile(htmlInlinePath);
-        buffer.export().text().toFile(txtPath);
-        buffer.export().text().options(o -> o.styles(true)).toFile(txtAnsiPath);
+        Path svg = outDir.resolve("export_demo.svg");
+        Path html = outDir.resolve("export_demo.html");
+        Path htmlInline = outDir.resolve("export_demo_inline.html");
+        Path txt = outDir.resolve("export_demo.txt");
+        Path ansi = outDir.resolve("export_demo_ansi.txt");
 
-        System.out.println("Exported:");
-        System.out.println("  " + svgPath.toAbsolutePath());
-        System.out.println("  " + htmlPath.toAbsolutePath());
-        System.out.println("  " + htmlInlinePath.toAbsolutePath());
-        System.out.println("  " + txtPath.toAbsolutePath());
-        System.out.println("  " + txtAnsiPath.toAbsolutePath());
+        buffer.export().svg().options(o -> o.title("TamboUI Export Demo")).toFile(svg);
+        buffer.export().html().toFile(html);
+        buffer.export().html().options(o -> o.inlineStyles(true)).toFile(htmlInline);
+        buffer.export().text().toFile(txt);
+        buffer.export().text().options(o -> o.styles(true)).toFile(ansi);
+
+        System.out.println("Exported to " + outDir.toAbsolutePath() + ":");
+        System.out.println("  " + svg.getFileName());
+        System.out.println("  " + html.getFileName());
+        System.out.println("  " + htmlInline.getFileName());
+        System.out.println("  " + txt.getFileName());
+        System.out.println("  " + ansi.getFileName());
     }
 
     private static void render(Frame frame, Rect area) {
@@ -104,9 +98,19 @@ public final class ExportDemo {
             Constraint.length(2)
         ).split(area);
 
-        renderTitle(frame, rows.get(0));
-        renderTable(frame, rows.get(1));
-        renderFooter(frame, rows.get(2));
+        Rect titleRect = rows.get(0);
+        Rect mainRect = rows.get(1);
+        Rect footerRect = rows.get(2);
+
+        List<Rect> cols = Layout.horizontal().constraints(
+            Constraint.length(22),
+            Constraint.fill()
+        ).split(mainRect);
+
+        renderTitle(frame, titleRect);
+        renderSidebar(frame, cols.get(0));
+        renderTable(frame, cols.get(1));
+        renderFooter(frame, footerRect);
     }
 
     private static void renderTitle(Frame frame, Rect area) {
@@ -122,6 +126,27 @@ public final class ExportDemo {
             ))
             .build();
         frame.renderWidget(title, area);
+    }
+
+    private static void renderSidebar(Frame frame, Rect area) {
+        Block block = Block.builder()
+            .borders(Borders.ALL)
+            .borderType(BorderType.ROUNDED)
+            .borderStyle(Style.EMPTY.fg(Color.BLUE))
+            .title(Title.from(Line.from(Span.raw("Export"))))
+            .build();
+        frame.renderWidget(block, area);
+        Rect inner = block.inner(area);
+        if (!inner.isEmpty()) {
+            Paragraph content = Paragraph.builder()
+                .text(Text.from(
+                Line.from(Span.raw("Export buffer to")),
+                Line.from(Span.raw("SVG, HTML, or")),
+                Line.from(Span.raw("plain/ANSI text."))
+                ))
+                .build();
+            frame.renderWidget(content, inner);
+        }
     }
 
     private static void renderTable(Frame frame, Rect area) {
@@ -160,7 +185,7 @@ public final class ExportDemo {
             .text(Text.from(Line.from(
                 Span.raw("Generated by ").dim(),
                 Span.raw("ExportDemo").fg(Color.CYAN),
-                Span.raw(" → .svg, .html, .html_inline, .txt, .txt_ansi").dim()
+                Span.raw(" — SVG, HTML, text").dim()
             )))
             .build();
         frame.renderWidget(footer, area);

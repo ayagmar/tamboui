@@ -8,6 +8,7 @@ import dev.tamboui.buffer.Buffer;
 import dev.tamboui.export.Encoder;
 import dev.tamboui.export.ExportOptions;
 import dev.tamboui.export.Format;
+import dev.tamboui.layout.Rect;
 
 /**
  * Plain text or ANSI-styled text export format. Options type: {@link TextOptions}.
@@ -17,8 +18,8 @@ public final class TextFormat implements Format<TextOptions> {
     private static final TextFormat INSTANCE = new TextFormat();
     private static final Encoder<TextOptions> ENCODER = new Encoder<TextOptions>() {
         @Override
-        public void encode(Buffer buffer, TextOptions options, Appendable out) {
-            TextExporter.encode(buffer, options, out);
+        public void encode(Buffer buffer, Rect region, TextOptions options, Appendable out) {
+            TextExporter.encode(buffer, region, options, out);
         }
     };
 

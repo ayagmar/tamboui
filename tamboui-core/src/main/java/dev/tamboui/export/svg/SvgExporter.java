@@ -7,6 +7,7 @@ package dev.tamboui.export.svg;
 import dev.tamboui.buffer.Buffer;
 import dev.tamboui.buffer.Cell;
 import dev.tamboui.export.ThemeColors;
+import dev.tamboui.layout.Rect;
 import dev.tamboui.style.Color;
 import dev.tamboui.style.Modifier;
 import dev.tamboui.style.Style;
@@ -40,15 +41,16 @@ public final class SvgExporter {
     }
 
     /**
-     * Encodes the buffer to SVG and appends to the given output.
+     * Encodes the given region of the buffer to SVG and appends to the given output.
      * Used by the fluent export API.
      *
-     * @param buffer  the buffer to export
+     * @param buffer  the buffer to export from
+     * @param region  the rectangle to export (empty produces minimal SVG)
      * @param options export options
      * @param out     where to append the SVG
      */
-    static void encode(Buffer buffer, SvgOptions options, Appendable out) {
-        String svg = buildSvg(buffer, options);
+    static void encode(Buffer buffer, Rect region, SvgOptions options, Appendable out) {
+        String svg = buildSvg(buffer, region, options);
         try {
             out.append(svg);
         } catch (java.io.IOException e) {
@@ -56,15 +58,22 @@ public final class SvgExporter {
         }
     }
 
-    private static String buildSvg(Buffer buffer, SvgOptions options) {
+    private static String buildSvg(Buffer buffer, Rect region, SvgOptions options) {
         Objects.requireNonNull(buffer, "buffer");
+        Objects.requireNonNull(region, "region");
         Objects.requireNonNull(options, "options");
         Objects.requireNonNull(options.theme, "options.theme");
         Objects.requireNonNull(options.codeFormat, "options.codeFormat");
 
+        if (region.isEmpty()) {
+            return minimalSvg(options);
+        }
+
         final ThemeColors themeColors = options.theme;
-        final int widthCells = buffer.width();
-        final int heightCells = buffer.height();
+        final int widthCells = region.width();
+        final int heightCells = region.height();
+        final int baseX = region.x();
+        final int baseY = region.y();
 
         final int charHeight = 20;
         final double charWidth = charHeight * options.fontAspectRatio;
@@ -75,7 +84,7 @@ public final class SvgExporter {
         final int marginBottom = 1;
         final int marginLeft = 1;
 
-        final int paddingTop = 40;
+        final int paddingTop = options.chrome ? 40 : 8;
         final int paddingRight = 8;
         final int paddingBottom = 8;
         final int paddingLeft = 8;
@@ -88,7 +97,7 @@ public final class SvgExporter {
         final int terminalWidth = (int) Math.ceil(widthCells * charWidth + paddingWidth);
         final int terminalHeight = (int) Math.ceil(heightCells * lineHeight + paddingHeight);
 
-        final String uniqueId = options.uniqueId != null ? options.uniqueId : "terminal-" + computeStableHash(buffer, themeColors);
+        final String uniqueId = options.uniqueId != null ? options.uniqueId : "terminal-" + computeStableHash(buffer, region, themeColors);
 
         // Stable insertion order so class numbers are deterministic
         final Map<String, Integer> cssToClassNo = new LinkedHashMap<>();
@@ -100,14 +109,14 @@ public final class SvgExporter {
         for (int y = 0; y < heightCells; y++) {
             int x = 0;
             while (x < widthCells) {
-                Cell cell = buffer.get(x + buffer.area().x(), y + buffer.area().y());
+                Cell cell = buffer.get(baseX + x, baseY + y);
                 Style style = cell.style();
 
                 // Build a run of same style for fewer nodes
                 int runStart = x;
                 StringBuilder runText = new StringBuilder();
                 while (x < widthCells) {
-                    Cell c = buffer.get(x + buffer.area().x(), y + buffer.area().y());
+                    Cell c = buffer.get(baseX + x, baseY + y);
                     if (!c.style().equals(style)) {
                         break;
                     }
@@ -176,7 +185,9 @@ public final class SvgExporter {
                 .append(" { ").append(entry.getKey()).append(" }");
         }
 
-        String chrome = buildChrome(uniqueId, options.title, themeColors, terminalWidth, terminalHeight, marginLeft, marginTop, charHeight);
+        String chromeContent = options.chrome
+            ? buildChrome(uniqueId, options.title, themeColors, terminalWidth, terminalHeight, marginLeft, marginTop, charHeight)
+            : buildBackgroundOnly(themeColors, terminalWidth, terminalHeight, marginLeft, marginTop);
 
         // Match Rich template variables
         return options.codeFormat
@@ -191,10 +202,28 @@ public final class SvgExporter {
             .replace("{terminal_x}", String.valueOf(marginLeft + paddingLeft))
             .replace("{terminal_y}", String.valueOf(marginTop + paddingTop))
             .replace("{styles}", styles.toString())
-            .replace("{chrome}", chrome)
+            .replace("{chrome}", chromeContent)
             .replace("{backgrounds}", backgrounds.toString())
             .replace("{matrix}", matrix.toString())
             .replace("{lines}", lines.toString());
+    }
+
+    private static String buildBackgroundOnly(
+        ThemeColors themeColors,
+        int terminalWidth,
+        int terminalHeight,
+        int marginLeft,
+        int marginTop
+    ) {
+        return makeTag(
+            "rect",
+            null,
+            "fill", toHex(themeColors.background()),
+            "x", String.valueOf(marginLeft),
+            "y", String.valueOf(marginTop),
+            "width", String.valueOf(terminalWidth),
+            "height", String.valueOf(terminalHeight)
+        );
     }
 
     private static String buildChrome(
@@ -398,7 +427,15 @@ public final class SvgExporter {
         return String.format("#%02x%02x%02x", rgb.r(), rgb.g(), rgb.b());
     }
 
-    private static String computeStableHash(Buffer buffer, ThemeColors themeColors) {
+    private static String minimalSvg(SvgOptions options) {
+        ThemeColors theme = options.theme != null ? options.theme : ThemeColors.defaultTheme();
+        return "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+            + "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"1\" height=\"1\" viewBox=\"0 0 1 1\">"
+            + "<rect width=\"1\" height=\"1\" fill=\"" + toHex(theme.background()) + "\"/>"
+            + "</svg>";
+    }
+
+    private static String computeStableHash(Buffer buffer, Rect region, ThemeColors themeColors) {
         Adler32 adler32 = new Adler32();
         adler32.update((byte) 1);
         adler32.update((byte) themeColors.background().r());
@@ -408,9 +445,13 @@ public final class SvgExporter {
         adler32.update((byte) themeColors.foreground().g());
         adler32.update((byte) themeColors.foreground().b());
 
-        for (int y = 0; y < buffer.height(); y++) {
-            for (int x = 0; x < buffer.width(); x++) {
-                Cell cell = buffer.get(x + buffer.area().x(), y + buffer.area().y());
+        int w = region.width();
+        int h = region.height();
+        int baseX = region.x();
+        int baseY = region.y();
+        for (int y = 0; y < h; y++) {
+            for (int x = 0; x < w; x++) {
+                Cell cell = buffer.get(baseX + x, baseY + y);
                 Style s = cell.style();
                 ResolvedColors colors = resolveColors(s, themeColors);
                 adler32.update(cell.symbol().getBytes(StandardCharsets.UTF_8));

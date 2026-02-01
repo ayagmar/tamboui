@@ -8,7 +8,7 @@
       "script-ref": "demos/error-handling-demo/src/main/java/dev/tamboui/demo/errorhandling/ErrorHandlingDemo.java"
     },
     "export-demo": {
-      "script-ref": "demos/export-demo/src/main/java/dev/tamboui/demo/ExportDemo.java"
+      "script-ref": "tamboui-core/demos/export-demo/src/main/java/dev/tamboui/demo/ExportDemo.java"
     },
     "fakodex-demo": {
       "script-ref": "demos/fakodex-demo/src/main/java/dev/tamboui/demo/coding/CodingAssistantDemo.java"
@@ -33,6 +33,9 @@
     },
     "rflex-demo": {
       "script-ref": "demos/rflex-demo/src/main/java/dev/tamboui/demo/flex/RFlexDemo.java"
+    },
+    "toolkit-export-demo": {
+      "script-ref": "demos/toolkit-export-demo/src/main/java/dev/tamboui/demo/ToolkitExportDemo.java"
     },
     "unicode-demo": {
       "script-ref": "demos/unicode-demo/src/main/java/dev/tamboui/demo/UnicodeDemo.java"

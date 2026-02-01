@@ -8,6 +8,7 @@ import dev.tamboui.buffer.Buffer;
 import dev.tamboui.export.html.HtmlOptions;
 import dev.tamboui.export.svg.SvgOptions;
 import dev.tamboui.export.text.TextOptions;
+import dev.tamboui.layout.Rect;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -17,13 +18,43 @@ import java.util.Objects;
 /**
  * Entry point for the fluent export API after selecting a buffer.
  * Obtain via {@link Buffer#export()} or {@link Export#from(Buffer)}.
+ * Use {@link #crop(Rect)} to export only a region of the buffer.
  */
 public final class ExportRequest {
 
     private final Buffer buffer;
+    private final Rect crop;
 
     ExportRequest(Buffer buffer) {
+        this(buffer, null);
+    }
+
+    ExportRequest(Buffer buffer, Rect crop) {
         this.buffer = Objects.requireNonNull(buffer, "buffer");
+        this.crop = crop;
+    }
+
+    /**
+     * Limits export to the given rectangle (clipped to buffer bounds).
+     * Returns a new request; the current request is unchanged.
+     *
+     * @param rect the region to export (null or empty is not recommended)
+     * @return a new export request with the crop applied
+     */
+    public ExportRequest crop(Rect rect) {
+        return new ExportRequest(buffer, rect);
+    }
+
+    Buffer buffer() {
+        return buffer;
+    }
+
+    Rect region() {
+        if (crop == null) {
+            return buffer.area();
+        }
+        Rect clipped = crop.intersection(buffer.area());
+        return clipped.isEmpty() ? Rect.ZERO : clipped;
     }
 
     /**
@@ -89,9 +120,5 @@ public final class ExportRequest {
         } else {
             as(Formats.SVG).toFile(path);
         }
-    }
-
-    Buffer buffer() {
-        return buffer;
     }
 }

@@ -210,6 +210,36 @@ After choosing a format (and optionally configuring options), use:
 * `toString()` — return the exported string
 * `toBytes()` — return UTF-8 bytes
 
+=== Cropping to a region
+
+Use `crop(Rect)` to export only part of the buffer. The rect is clipped to buffer bounds. Returns a new request (immutable); chain with format and output as usual.
+
+[source,java]
+----
+import dev.tamboui.layout.Rect;
+
+// Export a single region (e.g. title, table, or footer)
+Rect titleRect = new Rect(0, 0, 80, 3);
+buffer.export().crop(titleRect).svg().toFile(Path.of("title.svg"));
+
+// Combined rectangle of multiple elements: union of two rects
+Rect tableRect = new Rect(22, 3, 58, 12);
+Rect footerRect = new Rect(0, 15, 80, 2);
+Rect tableAndFooter = tableRect.union(footerRect);
+buffer.export().crop(tableAndFooter).svg().toFile(Path.of("table_and_footer.svg"));
+----
+
+In Toolkit apps, use `Element.renderedArea()` after a frame is rendered to get an element's last rendered rect, then crop to that rect to export just that element:
+
+[source,java]
+----
+// After rendering (e.g. in an action handler with access to buffer and element)
+Rect area = myPanel.renderedArea();
+if (area != null && !area.isEmpty()) {
+    buffer.export().crop(area).svg().toFile(Path.of("panel.svg"));
+}
+----
+
 === Theme Colors
 
 Export formats use a default foreground/background when a cell style does not specify colors (e.g. after RESET). Use `ThemeColors.defaultTheme()` for the built-in dark theme, or create your own:
