@@ -5,7 +5,9 @@
 package dev.tamboui.toolkit.elements;
 
 import dev.tamboui.buffer.Buffer;
+import dev.tamboui.layout.tree.TreeNode;
 import dev.tamboui.layout.Rect;
+import dev.tamboui.widgets.tree.GuideStyle;
 import dev.tamboui.style.Color;
 import dev.tamboui.style.Modifier;
 import dev.tamboui.style.Style;
@@ -36,7 +38,7 @@ class TreeElementTest {
                 .rounded()
                 .highlightColor(Color.CYAN)
                 .scrollbar()
-                .guideStyle(TreeElement.GuideStyle.UNICODE);
+                .guideStyle(GuideStyle.UNICODE);
 
         assertThat(element).isInstanceOf(TreeElement.class);
     }
@@ -295,7 +297,7 @@ class TreeElementTest {
         Frame frame = Frame.forTesting(buffer);
 
         tree(root)
-                .guideStyle(TreeElement.GuideStyle.ASCII)
+                .guideStyle(GuideStyle.ASCII)
                 .render(frame, area, RenderContext.empty());
 
         // Should render without error
@@ -314,7 +316,7 @@ class TreeElementTest {
         Frame frame = Frame.forTesting(buffer);
 
         tree(root)
-                .guideStyle(TreeElement.GuideStyle.NONE)
+                .guideStyle(GuideStyle.NONE)
                 .render(frame, area, RenderContext.empty());
 
         assertThat(buffer).isNotNull();
@@ -453,14 +455,14 @@ class TreeElementTest {
 
         tree(root)
                 .highlightSymbol("")
-                .guideStyle(TreeElement.GuideStyle.UNICODE)
+                .guideStyle(GuideStyle.UNICODE)
                 .render(frame, area, RenderContext.empty());
 
-        // Layout: space(4) + branch(4) + indicator(2) + label
+        // Layout: guide(4) + label (leaf indicator is empty by default)
         assertThat(buffer).hasContent(
                 "▼ Root              ",
-                "    ├──   Child 1   ",
-                "    └──   Child 2   "
+                "├── Child 1         ",
+                "└── Child 2         "
         );
 
         // Selected row (first) should have REVERSED style
@@ -483,13 +485,13 @@ class TreeElementTest {
 
         tree(root)
                 .highlightSymbol("")
-                .guideStyle(TreeElement.GuideStyle.ASCII)
+                .guideStyle(GuideStyle.ASCII)
                 .render(frame, area, RenderContext.empty());
 
         assertThat(buffer).hasContent(
                 "▼ Root              ",
-                "    +--   Child 1   ",
-                "    +--   Child 2   "
+                "+-- Child 1         ",
+                "+-- Child 2         "
         );
     }
 
@@ -509,14 +511,14 @@ class TreeElementTest {
         tree(root)
                 .highlightSymbol("")
                 .indentWidth(2)
-                .guideStyle(TreeElement.GuideStyle.UNICODE)
+                .guideStyle(GuideStyle.UNICODE)
                 .render(frame, area, RenderContext.empty());
 
         // With indent=2: depth-1 prefix=2, depth-2 prefix=4
         assertThat(buffer).hasContent(
                 "▼ Root          ",
-                "  └─▼ Child     ",
-                "    └─  GC      "
+                "└─▼ Child       ",
+                "  └─GC          "
         );
     }
 
@@ -535,14 +537,14 @@ class TreeElementTest {
 
         tree(root)
                 .highlightSymbol("")
-                .guideStyle(TreeElement.GuideStyle.UNICODE)
+                .guideStyle(GuideStyle.UNICODE)
                 .render(frame, area, RenderContext.empty());
 
         // With default indent=4: depth-1 prefix=4, depth-2 prefix=8
         assertThat(buffer).hasContent(
                 "▼ Root                  ",
-                "    └── ▼ Child         ",
-                "        └──   GC        "
+                "└── ▼ Child             ",
+                "    └── GC              "
         );
     }
 
@@ -563,16 +565,16 @@ class TreeElementTest {
                 .highlightSymbol("")
                 .render(frame, area, RenderContext.empty());
 
-        // Note: │ appears before Child because there's a sibling root (Collapsed) below
+        // Child is shown under Expanded with guide character
         assertThat(buffer).hasContent(
                 "▼ Expanded          ",
-                "│   └──   Child     ",
+                "└── Child           ",
                 "▶ Collapsed         "
         );
     }
 
     @Test
-    @DisplayName("Leaf node shows spaces instead of expand indicator")
+    @DisplayName("Leaf node shows no expand indicator (empty by default)")
     void leafNodeShowsSpacesForIndicator() {
         TreeNode<Void> leaf = TreeNode.<Void>of("Leaf").leaf();
 
@@ -585,7 +587,7 @@ class TreeElementTest {
                 .render(frame, area, RenderContext.empty());
 
         assertThat(buffer).hasContent(
-                "  Leaf    "
+                "Leaf      "
         );
     }
 
@@ -603,7 +605,7 @@ class TreeElementTest {
                 .render(frame, area, RenderContext.empty());
 
         assertThat(buffer).hasContent(
-                ">>   A    "
+                ">> A      "
         );
     }
 
@@ -620,12 +622,93 @@ class TreeElementTest {
 
         tree(root)
                 .highlightSymbol("")
-                .guideStyle(TreeElement.GuideStyle.NONE)
+                .guideStyle(GuideStyle.NONE)
                 .render(frame, area, RenderContext.empty());
 
         assertThat(buffer).hasContent(
                 "▼ Root      ",
-                "  Child     "
+                "Child       "
+        );
+    }
+
+    @Test
+    @DisplayName("Custom nodeRenderer renders styled content")
+    void customNodeRenderer() {
+        TreeNode<String> root = TreeNode.of("Root", "data").leaf();
+
+        Rect area = new Rect(0, 0, 15, 1);
+        Buffer buffer = Buffer.empty(area);
+        Frame frame = Frame.forTesting(buffer);
+
+        tree(root)
+                .highlightSymbol("")
+                .nodeRenderer(node -> text("[" + node.data() + "]").bold())
+                .render(frame, area, RenderContext.empty());
+
+        assertThat(buffer).hasContent(
+                "[data]         "
+        );
+    }
+
+    @Test
+    @DisplayName("Custom nodeRenderer returning null uses label fallback")
+    void nodeRendererNullFallback() {
+        TreeNode<Void> root = TreeNode.<Void>of("Fallback").leaf();
+
+        Rect area = new Rect(0, 0, 15, 1);
+        Buffer buffer = Buffer.empty(area);
+        Frame frame = Frame.forTesting(buffer);
+
+        tree(root)
+                .highlightSymbol("")
+                .nodeRenderer(node -> null)
+                .render(frame, area, RenderContext.empty());
+
+        assertThat(buffer).hasContent(
+                "Fallback       "
+        );
+    }
+
+    @Test
+    @DisplayName("Custom nodeRenderer with multi-line element")
+    void nodeRendererMultiLine() {
+        TreeNode<Void> root = TreeNode.<Void>of("Root").leaf();
+
+        Rect area = new Rect(0, 0, 10, 2);
+        Buffer buffer = Buffer.empty(area);
+        Frame frame = Frame.forTesting(buffer);
+
+        tree(root)
+                .highlightSymbol("")
+                .nodeRenderer(node -> column(
+                        text("Line 1"),
+                        text("Line 2")
+                ))
+                .render(frame, area, RenderContext.empty());
+
+        assertThat(buffer).hasContent(
+                "Line 1    ",
+                "Line 2    "
+        );
+    }
+
+    @Test
+    @DisplayName("Custom nodeRenderer with explicit width constraint")
+    void nodeRendererWithWidth() {
+        TreeNode<Void> root = TreeNode.<Void>of("Root").leaf();
+
+        Rect area = new Rect(0, 0, 20, 1);
+        Buffer buffer = Buffer.empty(area);
+        Frame frame = Frame.forTesting(buffer);
+
+        tree(root)
+                .highlightSymbol("")
+                .nodeRenderer(node -> text("Fixed").length(8))
+                .render(frame, area, RenderContext.empty());
+
+        // The node should render with width constraint respected
+        assertThat(buffer).hasContent(
+                "Fixed               "
         );
     }
 }

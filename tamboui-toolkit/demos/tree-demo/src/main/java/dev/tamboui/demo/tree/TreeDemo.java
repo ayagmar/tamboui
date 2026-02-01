@@ -15,7 +15,8 @@ import dev.tamboui.toolkit.app.ToolkitRunner;
 import dev.tamboui.toolkit.element.Element;
 import dev.tamboui.toolkit.element.StyledElement;
 import dev.tamboui.toolkit.elements.TreeElement;
-import dev.tamboui.toolkit.elements.TreeNode;
+import dev.tamboui.layout.tree.TreeNode;
+import dev.tamboui.widgets.tree.GuideStyle;
 import dev.tamboui.tui.TuiConfig;
 
 import java.io.IOException;
@@ -176,7 +177,7 @@ public class TreeDemo {
                 .borderColor(Color.WHITE)
                 .highlightSymbol("▶ ")
                 .scrollbar()
-                .guideStyle(TreeElement.GuideStyle.UNICODE)
+                .guideStyle(GuideStyle.UNICODE)
                 // Custom renderer: each node displays icon, name, size, and status
                 .nodeRenderer(this::renderNode)
                 .id("tree")

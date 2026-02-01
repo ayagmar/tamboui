@@ -7,6 +7,7 @@ package dev.tamboui.toolkit.elements;
 import dev.tamboui.css.cascade.CssStyleResolver;
 import dev.tamboui.css.cascade.PseudoClassState;
 import dev.tamboui.layout.Constraint;
+import dev.tamboui.layout.tree.TreeNode;
 import dev.tamboui.layout.Rect;
 import dev.tamboui.style.Color;
 import dev.tamboui.style.IntegerConverter;
@@ -16,7 +17,6 @@ import dev.tamboui.style.PropertyRegistry;
 import dev.tamboui.style.StringConverter;
 import dev.tamboui.style.Style;
 import dev.tamboui.terminal.Frame;
-import dev.tamboui.text.CharWidth;
 import dev.tamboui.toolkit.element.RenderContext;
 import dev.tamboui.toolkit.element.StyledElement;
 import dev.tamboui.toolkit.event.EventResult;
@@ -24,13 +24,15 @@ import dev.tamboui.tui.bindings.Actions;
 import dev.tamboui.tui.event.KeyEvent;
 import dev.tamboui.tui.event.MouseEvent;
 import dev.tamboui.tui.event.MouseEventKind;
+import dev.tamboui.widget.Widget;
 import dev.tamboui.widgets.block.Block;
 import dev.tamboui.widgets.block.BorderType;
 import dev.tamboui.widgets.block.Borders;
 import dev.tamboui.widgets.block.Title;
-import dev.tamboui.widgets.scrollbar.Scrollbar;
-import dev.tamboui.widgets.scrollbar.ScrollbarOrientation;
-import dev.tamboui.widgets.scrollbar.ScrollbarState;
+import dev.tamboui.widgets.tree.GuideStyle;
+import dev.tamboui.widgets.tree.SizedWidget;
+import dev.tamboui.widgets.tree.TreeState;
+import dev.tamboui.widgets.tree.TreeWidget;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -90,66 +92,6 @@ import java.util.function.Function;
  * @see TreeNode
  */
 public final class TreeElement<T> extends StyledElement<TreeElement<T>> {
-
-    /**
-     * Style for the tree guide/branch characters.
-     */
-    public enum GuideStyle {
-        /** Unicode box-drawing characters: {@code \u251c\u2500\u2500}, {@code \u2502}, {@code \u2514\u2500\u2500}. */
-        UNICODE("\u251c\u2500\u2500 ", "\u2502   ", "\u2514\u2500\u2500 ", "    "),
-        /** ASCII characters: {@code +--}, {@code |}, {@code +--}. */
-        ASCII("+-- ", "|   ", "+-- ", "    "),
-        /** No guide characters. */
-        NONE("", "", "", "");
-
-        private final String branch;
-        private final String vertical;
-        private final String lastBranch;
-        private final String space;
-
-        GuideStyle(String branch, String vertical, String lastBranch, String space) {
-            this.branch = branch;
-            this.vertical = vertical;
-            this.lastBranch = lastBranch;
-            this.space = space;
-        }
-
-        /**
-         * Returns the branch connector string (for non-last children).
-         *
-         * @return the branch string
-         */
-        public String branch() {
-            return branch;
-        }
-
-        /**
-         * Returns the vertical continuation string.
-         *
-         * @return the vertical string
-         */
-        public String vertical() {
-            return vertical;
-        }
-
-        /**
-         * Returns the last-branch connector string.
-         *
-         * @return the last branch string
-         */
-        public String lastBranch() {
-            return lastBranch;
-        }
-
-        /**
-         * Returns the space string (for children of last items).
-         *
-         * @return the space string
-         */
-        public String space() {
-            return space;
-        }
-    }
 
     /**
      * Policy for displaying the scrollbar.
@@ -238,8 +180,6 @@ public final class TreeElement<T> extends StyledElement<TreeElement<T>> {
     private final List<TreeNode<T>> roots = new ArrayList<>();
     private Function<TreeNode<T>, StyledElement<?>> nodeRenderer;
     private GuideStyle guideStyle = GuideStyle.UNICODE;
-    private int selectedIndex = 0;
-    private int scrollOffset = 0;
     private Style highlightStyle;
     private String highlightSymbol;
     private String title;
@@ -250,8 +190,11 @@ public final class TreeElement<T> extends StyledElement<TreeElement<T>> {
     private Color scrollbarTrackColor;
     private int indentWidth = -1; // -1 means use guide style width
 
-    // Cached flat entries from last render
-    private List<FlatEntry<T>> lastFlatEntries = Collections.emptyList();
+    // TreeState for widget delegation
+    private final TreeState treeState = new TreeState();
+
+    // Cached flat entries from last render (for navigation)
+    private List<TreeWidget.FlatEntry<TreeNode<T>>> lastFlatEntries = Collections.emptyList();
     private int lastViewportHeight;
 
     /**
@@ -461,7 +404,7 @@ public final class TreeElement<T> extends StyledElement<TreeElement<T>> {
      * @return this element for chaining
      */
     public TreeElement<T> selected(int index) {
-        this.selectedIndex = Math.max(0, index);
+        this.treeState.select(index);
         return this;
     }
 
@@ -471,7 +414,7 @@ public final class TreeElement<T> extends StyledElement<TreeElement<T>> {
      * @return the selected index
      */
     public int selected() {
-        return selectedIndex;
+        return treeState.selected();
     }
 
     /**
@@ -483,8 +426,8 @@ public final class TreeElement<T> extends StyledElement<TreeElement<T>> {
         if (lastFlatEntries.isEmpty()) {
             return null;
         }
-        int idx = Math.min(selectedIndex, lastFlatEntries.size() - 1);
-        return lastFlatEntries.get(idx).node;
+        int idx = Math.min(treeState.selected(), lastFlatEntries.size() - 1);
+        return lastFlatEntries.get(idx).node();
     }
 
     // ═══════════════════════════════════════════════════════════════
@@ -495,17 +438,15 @@ public final class TreeElement<T> extends StyledElement<TreeElement<T>> {
      * Selects the previous visible node.
      */
     public void selectPrevious() {
-        if (selectedIndex > 0) {
-            selectedIndex--;
-        }
+        treeState.selectPrevious();
     }
 
     /**
      * Selects the next visible node.
      */
     public void selectNext() {
-        if (!lastFlatEntries.isEmpty() && selectedIndex < lastFlatEntries.size() - 1) {
-            selectedIndex++;
+        if (!lastFlatEntries.isEmpty()) {
+            treeState.selectNext(lastFlatEntries.size() - 1);
         }
     }
 
@@ -516,15 +457,15 @@ public final class TreeElement<T> extends StyledElement<TreeElement<T>> {
         if (lastFlatEntries.isEmpty()) {
             return;
         }
-        int idx = Math.min(selectedIndex, lastFlatEntries.size() - 1);
-        TreeNode<T> node = lastFlatEntries.get(idx).node;
+        int idx = Math.min(treeState.selected(), lastFlatEntries.size() - 1);
+        TreeNode<T> node = lastFlatEntries.get(idx).node();
         if (node.isLeaf()) {
             return;
         }
         if (node.isExpanded()) {
             // Move to first child if there are children
             if (!node.children().isEmpty() && idx + 1 < lastFlatEntries.size()) {
-                selectedIndex = idx + 1;
+                treeState.select(idx + 1);
             }
         } else {
             node.expanded(true);
@@ -538,18 +479,18 @@ public final class TreeElement<T> extends StyledElement<TreeElement<T>> {
         if (lastFlatEntries.isEmpty()) {
             return;
         }
-        int idx = Math.min(selectedIndex, lastFlatEntries.size() - 1);
-        FlatEntry<T> entry = lastFlatEntries.get(idx);
-        TreeNode<T> node = entry.node;
+        int idx = Math.min(treeState.selected(), lastFlatEntries.size() - 1);
+        TreeWidget.FlatEntry<TreeNode<T>> entry = lastFlatEntries.get(idx);
+        TreeNode<T> node = entry.node();
         if (node.isExpanded() && !node.isLeaf()) {
             node.expanded(false);
         } else {
             // Move to parent
-            TreeNode<T> parent = entry.parent;
+            TreeNode<T> parent = entry.parent();
             if (parent != null) {
                 for (int i = 0; i < lastFlatEntries.size(); i++) {
-                    if (lastFlatEntries.get(i).node == parent) {
-                        selectedIndex = i;
+                    if (lastFlatEntries.get(i).node() == parent) {
+                        treeState.select(i);
                         break;
                     }
                 }
@@ -564,8 +505,8 @@ public final class TreeElement<T> extends StyledElement<TreeElement<T>> {
         if (lastFlatEntries.isEmpty()) {
             return;
         }
-        int idx = Math.min(selectedIndex, lastFlatEntries.size() - 1);
-        TreeNode<T> node = lastFlatEntries.get(idx).node;
+        int idx = Math.min(treeState.selected(), lastFlatEntries.size() - 1);
+        TreeNode<T> node = lastFlatEntries.get(idx).node();
         if (!node.isLeaf()) {
             node.toggleExpanded();
         }
@@ -575,8 +516,7 @@ public final class TreeElement<T> extends StyledElement<TreeElement<T>> {
      * Selects the first visible node.
      */
     public void selectFirst() {
-        selectedIndex = 0;
-        scrollOffset = 0;
+        treeState.selectFirst();
     }
 
     /**
@@ -584,7 +524,7 @@ public final class TreeElement<T> extends StyledElement<TreeElement<T>> {
      */
     public void selectLast() {
         if (!lastFlatEntries.isEmpty()) {
-            selectedIndex = lastFlatEntries.size() - 1;
+            treeState.selectLast(lastFlatEntries.size() - 1);
         }
     }
 
@@ -599,262 +539,154 @@ public final class TreeElement<T> extends StyledElement<TreeElement<T>> {
 
     @Override
     protected void renderContent(Frame frame, Rect area, RenderContext context) {
-        if (area.isEmpty()) {
+        if (area.isEmpty() || roots.isEmpty()) {
+            if (title != null || borderType != null) {
+                renderBorder(frame, area, context);
+            }
             return;
         }
 
-        // Flatten the visible tree
-        List<FlatEntry<T>> flatEntries = flattenTree();
-        this.lastFlatEntries = flatEntries;
-
-        int totalItems = flatEntries.size();
-        if (totalItems == 0) {
-            // Still render border if configured
-            renderBorder(frame, area, context);
-            return;
-        }
-
-        // Clamp selection
-        selectedIndex = Math.max(0, Math.min(selectedIndex, totalItems - 1));
-
-        // Render border/block
         Rect treeArea = renderBorder(frame, area, context);
         if (treeArea.isEmpty()) {
             return;
         }
 
-        int visibleHeight = treeArea.height();
-        this.lastViewportHeight = visibleHeight;
+        this.lastViewportHeight = treeArea.height();
 
         CssStyleResolver cssResolver = context.resolveStyle(this).orElse(CssStyleResolver.empty());
+        TreeWidget<TreeNode<T>> widget = buildTreeWidget(frame, treeArea, context, cssResolver);
 
-        // Resolve properties: programmatic > CSS > property default
+        frame.renderStatefulWidget(widget, treeArea, treeState);
+        this.lastFlatEntries = widget.lastFlatEntries();
+    }
+
+    private TreeWidget<TreeNode<T>> buildTreeWidget(Frame frame, Rect treeArea,
+                                                    RenderContext context, CssStyleResolver cssResolver) {
+        TreeWidget.Builder<TreeNode<T>> builder = TreeWidget.<TreeNode<T>>builder()
+                .roots(roots)
+                .children(TreeNode::children)
+                .isLeaf(TreeNode::isLeaf)
+                .expansionState(TreeNode::isExpanded, TreeNode::expanded);
+
+        configureGuideStyle(builder, cssResolver);
+        configureHighlight(builder, context, cssResolver);
+        configureIndentWidth(builder, cssResolver);
+        configureScrollbar(builder, context, cssResolver);
+        configureNodeRenderer(builder, frame, treeArea, context);
+
+        return builder.build();
+    }
+
+    private void configureGuideStyle(TreeWidget.Builder<TreeNode<T>> builder, CssStyleResolver cssResolver) {
         GuideStyle effectiveGuideStyle = cssResolver.resolve(GUIDE_STYLE, this.guideStyle);
-        ScrollBarPolicy effectiveScrollBarPolicy = cssResolver.resolve(SCROLLBAR_POLICY, this.scrollBarPolicy);
+        builder.guideStyle(effectiveGuideStyle);
+    }
+
+    private void configureHighlight(TreeWidget.Builder<TreeNode<T>> builder,
+                                    RenderContext context, CssStyleResolver cssResolver) {
         String effectiveHighlightSymbol = cssResolver.resolve(HIGHLIGHT_SYMBOL, this.highlightSymbol);
         if (effectiveHighlightSymbol == null) {
             effectiveHighlightSymbol = DEFAULT_HIGHLIGHT_SYMBOL;
         }
-        int symbolWidth = CharWidth.of(effectiveHighlightSymbol);
+        builder.highlightSymbol(effectiveHighlightSymbol);
 
-        // Resolve indent width: programmatic > CSS > guide style default
-        Integer programmaticIndent = this.indentWidth >= 0 ? this.indentWidth : null;
-        Integer cssIndent = cssResolver.get(INDENT_WIDTH).orElse(null);
-        int effectiveIndentWidth;
-        if (programmaticIndent != null) {
-            effectiveIndentWidth = programmaticIndent;
-        } else if (cssIndent != null) {
-            effectiveIndentWidth = cssIndent;
-        } else {
-            // Default to guide style width (4 for UNICODE/ASCII, 0 for NONE)
-            effectiveIndentWidth = CharWidth.of(effectiveGuideStyle.branch());
-        }
-
-        // Resolve highlight style
         Style effectiveHighlightStyle = resolveEffectiveStyle(
                 context, "node", PseudoClassState.ofSelected(),
                 highlightStyle, DEFAULT_HIGHLIGHT_STYLE);
+        builder.highlightStyle(effectiveHighlightStyle);
+    }
 
-        // Compute content width
-        int contentWidth = treeArea.width() - symbolWidth;
+    private void configureIndentWidth(TreeWidget.Builder<TreeNode<T>> builder, CssStyleResolver cssResolver) {
+        Integer programmaticIndent = this.indentWidth >= 0 ? this.indentWidth : null;
+        Integer cssIndent = cssResolver.get(INDENT_WIDTH).orElse(null);
 
-        // Compute heights for each entry and cumulative positions
-        int totalContentHeight = 0;
-        for (FlatEntry<T> entry : flatEntries) {
-            entry.cumulativeTop = totalContentHeight;
-            entry.height = computeEntryHeight(entry, contentWidth, context, effectiveGuideStyle, effectiveIndentWidth);
-            totalContentHeight += entry.height;
+        if (programmaticIndent != null) {
+            builder.indentWidth(programmaticIndent);
+        } else if (cssIndent != null) {
+            builder.indentWidth(cssIndent);
         }
+        // Otherwise let widget use its default
+    }
 
-        // Determine scrollbar visibility based on total content height
-        boolean showScrollbar = effectiveScrollBarPolicy == ScrollBarPolicy.ALWAYS
-                || (effectiveScrollBarPolicy == ScrollBarPolicy.AS_NEEDED && totalContentHeight > visibleHeight);
+    private void configureScrollbar(TreeWidget.Builder<TreeNode<T>> builder,
+                                    RenderContext context, CssStyleResolver cssResolver) {
+        ScrollBarPolicy effectivePolicy = cssResolver.resolve(SCROLLBAR_POLICY, this.scrollBarPolicy);
+        boolean showScrollbar = effectivePolicy == ScrollBarPolicy.ALWAYS
+                || effectivePolicy == ScrollBarPolicy.AS_NEEDED;
 
         if (showScrollbar) {
-            contentWidth -= 1;
-            // Recompute heights with adjusted width
-            totalContentHeight = 0;
-            for (FlatEntry<T> entry : flatEntries) {
-                entry.cumulativeTop = totalContentHeight;
-                entry.height = computeEntryHeight(entry, contentWidth, context, effectiveGuideStyle, effectiveIndentWidth);
-                totalContentHeight += entry.height;
-            }
-        }
-
-        if (contentWidth <= 0) {
-            return;
-        }
-
-        // Auto-scroll to keep selected item visible (using cumulative heights)
-        FlatEntry<T> selectedEntry = flatEntries.get(selectedIndex);
-        int selectedTop = selectedEntry.cumulativeTop;
-        int selectedBottom = selectedTop + selectedEntry.height;
-
-        if (selectedTop < scrollOffset) {
-            scrollOffset = selectedTop;
-        } else if (selectedBottom > scrollOffset + visibleHeight) {
-            scrollOffset = selectedBottom - visibleHeight;
-        }
-        scrollOffset = Math.max(0, Math.min(scrollOffset, Math.max(0, totalContentHeight - visibleHeight)));
-
-        // Resolve guide style from CSS
-        Style guideLineStyle = resolveEffectiveStyle(context, "guide", null, Style.EMPTY);
-
-        // Render visible entries
-        int contentX = treeArea.left() + symbolWidth;
-
-        for (int entryIndex = 0; entryIndex < totalItems; entryIndex++) {
-            FlatEntry<T> entry = flatEntries.get(entryIndex);
-
-            // Skip entries completely above the viewport
-            if (entry.cumulativeTop + entry.height <= scrollOffset) {
-                continue;
-            }
-
-            // Stop if we've gone past the viewport
-            if (entry.cumulativeTop >= scrollOffset + visibleHeight) {
-                break;
-            }
-
-            // Calculate Y position relative to viewport
-            int entryY = treeArea.top() + (entry.cumulativeTop - scrollOffset);
-
-            // Clip to viewport bounds
-            int renderStartY = Math.max(entryY, treeArea.top());
-            int renderEndY = Math.min(entryY + entry.height, treeArea.top() + visibleHeight);
-            int renderHeight = renderEndY - renderStartY;
-
-            if (renderHeight <= 0) {
-                continue;
-            }
-
-            boolean isSelected = (entryIndex == selectedIndex);
-
-            // Draw highlight symbol for selected item (on first line only)
-            if (isSelected && symbolWidth > 0 && entryY >= treeArea.top()) {
-                frame.buffer().setString(treeArea.left(), entryY, effectiveHighlightSymbol, effectiveHighlightStyle);
-            }
-
-            // Build the prefix (guide characters)
-            String prefix = buildPrefix(entry, effectiveGuideStyle, effectiveIndentWidth);
-            int prefixWidth = CharWidth.of(prefix);
-
-            // Draw expand indicator
-            String indicator;
-            if (!entry.node.isLeaf()) {
-                indicator = entry.node.isExpanded() ? "▼ " : "▶ ";
-            } else {
-                indicator = "  ";
-            }
-            int indicatorWidth = CharWidth.of(indicator);
-
-            // Draw prefix and indicator on first line (if visible)
-            if (entryY >= treeArea.top() && entryY < treeArea.top() + visibleHeight) {
-                // Draw prefix with guide style
-                if (!prefix.isEmpty()) {
-                    Style prefixStyle = guideLineStyle.equals(Style.EMPTY) ? context.currentStyle() : guideLineStyle;
-                    if (isSelected) {
-                        prefixStyle = prefixStyle.patch(effectiveHighlightStyle);
-                    }
-                    frame.buffer().setString(contentX, entryY, CharWidth.substringByWidth(prefix, contentWidth), prefixStyle);
-                }
-
-                // Draw indicator
-                int indicatorX = contentX + prefixWidth;
-                if (indicatorX < contentX + contentWidth) {
-                    Style indicatorStyle = isSelected ? context.currentStyle().patch(effectiveHighlightStyle) : context.currentStyle();
-                    frame.buffer().setString(indicatorX, entryY, indicator, indicatorStyle);
-                }
-            }
-
-            // Draw label or custom node content
-            int labelX = contentX + prefixWidth + indicatorWidth;
-            int labelAvailable = contentWidth - prefixWidth - indicatorWidth;
-            if (labelAvailable > 0) {
-                if (nodeRenderer != null) {
-                    // Use custom renderer for rich node content
-                    StyledElement<?> nodeElement = nodeRenderer.apply(entry.node);
-                    if (nodeElement != null) {
-                        // Create area for the full entry height, clipped to viewport
-                        int nodeY = Math.max(entryY, treeArea.top());
-                        int nodeHeight = Math.min(entry.height, treeArea.top() + visibleHeight - nodeY);
-                        if (nodeHeight > 0) {
-                            Rect nodeArea = new Rect(labelX, nodeY, labelAvailable, nodeHeight);
-                            nodeElement.constraint(Constraint.fill());
-                            // Apply highlight style for selected items (from CSS or programmatic)
-                            if (isSelected) {
-                                nodeElement.style(effectiveHighlightStyle);
-                            }
-                            context.renderChild(nodeElement, frame, nodeArea);
-                        }
-                    }
-                } else if (entry.node.label() != null && entryY >= treeArea.top()) {
-                    // Default: render label as text
-                    Style labelStyle = isSelected ? context.currentStyle().patch(effectiveHighlightStyle) : context.currentStyle();
-                    String truncated = CharWidth.substringByWidth(entry.node.label(), labelAvailable);
-                    frame.buffer().setString(labelX, entryY, truncated, labelStyle);
-                }
-            }
-        }
-
-        // Render scrollbar
-        if (showScrollbar && totalContentHeight > 0) {
-            Rect scrollbarArea = new Rect(
-                    treeArea.right() - 1,
-                    treeArea.top(),
-                    1,
-                    treeArea.height()
-            );
-
-            ScrollbarState scrollbarState = new ScrollbarState()
-                    .contentLength(totalContentHeight)
-                    .viewportContentLength(visibleHeight)
-                    .position(scrollOffset);
+            builder.scrollbar();
 
             Style explicitThumbStyle = scrollbarThumbColor != null ? Style.EMPTY.fg(scrollbarThumbColor) : null;
-            Style explicitTrackStyle = scrollbarTrackColor != null ? Style.EMPTY.fg(scrollbarTrackColor) : null;
             Style thumbStyle = resolveEffectiveStyle(context, "scrollbar-thumb", explicitThumbStyle, Style.EMPTY);
-            Style trackStyle = resolveEffectiveStyle(context, "scrollbar-track", explicitTrackStyle, Style.EMPTY);
-
-            Scrollbar.Builder scrollbarBuilder = Scrollbar.builder()
-                    .orientation(ScrollbarOrientation.VERTICAL_RIGHT);
             if (!thumbStyle.equals(Style.EMPTY)) {
-                scrollbarBuilder.thumbStyle(thumbStyle);
-            }
-            if (!trackStyle.equals(Style.EMPTY)) {
-                scrollbarBuilder.trackStyle(trackStyle);
+                builder.scrollbarThumbStyle(thumbStyle);
             }
 
-            frame.renderStatefulWidget(scrollbarBuilder.build(), scrollbarArea, scrollbarState);
+            Style explicitTrackStyle = scrollbarTrackColor != null ? Style.EMPTY.fg(scrollbarTrackColor) : null;
+            Style trackStyle = resolveEffectiveStyle(context, "scrollbar-track", explicitTrackStyle, Style.EMPTY);
+            if (!trackStyle.equals(Style.EMPTY)) {
+                builder.scrollbarTrackStyle(trackStyle);
+            }
         }
     }
 
+    private void configureNodeRenderer(TreeWidget.Builder<TreeNode<T>> builder, Frame frame,
+                                       Rect treeArea, RenderContext context) {
+        if (nodeRenderer != null) {
+            builder.nodeRenderer(node -> adaptNodeElement(node, frame, treeArea, context));
+        } else {
+            builder.simpleNodeRenderer(node -> createLabelWidget(node, context));
+        }
+    }
+
+    private SizedWidget adaptNodeElement(TreeNode<T> node,
+                                         Frame frame,
+                                         Rect treeArea,
+                                         RenderContext context) {
+        StyledElement<?> element = nodeRenderer.apply(node);
+        if (element == null) {
+            return SizedWidget.of(createLabelWidget(node, context));
+        }
+
+        int availableWidth = treeArea.width();
+        int preferredWidth = element.preferredWidth();
+        int preferredHeight = element.preferredHeight(availableWidth, context);
+
+        Widget adapted = createElementAdapter(element, frame, context);
+
+        if (preferredWidth > 0 && preferredHeight > 0) {
+            return SizedWidget.of(adapted, preferredWidth, preferredHeight);
+        } else if (preferredHeight > 0) {
+            return SizedWidget.ofHeight(adapted, preferredHeight);
+        } else if (preferredWidth > 0) {
+            return SizedWidget.ofWidth(adapted, preferredWidth);
+        }
+        return SizedWidget.of(adapted);
+    }
+
     /**
-     * Computes the height of a tree entry, considering the nodeRenderer's preferred height.
+     * Creates a simple label widget for a node.
      */
-    private int computeEntryHeight(FlatEntry<T> entry, int contentWidth,
-                                   RenderContext context, GuideStyle effectiveGuideStyle,
-                                   int effectiveIndentWidth) {
-        if (nodeRenderer == null) {
-            return 1; // Default text label is always 1 line
-        }
+    private Widget createLabelWidget(TreeNode<T> node, RenderContext context) {
+        String label = node.label() != null ? node.label() : "";
+        return (rect, buffer) -> {
+            if (!rect.isEmpty() && !label.isEmpty()) {
+                buffer.setString(rect.left(), rect.top(), label, context.currentStyle());
+            }
+        };
+    }
 
-        StyledElement<?> nodeElement = nodeRenderer.apply(entry.node);
-        if (nodeElement == null) {
-            return 1;
-        }
-
-        // Calculate available width for the node content
-        String prefix = buildPrefix(entry, effectiveGuideStyle, effectiveIndentWidth);
-        int prefixWidth = CharWidth.of(prefix);
-        int indicatorWidth = 2; // expand/collapse indicator
-        int labelAvailable = contentWidth - prefixWidth - indicatorWidth;
-
-        if (labelAvailable <= 0) {
-            return 1;
-        }
-
-        return Math.max(1, nodeElement.preferredHeight(labelAvailable, context));
+    /**
+     * Creates a Widget adapter for a StyledElement.
+     */
+    private Widget createElementAdapter(StyledElement<?> element, Frame frame, RenderContext context) {
+        return (rect, buffer) -> {
+            if (!rect.isEmpty()) {
+                element.constraint(Constraint.fill());
+                context.renderChild(element, frame, rect);
+            }
+        };
     }
 
     private Rect renderBorder(Frame frame, Rect area, RenderContext context) {
@@ -876,80 +708,6 @@ public final class TreeElement<T> extends StyledElement<TreeElement<T>> {
             return block.inner(area);
         }
         return area;
-    }
-
-    // ═══════════════════════════════════════════════════════════════
-    // Tree flattening
-    // ═══════════════════════════════════════════════════════════════
-
-    private List<FlatEntry<T>> flattenTree() {
-        List<FlatEntry<T>> entries = new ArrayList<>();
-        for (int i = 0; i < roots.size(); i++) {
-            boolean isLastRoot = (i == roots.size() - 1);
-            flattenNode(roots.get(i), null, 0, new ArrayList<>(), isLastRoot, entries);
-        }
-        return entries;
-    }
-
-    private void flattenNode(TreeNode<T> node, TreeNode<T> parent, int depth,
-                             List<Boolean> parentIsLast, boolean isLast,
-                             List<FlatEntry<T>> entries) {
-        List<Boolean> guides = new ArrayList<>(parentIsLast);
-        entries.add(new FlatEntry<>(node, parent, depth, guides, isLast));
-
-        if (node.isExpanded() && !node.isLeaf()) {
-            List<TreeNode<T>> children = node.children();
-            List<Boolean> childParentIsLast = new ArrayList<>(parentIsLast);
-            childParentIsLast.add(isLast);
-            for (int i = 0; i < children.size(); i++) {
-                boolean childIsLast = (i == children.size() - 1);
-                flattenNode(children.get(i), node, depth + 1, childParentIsLast, childIsLast, entries);
-            }
-        }
-    }
-
-    private String buildPrefix(FlatEntry<T> entry, GuideStyle effectiveGuideStyle, int indentWidth) {
-        if (entry.depth == 0 || effectiveGuideStyle == GuideStyle.NONE) {
-            return "";
-        }
-
-        StringBuilder sb = new StringBuilder();
-
-        // Add vertical/space guides for ancestor levels
-        for (int i = 0; i < entry.parentIsLast.size(); i++) {
-            String guide = entry.parentIsLast.get(i)
-                    ? effectiveGuideStyle.space()
-                    : effectiveGuideStyle.vertical();
-            sb.append(padToWidth(guide, indentWidth));
-        }
-
-        // Add the branch connector for this node
-        String branch = entry.isLast
-                ? effectiveGuideStyle.lastBranch()
-                : effectiveGuideStyle.branch();
-        sb.append(padToWidth(branch, indentWidth));
-
-        return sb.toString();
-    }
-
-    /**
-     * Pads or truncates a string to the specified display width.
-     */
-    private String padToWidth(String s, int width) {
-        int currentWidth = CharWidth.of(s);
-        if (currentWidth == width) {
-            return s;
-        } else if (currentWidth < width) {
-            // Pad with spaces
-            StringBuilder sb = new StringBuilder(s);
-            for (int i = currentWidth; i < width; i++) {
-                sb.append(' ');
-            }
-            return sb.toString();
-        } else {
-            // Truncate to width
-            return CharWidth.substringByWidth(s, width);
-        }
     }
 
     // ═══════════════════════════════════════════════════════════════
@@ -1044,32 +802,5 @@ public final class TreeElement<T> extends StyledElement<TreeElement<T>> {
         }
 
         return EventResult.UNHANDLED;
-    }
-
-    // ═══════════════════════════════════════════════════════════════
-    // Internal flat entry
-    // ═══════════════════════════════════════════════════════════════
-
-    /**
-     * A flattened entry representing a visible tree node.
-     *
-     * @param <T> the data type
-     */
-    static final class FlatEntry<T> {
-        final TreeNode<T> node;
-        final TreeNode<T> parent;
-        final int depth;
-        final List<Boolean> parentIsLast;
-        final boolean isLast;
-        int height = 1; // computed during render
-        int cumulativeTop = 0; // Y position from start
-
-        FlatEntry(TreeNode<T> node, TreeNode<T> parent, int depth, List<Boolean> parentIsLast, boolean isLast) {
-            this.node = node;
-            this.parent = parent;
-            this.depth = depth;
-            this.parentIsLast = parentIsLast;
-            this.isLast = isLast;
-        }
     }
 }

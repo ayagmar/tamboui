@@ -2,7 +2,7 @@
  * Copyright TamboUI Contributors
  * SPDX-License-Identifier: MIT
  */
-package dev.tamboui.toolkit.elements;
+package dev.tamboui.layout.tree;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -11,10 +11,13 @@ import java.util.List;
 import java.util.function.Supplier;
 
 /**
- * A node in a tree data structure for use with {@link TreeElement}.
+ * A node in a tree data structure that also implements {@link TreeModel}.
  * <p>
- * Tree nodes can contain user data, child nodes, and support lazy loading
+ * TreeNode can contain user data, child nodes, and supports lazy loading
  * of children. Nodes track their expanded/collapsed state.
+ * <p>
+ * As a TreeModel implementation, a TreeNode serves as its own root and
+ * delegates children/expansion queries to the node structure.
  *
  * <pre>{@code
  * // Simple nodes
@@ -37,7 +40,7 @@ import java.util.function.Supplier;
  *
  * @param <T> the type of user data associated with this node
  */
-public final class TreeNode<T> {
+public final class TreeNode<T> implements TreeModel<TreeNode<T>> {
 
     private final String label;
     private final T data;
@@ -214,6 +217,35 @@ public final class TreeNode<T> {
      */
     public void toggleExpanded() {
         this.expanded = !this.expanded;
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    // TreeModel implementation - this node serves as its own model
+    // ═══════════════════════════════════════════════════════════════
+
+    @Override
+    public TreeNode<T> root() {
+        return this;
+    }
+
+    @Override
+    public List<TreeNode<T>> children(TreeNode<T> parent) {
+        return parent.children();
+    }
+
+    @Override
+    public boolean isLeaf(TreeNode<T> node) {
+        return node.isLeaf();
+    }
+
+    @Override
+    public boolean isExpanded(TreeNode<T> node) {
+        return node.isExpanded();
+    }
+
+    @Override
+    public void setExpanded(TreeNode<T> node, boolean expanded) {
+        node.expanded(expanded);
     }
 
     /**

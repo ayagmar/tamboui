@@ -2,7 +2,7 @@
  * Copyright TamboUI Contributors
  * SPDX-License-Identifier: MIT
  */
-package dev.tamboui.toolkit.elements;
+package dev.tamboui.layout.tree;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -201,5 +201,46 @@ class TreeNodeTest {
         assertThat(tree.children().get(0).isExpanded()).isTrue();
         assertThat(tree.children().get(0).children()).hasSize(1);
         assertThat(tree.children().get(1).isLeaf()).isTrue();
+    }
+
+    @Test
+    @DisplayName("TreeNode implements TreeModel - root returns itself")
+    void treeModelRoot() {
+        TreeNode<Void> node = TreeNode.of("Root");
+        assertThat(node.root()).isSameAs(node);
+    }
+
+    @Test
+    @DisplayName("TreeNode implements TreeModel - children delegation")
+    void treeModelChildren() {
+        TreeNode<Void> parent = TreeNode.<Void>of("Parent")
+                .add(TreeNode.of("Child 1"))
+                .add(TreeNode.of("Child 2"));
+
+        // TreeModel.children(parent) should return parent.children()
+        assertThat(parent.children(parent)).hasSize(2);
+    }
+
+    @Test
+    @DisplayName("TreeNode implements TreeModel - isLeaf delegation")
+    void treeModelIsLeaf() {
+        TreeNode<Void> leaf = TreeNode.<Void>of("Leaf").leaf();
+        TreeNode<Void> branch = TreeNode.<Void>of("Branch").add(TreeNode.of("Child"));
+
+        assertThat(leaf.isLeaf(leaf)).isTrue();
+        assertThat(branch.isLeaf(branch)).isFalse();
+    }
+
+    @Test
+    @DisplayName("TreeNode implements TreeModel - isExpanded/setExpanded")
+    void treeModelExpanded() {
+        TreeNode<Void> node = TreeNode.of("Node");
+        assertThat(node.isExpanded(node)).isFalse();
+
+        node.setExpanded(node, true);
+        assertThat(node.isExpanded(node)).isTrue();
+
+        node.setExpanded(node, false);
+        assertThat(node.isExpanded(node)).isFalse();
     }
 }
