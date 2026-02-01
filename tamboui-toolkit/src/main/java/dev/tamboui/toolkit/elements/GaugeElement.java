@@ -10,6 +10,7 @@ import dev.tamboui.layout.Rect;
 import dev.tamboui.style.Color;
 import dev.tamboui.style.Style;
 import dev.tamboui.terminal.Frame;
+import dev.tamboui.text.CharWidth;
 import dev.tamboui.widgets.block.Block;
 import dev.tamboui.widgets.block.BorderType;
 import dev.tamboui.widgets.block.Borders;
@@ -175,6 +176,19 @@ public final class GaugeElement extends StyledElement<GaugeElement> {
     public GaugeElement borderColor(Color color) {
         this.borderColor = color;
         return this;
+    }
+
+    @Override
+    public int preferredWidth() {
+        // Label width + some space for the gauge bar
+        int labelWidth = label != null ? CharWidth.of(label) : 4; // "75%" default
+        return labelWidth + 10;
+    }
+
+    @Override
+    public int preferredHeight() {
+        // Gauge is typically 1 row, 3 if bordered (top + content + bottom)
+        return (title != null || borderType != null) ? 3 : 1;
     }
 
     @Override

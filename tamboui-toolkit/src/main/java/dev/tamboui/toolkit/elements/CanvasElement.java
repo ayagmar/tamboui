@@ -206,6 +206,42 @@ public final class CanvasElement extends StyledElement<CanvasElement> {
     }
 
     @Override
+    public int preferredWidth() {
+        // Canvas width based on x bounds range, scaled for marker resolution
+        double range = xMax - xMin;
+        int width;
+        if (marker == Marker.BRAILLE) {
+            // Braille has 2x2 dots per cell
+            width = (int) Math.ceil(range / 2);
+        } else if (marker == Marker.HALF_BLOCK) {
+            // Half block is 1x2 pixels per cell
+            width = (int) Math.ceil(range);
+        } else {
+            width = (int) Math.ceil(range);
+        }
+        int borderWidth = (title != null || borderType != null) ? 2 : 0;
+        return Math.max(width, 20) + borderWidth;
+    }
+
+    @Override
+    public int preferredHeight() {
+        // Canvas height based on y bounds range, scaled for marker resolution
+        double range = yMax - yMin;
+        int height;
+        if (marker == Marker.BRAILLE) {
+            // Braille has 4 dots vertically per cell
+            height = (int) Math.ceil(range / 4);
+        } else if (marker == Marker.HALF_BLOCK) {
+            // Half block has 2 dots vertically per cell
+            height = (int) Math.ceil(range / 2);
+        } else {
+            height = (int) Math.ceil(range);
+        }
+        int borderHeight = (title != null || borderType != null) ? 2 : 0;
+        return Math.max(height, 10) + borderHeight;
+    }
+
+    @Override
     public Map<String, String> styleAttributes() {
         Map<String, String> attrs = new LinkedHashMap<>(super.styleAttributes());
         if (title != null) {

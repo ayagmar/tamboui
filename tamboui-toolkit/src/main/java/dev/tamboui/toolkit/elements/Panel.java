@@ -504,14 +504,18 @@ public final class Panel extends ContainerElement<Panel> {
             height += padding.verticalTotal();
         }
 
-        // Children height: sum of child heights
+        // Use a large estimate for available width since we don't have actual dimensions yet
+        int estimatedWidth = 1000;
+
+        // Children height: sum of child heights using preferredHeight
         for (Element child : children) {
             Constraint c = child.constraint();
             if (c instanceof Constraint.Length) {
                 height += ((Constraint.Length) c).value();
             } else {
-                // Default: 1 row per child
-                height += 1;
+                // Use preferredHeight for proper calculation
+                int preferred = child.preferredHeight(estimatedWidth, RenderContext.empty());
+                height += preferred > 0 ? preferred : 1;
             }
         }
 
@@ -632,8 +636,12 @@ public final class Panel extends ContainerElement<Panel> {
                             : childCss.heightConstraint().orElse(null);
                 }
             }
-            // Default to fill() so children expand to use available space
-            constraints.add(c != null ? c : Constraint.fill());
+            // Handle null constraint by querying preferred size
+            if (c == null) {
+                int preferred = isHorizontal ? child.preferredWidth() : child.preferredHeight();
+                c = preferred > 0 ? Constraint.length(preferred) : Constraint.fill();
+            }
+            constraints.add(c);
         }
 
         Layout layout = effectiveDirection == Direction.HORIZONTAL

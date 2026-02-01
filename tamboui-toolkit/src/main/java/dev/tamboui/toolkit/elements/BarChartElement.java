@@ -303,6 +303,56 @@ public final class BarChartElement extends StyledElement<BarChartElement> {
     }
 
     @Override
+    public int preferredWidth() {
+        // Calculate based on bar count, bar width, and gaps
+        int barCount = 0;
+        for (BarGroup group : groups) {
+            barCount += group.bars().size();
+        }
+        if (barCount == 0) {
+            barCount = 1;
+        }
+
+        int width;
+        if (direction == Direction.VERTICAL) {
+            // Vertical bars: width depends on bar count
+            width = barCount * barWidth + (barCount - 1) * barGap + (groups.size() - 1) * groupGap;
+        } else {
+            // Horizontal bars: width is the value range + labels
+            width = 30; // Reasonable default for horizontal bar display
+        }
+
+        // Add border if present
+        int borderWidth = (title != null || borderType != null) ? 2 : 0;
+        return Math.max(width, 10) + borderWidth;
+    }
+
+    @Override
+    public int preferredHeight() {
+        // Calculate based on direction and content
+        int barCount = 0;
+        for (BarGroup group : groups) {
+            barCount += group.bars().size();
+        }
+        if (barCount == 0) {
+            barCount = 1;
+        }
+
+        int height;
+        if (direction == Direction.HORIZONTAL) {
+            // Horizontal bars: height depends on bar count + labels
+            height = barCount + (groups.size() - 1) * groupGap + 2; // +2 for labels
+        } else {
+            // Vertical bars: reasonable height for display
+            height = 10;
+        }
+
+        // Add border if present
+        int borderHeight = (title != null || borderType != null) ? 2 : 0;
+        return height + borderHeight;
+    }
+
+    @Override
     public Map<String, String> styleAttributes() {
         Map<String, String> attrs = new LinkedHashMap<>(super.styleAttributes());
         if (title != null) {

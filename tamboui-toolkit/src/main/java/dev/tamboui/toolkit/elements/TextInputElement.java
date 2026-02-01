@@ -67,8 +67,10 @@ public final class TextInputElement extends StyledElement<TextInputElement> {
     private String title;
     private BorderType borderType;
     private Color borderColor;
+    private Color focusedBorderColor;
     private boolean showCursor = true;
     private boolean cursorRequiresFocus = true;
+    private boolean focusable = true;
     private Runnable onSubmit;
 
     /** Creates a new text input element with a default state. */
@@ -86,13 +88,32 @@ public final class TextInputElement extends StyledElement<TextInputElement> {
     }
 
     /**
-     * TextInputElement is always focusable to receive keyboard input.
+     * Returns whether this text input is focusable.
+     * <p>
+     * By default, text inputs are focusable to receive keyboard input.
+     * Use {@link #focusable(boolean)} to disable focusability for display-only inputs.
      *
-     * @return always returns true
+     * @return true if focusable (default), false if disabled via {@link #focusable(boolean)}
      */
     @Override
     public boolean isFocusable() {
-        return true;
+        return focusable;
+    }
+
+    /**
+     * Sets whether this text input is focusable.
+     * <p>
+     * By default, text inputs are focusable. Set to {@code false} for display-only
+     * inputs that should not participate in TAB navigation or receive keyboard events.
+     * This is useful when the text input is used to display read-only data within
+     * a container that handles its own key events.
+     *
+     * @param focusable true to make focusable (default), false to disable
+     * @return this element for chaining
+     */
+    public TextInputElement focusable(boolean focusable) {
+        this.focusable = focusable;
+        return this;
     }
 
     /**
@@ -222,6 +243,37 @@ public final class TextInputElement extends StyledElement<TextInputElement> {
         return this;
     }
 
+    /**
+     * Sets the border color when focused.
+     * <p>
+     * When set, this color overrides the normal border color when the element has focus.
+     * If not set, CSS {@code :focus} pseudo-class can be used to style the focused border.
+     *
+     * @param color the focused border color
+     * @return this builder
+     */
+    public TextInputElement focusedBorderColor(Color color) {
+        this.focusedBorderColor = color;
+        return this;
+    }
+
+    @Override
+    public int preferredWidth() {
+        // Use max of placeholder width and current value width, plus border
+        int valueWidth = state != null ? state.text().length() : 0;
+        int placeholderWidth = placeholder != null ? placeholder.length() : 0;
+        int contentWidth = Math.max(valueWidth, placeholderWidth);
+        // Add minimum width for usability and border if present
+        int borderWidth = (title != null || borderType != null) ? 2 : 0;
+        return Math.max(contentWidth, 10) + borderWidth;
+    }
+
+    @Override
+    public int preferredHeight() {
+        // Single-line input: 1 row, or 3 if bordered
+        return (title != null || borderType != null) ? 3 : 1;
+    }
+
     @Override
     public Map<String, String> styleAttributes() {
         Map<String, String> attrs = new LinkedHashMap<>(super.styleAttributes());
@@ -277,6 +329,9 @@ public final class TextInputElement extends StyledElement<TextInputElement> {
             return;
         }
 
+        // Determine if focused (used for cursor and border color)
+        boolean isFocused = elementId != null && context.isFocused(elementId);
+
         // Resolve styles with priority: explicit > CSS > default
         Style effectiveCursorStyle = resolveEffectiveStyle(context, "cursor", cursorStyle, DEFAULT_CURSOR_STYLE);
         Style effectivePlaceholderStyle = resolveEffectiveStyle(context, "placeholder", placeholderStyle, DEFAULT_PLACEHOLDER_STYLE);
@@ -287,7 +342,12 @@ public final class TextInputElement extends StyledElement<TextInputElement> {
             .placeholder(placeholder)
             .placeholderStyle(effectivePlaceholderStyle);
 
-        if (title != null || borderType != null) {
+        // Determine border color: focus color > programmatic color
+        Color effectiveBorderColor = isFocused && focusedBorderColor != null
+                ? focusedBorderColor
+                : borderColor;
+
+        if (title != null || borderType != null || effectiveBorderColor != null) {
             Block.Builder blockBuilder = Block.builder()
                     .borders(Borders.ALL)
                     .styleResolver(styleResolver(context));
@@ -297,8 +357,8 @@ public final class TextInputElement extends StyledElement<TextInputElement> {
             if (borderType != null) {
                 blockBuilder.borderType(borderType);
             }
-            if (borderColor != null) {
-                blockBuilder.borderColor(borderColor);
+            if (effectiveBorderColor != null) {
+                blockBuilder.borderColor(effectiveBorderColor);
             }
             builder.block(blockBuilder.build());
         }
@@ -306,7 +366,6 @@ public final class TextInputElement extends StyledElement<TextInputElement> {
         TextInput widget = builder.build();
 
         // Determine if cursor should be shown
-        boolean isFocused = elementId != null && context.isFocused(elementId);
         boolean shouldShowCursor = showCursor && (!cursorRequiresFocus || isFocused);
         if (shouldShowCursor) {
             widget.renderWithCursor(area, frame.buffer(), state, frame);

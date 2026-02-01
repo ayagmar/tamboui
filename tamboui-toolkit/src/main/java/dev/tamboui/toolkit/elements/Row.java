@@ -212,12 +212,15 @@ public final class Row extends ContainerElement<Row> {
                     c = childCss.widthConstraint().orElse(null);
                 }
             }
-            // Handle Fit constraint by querying preferred width
-            if (c instanceof Constraint.Fit) {
+            // Handle null or Fit constraint by querying preferred width
+            if (c == null) {
+                int preferred = child.preferredWidth();
+                c = preferred > 0 ? Constraint.length(preferred) : Constraint.fill();
+            } else if (c instanceof Constraint.Fit) {
                 int preferred = child.preferredWidth();
                 c = preferred > 0 ? Constraint.length(preferred) : Constraint.fill();
             }
-            constraints.add(c != null ? c : Constraint.fill());
+            constraints.add(c);
 
             // Add spacing constraint between children
             if (effectiveSpacing > 0 && i < children.size() - 1) {

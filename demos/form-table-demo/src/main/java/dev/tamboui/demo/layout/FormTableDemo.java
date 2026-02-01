@@ -14,7 +14,9 @@ import dev.tamboui.toolkit.element.Element;
 import dev.tamboui.toolkit.elements.Panel;
 import dev.tamboui.toolkit.event.EventResult;
 import dev.tamboui.tui.TuiConfig;
+import dev.tamboui.tui.event.KeyCode;
 import dev.tamboui.tui.event.KeyEvent;
+import dev.tamboui.widgets.input.TextInputState;
 import dev.tamboui.widgets.table.TableState;
 
 import java.time.Duration;
@@ -27,10 +29,23 @@ import static dev.tamboui.toolkit.Toolkit.*;
  */
 public final class FormTableDemo {
 
-    private static final String[] TAB_NAMES = { "1:Form", "2:Table" };
+    private static final String[] TAB_NAMES = { "F1:Form", "F2:Table" };
     private static final int LABEL_WIDTH = 14;
     private static final AtomicInteger TAB_INDEX = new AtomicInteger(0);
     private static final TableState TABLE_STATE = new TableState();
+
+    // Persistent text input states for form fields
+    private static final TextInputState FULL_NAME = new TextInputState("Ada Lovelace");
+    private static final TextInputState EMAIL = new TextInputState("ada@analytical.io");
+    private static final TextInputState ROLE = new TextInputState("Research");
+    private static final TextInputState TIMEZONE = new TextInputState("UTC+1");
+    private static final TextInputState THEME = new TextInputState("Nord");
+    private static final TextInputState DENSITY = new TextInputState("Comfortable");
+    private static final TextInputState NOTIFICATIONS = new TextInputState("Mentions + Direct");
+    private static final TextInputState TWO_FA = new TextInputState("Enabled");
+    private static final TextInputState SESSIONS = new TextInputState("3 active");
+    private static final TextInputState KEYS = new TextInputState("2 registered");
+
     private static final String[][] TABLE_ROWS = {
             { "TX-1001", "Open", "Onboarding", "2d", "Low" },
             { "TX-1002", "In Review", "Billing", "6h", "High" },
@@ -80,19 +95,11 @@ public final class FormTableDemo {
     }
 
     private static EventResult handleKey(KeyEvent event) {
-        if (event.isLeft()) {
-            shiftTab(-1);
-            return EventResult.HANDLED;
-        }
-        if (event.isRight()) {
-            shiftTab(1);
-            return EventResult.HANDLED;
-        }
-        if (event.isChar('1')) {
+        if (event.code() == KeyCode.F1) {
             TAB_INDEX.set(0);
             return EventResult.HANDLED;
         }
-        if (event.isChar('2')) {
+        if (event.code() == KeyCode.F2) {
             TAB_INDEX.set(1);
             return EventResult.HANDLED;
         }
@@ -109,11 +116,6 @@ public final class FormTableDemo {
         return EventResult.UNHANDLED;
     }
 
-    private static void shiftTab(int delta) {
-        int next = (TAB_INDEX.get() + delta + TAB_NAMES.length) % TAB_NAMES.length;
-        TAB_INDEX.set(next);
-    }
-
     private static Panel header(int tab) {
         return panel(() -> column(
                 row(
@@ -121,9 +123,10 @@ public final class FormTableDemo {
                         tab(1, tab)
                 ).spacing(1).length(1),
                 row(
-                        text(" Tabs: [1/2] ").dim(),
-                        text(" Layout: [<- / ->] ").dim(),
-                        text(" Table: [Up/Down] ").dim()
+                        text(" Tabs: [F1/F2] ").dim(),
+                        text(" Focus: [Tab] ").dim(),
+                        text(" Table: [Up/Down] ").dim(),
+                        text(" [Ctrl+C] Quit ").dim()
                 ).length(1)
         )).rounded().borderColor(Color.DARK_GRAY);
     }
@@ -139,10 +142,10 @@ public final class FormTableDemo {
     private static Element renderFormLayout() {
         return column(
                 panel("Profile", column(
-                        formRow("Full name", "Ada Lovelace"),
-                        formRow("Email", "ada@analytical.io"),
-                        formRow("Role", "Research"),
-                        formRow("Time zone", "UTC+1")
+                        formRow("full-name", "Full name", FULL_NAME),
+                        formRow("email", "Email", EMAIL),
+                        formRow("role", "Role", ROLE),
+                        formRow("timezone", "Time zone", TIMEZONE)
                 ).spacing(1))
                 .rounded()
                 .borderColor(Color.CYAN)
@@ -150,18 +153,18 @@ public final class FormTableDemo {
 
                 row(
                         panel("Preferences", column(
-                                formRow("Theme", "Nord"),
-                                formRow("Density", "Comfortable"),
-                                formRow("Notifications", "Mentions + Direct")
+                                formRow("theme", "Theme", THEME),
+                                formRow("density", "Density", DENSITY),
+                                formRow("notifications", "Notifications", NOTIFICATIONS)
                         ).spacing(1))
                         .rounded()
                         .borderColor(Color.GREEN)
                         .fill(),
 
                         panel("Security", column(
-                                formRow("2FA", "Enabled"),
-                                formRow("Sessions", "3 active"),
-                                formRow("Keys", "2 registered")
+                                formRow("2fa", "2FA", TWO_FA),
+                                formRow("sessions", "Sessions", SESSIONS),
+                                formRow("keys", "Keys", KEYS)
                         ).spacing(1))
                         .rounded()
                         .borderColor(Color.YELLOW)
@@ -175,14 +178,14 @@ public final class FormTableDemo {
         ).spacing(1).fill();
     }
 
-    private static Element formRow(String label, String value) {
+    private static Element formRow(String id, String label, TextInputState state) {
         return row(
                 text(label).dim().length(LABEL_WIDTH),
-                textInput()
-                        .text(value)
-                        .showCursor(false)
+                textInput(state)
+                        .id(id)
                         .rounded()
                         .borderColor(Color.DARK_GRAY)
+                        .focusedBorderColor(Color.CYAN)
                         .fill()
         ).spacing(1).length(3);
     }

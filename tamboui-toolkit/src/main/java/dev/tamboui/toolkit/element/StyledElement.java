@@ -392,11 +392,12 @@ public abstract class StyledElement<T extends StyledElement<T>> implements Eleme
 
         if (context instanceof DefaultRenderContext) {
             DefaultRenderContext ctx = (DefaultRenderContext) context;
-            ctx.withElement(this, effectiveStyle, cssResolver, () -> renderContent(frame, area, context));
             // Auto-generate ID for focusable elements that don't have one
+            // Must happen BEFORE renderContent so focus checks work
             if (isFocusable() && elementId == null) {
                 elementId = IdGenerator.newId(this);
             }
+            ctx.withElement(this, effectiveStyle, cssResolver, () -> renderContent(frame, area, context));
             ctx.registerElement(this, area);
         } else {
             // Fallback for non-default contexts (e.g., testing)
@@ -903,7 +904,7 @@ public abstract class StyledElement<T extends StyledElement<T>> implements Eleme
 
     @Override
     public EventResult handleKeyEvent(KeyEvent event, boolean focused) {
-        if (focused && keyHandler != null) {
+        if (keyHandler != null) {
             return keyHandler.handle(event);
         }
         return EventResult.UNHANDLED;

@@ -237,6 +237,28 @@ public final class CalendarElement extends StyledElement<CalendarElement> {
     }
 
     @Override
+    public int preferredWidth() {
+        // Calendar shows 7 days * 3 chars each (day number + spaces) = 21 chars
+        int width = 7 * 3;
+        int borderWidth = (title != null || borderType != null) ? 2 : 0;
+        return width + borderWidth;
+    }
+
+    @Override
+    public int preferredHeight() {
+        // Calendar shows: month header (optional) + weekday header (optional) + 6 weeks max
+        int height = 6; // 6 week rows
+        if (monthHeaderStyle != null) {
+            height++;
+        }
+        if (weekdaysHeaderStyle != null) {
+            height++;
+        }
+        int borderHeight = (title != null || borderType != null) ? 2 : 0;
+        return height + borderHeight;
+    }
+
+    @Override
     public Map<String, String> styleAttributes() {
         Map<String, String> attrs = new LinkedHashMap<>(super.styleAttributes());
         if (title != null) {

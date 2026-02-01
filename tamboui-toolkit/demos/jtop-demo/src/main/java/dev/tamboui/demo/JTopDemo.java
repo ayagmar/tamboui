@@ -61,16 +61,16 @@ public class JTopDemo {
             // Schedule metrics updates on a background thread
             runner.scheduleWithFixedDelay(systemMonitor::updateMetrics, UPDATE_INTERVAL);
 
-            runner.run(() -> column(
-                panel(() -> row(
+            runner.run(() -> dock()
+                .top(panel(() -> row(
                     text(" JTop - System Monitor ").bold().cyan(),
                     spacer(),
                     text(" [s] Sort ").dim(),
                     text(" [c] CPU View ").dim(),
                     text(" [q] Quit ").dim()
-                )).rounded().borderColor(Color.DARK_GRAY).length(3),
-                systemMonitor
-            ));
+                )).rounded().borderColor(Color.DARK_GRAY))
+                .center(systemMonitor)
+            );
         }
     }
 }

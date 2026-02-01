@@ -203,16 +203,19 @@ public final class Column extends ContainerElement<Column> {
                     c = childCss.heightConstraint().orElse(null);
                 }
             }
-            // Handle Fit constraint by querying preferred height
-            if (c instanceof Constraint.Fit) {
-                int preferred = child.preferredHeight();
-                c = preferred > 0 ? Constraint.length(preferred) : null;
-            }
+            // Handle null or Fit constraint by querying preferred height
             if (c == null) {
-                // For text elements without explicit constraint, calculate height from content
+                // First try text element special case
                 c = calculateDefaultConstraint(child);
+                if (c == null) {
+                    int preferred = child.preferredHeight();
+                    c = preferred > 0 ? Constraint.length(preferred) : Constraint.fill();
+                }
+            } else if (c instanceof Constraint.Fit) {
+                int preferred = child.preferredHeight();
+                c = preferred > 0 ? Constraint.length(preferred) : Constraint.fill();
             }
-            constraints.add(c != null ? c : Constraint.fill());
+            constraints.add(c);
 
             // Add spacing constraint between children
             if (effectiveSpacing > 0 && i < children.size() - 1) {
