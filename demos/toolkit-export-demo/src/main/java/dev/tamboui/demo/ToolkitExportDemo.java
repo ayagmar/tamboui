@@ -95,15 +95,11 @@ public final class ToolkitExportDemo {
         }
         markup.append("[dim]Press Enter or Escape to close[/dim]");
 
-        int contentLines = markup.toString().split("\n").length;
-        // Wrap in panel with explicit height so dialog allocates space; dialog height = border(2) + title(1) + content
-        Element content = markupText(markup.toString()).length(contentLines);
-        int dialogHeight = 2 + contentLines;
+        Element content = markupText(markup.toString());
         return dialog("Exported Files (click to open)", content)
             .rounded()
             .borderColor(Color.GREEN)
             .width(50)
-            .height(Math.min(dialogHeight, 25))
             .padding(2)
             .onConfirm(() -> showExportsPopup = false)
             .onCancel(() -> showExportsPopup = false);
