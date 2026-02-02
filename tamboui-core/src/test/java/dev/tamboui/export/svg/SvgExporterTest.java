@@ -6,6 +6,7 @@ package dev.tamboui.export.svg;
 
 import dev.tamboui.buffer.Buffer;
 import dev.tamboui.export.Formats;
+import static dev.tamboui.export.ExportRequest.export;
 import dev.tamboui.layout.Rect;
 import dev.tamboui.style.Color;
 import dev.tamboui.style.Style;
@@ -23,7 +24,7 @@ final class SvgExporterTest {
         buffer.setString(0, 1, "AB", Style.EMPTY.onBlue().bold());
         buffer.setString(2, 1, "CD", Style.EMPTY.italic().underlined());
 
-        String svg = buffer.export().as(Formats.SVG)
+        String svg = export(buffer).as(Formats.SVG)
             .options(o -> o.title("Test").uniqueId("test"))
             .toString();
 
@@ -56,7 +57,7 @@ final class SvgExporterTest {
         buffer.setString(0, 3, "Row3", Style.EMPTY);
 
         Rect crop = new Rect(0, 1, 4, 2);  // Row1 and Row2, first 4 cols
-        String svg = buffer.export().crop(crop).svg().options(o -> o.uniqueId("crop")).toString();
+        String svg = export(buffer).crop(crop).svg().options(o -> o.uniqueId("crop")).toString();
 
         assertTrue(svg.contains("Row1"));
         assertTrue(svg.contains("Row2"));

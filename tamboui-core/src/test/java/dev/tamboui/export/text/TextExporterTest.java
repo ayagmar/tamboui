@@ -6,6 +6,7 @@ package dev.tamboui.export.text;
 
 import dev.tamboui.buffer.Buffer;
 import dev.tamboui.export.Formats;
+import static dev.tamboui.export.ExportRequest.export;
 import dev.tamboui.layout.Rect;
 import dev.tamboui.style.Color;
 import dev.tamboui.style.Style;
@@ -23,7 +24,7 @@ final class TextExporterTest {
         buffer.setString(0, 0, "Hello", Style.EMPTY);
         buffer.setString(0, 1, "World", Style.EMPTY);
 
-        String text = buffer.export().as(Formats.TEXT).toString();
+        String text = export(buffer).as(Formats.TEXT).toString();
 
         assertTrue(text.contains("Hello"));
         assertTrue(text.contains("World"));
@@ -36,7 +37,7 @@ final class TextExporterTest {
         Buffer buffer = Buffer.empty(new Rect(0, 0, 6, 1));
         buffer.setString(0, 0, "Hi", Style.EMPTY.fg(Color.GREEN).bold());
 
-        String text = buffer.export().as(Formats.TEXT).options(o -> o.styles(true)).toString();
+        String text = export(buffer).as(Formats.TEXT).options(o -> o.styles(true)).toString();
 
         assertTrue(text.contains("Hi"));
         assertTrue(text.contains("\u001b["), "styles=true must include ANSI escape sequences");
@@ -46,7 +47,7 @@ final class TextExporterTest {
     @Test
     void skipsContinuationCells() {
         Buffer buffer = Buffer.withLines("A\u4E16");  // A + CJK (2 cols)
-        String text = buffer.export().as(Formats.TEXT).toString();
+        String text = export(buffer).as(Formats.TEXT).toString();
         assertTrue(text.contains("A"));
         assertTrue(text.contains("\u4E16"));
         assertEquals(1, text.split(System.lineSeparator()).length);

@@ -17,8 +17,7 @@ import java.util.Objects;
 
 /**
  * Entry point for the fluent export API after selecting a buffer.
- * Obtain via {@link Buffer#export()} or {@link Export#from(Buffer)}.
- * Use {@link #crop(Rect)} to export only a region of the buffer.
+ * Start with {@link #export(Buffer)}, then use {@link #crop(Rect)} to export only a region.
  */
 public final class ExportRequest {
 
@@ -27,6 +26,16 @@ public final class ExportRequest {
 
     ExportRequest(Buffer buffer) {
         this(buffer, null);
+    }
+
+    /**
+     * Starts an export request for the given buffer.
+     *
+     * @param buffer the buffer to export
+     * @return the export request
+     */
+    public static ExportRequest export(Buffer buffer) {
+        return new ExportRequest(Objects.requireNonNull(buffer, "buffer"));
     }
 
     ExportRequest(Buffer buffer, Rect crop) {

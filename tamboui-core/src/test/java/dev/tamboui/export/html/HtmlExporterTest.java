@@ -6,6 +6,7 @@ package dev.tamboui.export.html;
 
 import dev.tamboui.buffer.Buffer;
 import dev.tamboui.export.Formats;
+import static dev.tamboui.export.ExportRequest.export;
 import dev.tamboui.layout.Rect;
 import dev.tamboui.style.Color;
 import dev.tamboui.style.Style;
@@ -22,7 +23,7 @@ final class HtmlExporterTest {
         buffer.setString(0, 0, "Hello", Style.EMPTY.fg(Color.CYAN));
         buffer.setString(0, 1, "Bold", Style.EMPTY.bold().fg(Color.RED));
 
-        String html = buffer.export().as(Formats.HTML).toString();
+        String html = export(buffer).as(Formats.HTML).toString();
         // Default: styles in stylesheet (non-embedded), spans use classes
         assertTrue(html.contains("<!DOCTYPE html>"));
         assertTrue(html.contains("<pre"));
@@ -39,7 +40,7 @@ final class HtmlExporterTest {
         Buffer buffer = Buffer.empty(new Rect(0, 0, 4, 1));
         buffer.setString(0, 0, "Hi", Style.EMPTY.bold());
 
-        String html = buffer.export().as(Formats.HTML).options(o -> o.inlineStyles(true)).toString();
+        String html = export(buffer).as(Formats.HTML).options(o -> o.inlineStyles(true)).toString();
 
         assertTrue(html.contains("<span style="), "embedded: styles inlined in spans");
         assertTrue(html.contains("font-weight: bold"));

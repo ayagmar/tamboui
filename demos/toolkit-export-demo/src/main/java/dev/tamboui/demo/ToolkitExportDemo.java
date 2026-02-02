@@ -7,6 +7,7 @@
 package dev.tamboui.demo;
 
 import dev.tamboui.buffer.Buffer;
+import static dev.tamboui.export.ExportRequest.export;
 import dev.tamboui.layout.Rect;
 import dev.tamboui.style.Color;
 import dev.tamboui.style.StyledAreaRegistry;
@@ -181,9 +182,9 @@ public final class ToolkitExportDemo {
             Path svg = outDir.resolve("export_demo.svg");
             Path html = outDir.resolve("export_demo.html");
             Path txt = outDir.resolve("export_demo.txt");
-            buffer.export().svg().options(o -> o.title("TamboUI Export (Toolkit)")).toFile(svg);
-            buffer.export().html().toFile(html);
-            buffer.export().text().toFile(txt);
+            export(buffer).svg().options(o -> o.title("TamboUI Export (Toolkit)")).toFile(svg);
+            export(buffer).html().toFile(html);
+            export(buffer).text().toFile(txt);
             exported.add(svg);
             exported.add(html);
             exported.add(txt);
@@ -198,7 +199,7 @@ public final class ToolkitExportDemo {
             if (contentRect != null && footerRect != null && !contentRect.isEmpty() && !footerRect.isEmpty()) {
                 Rect combined = contentRect.union(footerRect);
                 Path combinedSvg = outDir.resolve("export_demo_content_and_footer.svg");
-                buffer.export().crop(combined).svg()
+                export(buffer).crop(combined).svg()
                     .options(o -> o.title("Content + Footer"))
                     .toFile(combinedSvg);
                 exported.add(combinedSvg);
@@ -216,7 +217,7 @@ public final class ToolkitExportDemo {
         Rect area = panel.renderedArea();
         if (area != null && !area.isEmpty()) {
             Path path = outDir.resolve("export_demo_" + name + ".svg");
-            buffer.export().crop(area).svg()
+            export(buffer).crop(area).svg()
                 .options(o -> o.title(name.substring(0, 1).toUpperCase() + name.substring(1)))
                 .toFile(path);
             exported.add(path);

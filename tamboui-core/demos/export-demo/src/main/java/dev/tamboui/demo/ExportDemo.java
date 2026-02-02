@@ -7,6 +7,7 @@
 package dev.tamboui.demo;
 
 import dev.tamboui.buffer.Buffer;
+import static dev.tamboui.export.ExportRequest.export;
 import dev.tamboui.layout.Constraint;
 import dev.tamboui.layout.Layout;
 import dev.tamboui.layout.Rect;
@@ -77,11 +78,11 @@ public final class ExportDemo {
         Path txt = outDir.resolve("export_demo.txt");
         Path ansi = outDir.resolve("export_demo_ansi.txt");
 
-        buffer.export().svg().options(o -> o.title("TamboUI Export Demo")).toFile(svg);
-        buffer.export().html().toFile(html);
-        buffer.export().html().options(o -> o.inlineStyles(true)).toFile(htmlInline);
-        buffer.export().text().toFile(txt);
-        buffer.export().text().options(o -> o.styles(true)).toFile(ansi);
+        export(buffer).svg().options(o -> o.title("TamboUI Export Demo")).toFile(svg);
+        export(buffer).html().toFile(html);
+        export(buffer).html().options(o -> o.inlineStyles(true)).toFile(htmlInline);
+        export(buffer).text().toFile(txt);
+        export(buffer).text().options(o -> o.styles(true)).toFile(ansi);
 
         System.out.println("Exported to " + outDir.toAbsolutePath() + ":");
         System.out.println("  " + svg.getFileName());

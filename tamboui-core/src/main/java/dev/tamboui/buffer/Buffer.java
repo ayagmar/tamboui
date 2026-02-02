@@ -4,8 +4,6 @@
  */
 package dev.tamboui.buffer;
 
-import dev.tamboui.export.Export;
-import dev.tamboui.export.ExportRequest;
 import dev.tamboui.layout.Position;
 import dev.tamboui.layout.Rect;
 import dev.tamboui.style.Style;
@@ -117,15 +115,6 @@ public final class Buffer {
      */
     public Rect area() {
         return area;
-    }
-
-    /**
-     * Starts the fluent export API for this buffer.
-     *
-     * @return the export request (use {@code .as(Formats.SVG)} etc.)
-     */
-    public ExportRequest export() {
-        return Export.from(this);
     }
 
     /**

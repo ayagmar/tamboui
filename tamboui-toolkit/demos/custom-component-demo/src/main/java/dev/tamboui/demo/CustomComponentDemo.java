@@ -9,8 +9,9 @@ package dev.tamboui.demo;
 
 import dev.tamboui.css.engine.StyleEngine;
 import dev.tamboui.css.parser.CssParseException;
-import dev.tamboui.export.Formats;
 import dev.tamboui.buffer.Buffer;
+import dev.tamboui.export.ExportRequest;
+import dev.tamboui.export.Formats;
 import dev.tamboui.layout.Constraint;
 import dev.tamboui.layout.Rect;
 import dev.tamboui.terminal.Frame;
@@ -36,6 +37,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
+import static dev.tamboui.export.ExportRequest.export;
 import static dev.tamboui.toolkit.Toolkit.*;
 
 /**
@@ -437,7 +439,7 @@ public class CustomComponentDemo implements Element {
                 .format(Instant.now());
             Path outFile = outDir.resolve("snapshot-" + timestamp + ".svg");
 
-            snapshot.export().as(Formats.SVG)
+            export(snapshot).as(Formats.SVG)
                 .options(o -> o.title("TamboUI").uniqueId("snapshot-" + timestamp))
                 .toFile(outFile);
             lastSvgExportMessage = "Saved " + outFile.toString();

@@ -16,6 +16,7 @@ import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 import dev.tamboui.buffer.Buffer;
+import static dev.tamboui.export.ExportRequest.export;
 /**
  * Plays back scripted interactions for demo recording.
  * Supports VHS tape format (charmbracelet/vhs).
@@ -442,7 +443,7 @@ final class InteractionPlayer {
                 Interaction.Screenshot screenshot = (Interaction.Screenshot) interaction;
                 try {
                     Files.createDirectories(screenshot.path().getParent());
-                    buffer.export().toFile(screenshot.path());
+                    export(buffer).toFile(screenshot.path());
                 } catch (IOException e) {
                     throw new UncheckedIOException("Warning: Failed to write screenshot: " + e.getMessage(), e);
                 }

@@ -144,7 +144,7 @@ if (x >= area.x() && x < area.right() &&
 
 == Exporting Buffer Content
 
-You can export a `Buffer` to SVG, HTML, or plain/ANSI text for screenshots, documentation, or sharing. The API is fluent: start from `buffer.export()`, choose a format, optionally configure options, then write to a file, stream, or string.
+You can export a `Buffer` to SVG, HTML, or plain/ANSI text for screenshots, documentation, or sharing. The API is fluent: start from `export(buffer)` (static import {@code ExportRequest.export}), choose a format, optionally configure options, then write to a file, stream, or string.
 
 === Fluent API
 
@@ -153,48 +153,50 @@ You can export a `Buffer` to SVG, HTML, or plain/ANSI text for screenshots, docu
 import dev.tamboui.buffer.Buffer;
 import java.nio.file.Path;
 
+import static dev.tamboui.export.ExportRequest.export;
+
 // Start from a buffer (e.g. after rendering widgets)
 Buffer buffer = ...;
 
 // Shorthand: export as SVG with default options
-buffer.export().svg().toFile(Path.of("output.svg"));
+export(buffer).svg().toFile(Path.of("output.svg"));
 
 // Configure options via options(Consumer)
-buffer.export().svg()
+export(buffer).svg()
     .options(o -> o.title("My App"))
     .toFile(Path.of("output.svg"));
 
 // Export to string or bytes
-String svgString = buffer.export().svg().toString();
-byte[] htmlBytes = buffer.export().html().options(o -> o.inlineStyles(true)).toBytes();
+String svgString = export(buffer).svg().toString();
+byte[] htmlBytes = export(buffer).html().options(o -> o.inlineStyles(true)).toBytes();
 
 // Write to an OutputStream or Writer
-buffer.export().text().to(outputStream);
+export(buffer).text().to(outputStream);
 ----
 
 === Format Selection
 
 Use the shorthand methods for the built-in formats:
 
-* `buffer.export().svg()` — SVG (scalable vector graphic)
-* `buffer.export().html()` — HTML document (with embedded or external CSS)
-* `buffer.export().text()` — Plain text or ANSI-styled text
+* `export(buffer).svg()` — SVG (scalable vector graphic)
+* `export(buffer).html()` — HTML document (with embedded or external CSS)
+* `export(buffer).text()` — Plain text or ANSI-styled text
 
 To use a custom format, pass it to `as(Format)`:
 
 [source,java]
 ----
-buffer.export().as(Formats.SVG).toFile(path);
+export(buffer).as(Formats.SVG).toFile(path);
 ----
 
 You can also export by file path and let the extension choose the format:
 
 [source,java]
 ----
-buffer.export().toFile(Path.of("screenshot.svg"));   // SVG
-buffer.export().toFile(Path.of("page.html"));       // HTML
-buffer.export().toFile(Path.of("dump.txt"));        // Plain text
-buffer.export().toFile(Path.of("styled.ansi"));     // ANSI-styled text
+export(buffer).toFile(Path.of("screenshot.svg"));   // SVG
+export(buffer).toFile(Path.of("page.html"));       // HTML
+export(buffer).toFile(Path.of("dump.txt"));        // Plain text
+export(buffer).toFile(Path.of("styled.ansi"));     // ANSI-styled text
 ----
 
 Extension mapping: `.svg` → SVG; `.html` / `.htm` → HTML; `.txt` / `.asc` → plain text; `.ans` / `.ansi` → ANSI text. Unknown extensions default to SVG.
@@ -219,13 +221,13 @@ import dev.tamboui.layout.Rect;
 
 // Export a single region (e.g. title, table, or footer)
 Rect titleRect = new Rect(0, 0, 80, 3);
-buffer.export().crop(titleRect).svg().toFile(Path.of("title.svg"));
+export(buffer).crop(titleRect).svg().toFile(Path.of("title.svg"));
 
 // Combined rectangle of multiple elements: union of two rects
 Rect tableRect = new Rect(22, 3, 58, 12);
 Rect footerRect = new Rect(0, 15, 80, 2);
 Rect tableAndFooter = tableRect.union(footerRect);
-buffer.export().crop(tableAndFooter).svg().toFile(Path.of("table_and_footer.svg"));
+export(buffer).crop(tableAndFooter).svg().toFile(Path.of("table_and_footer.svg"));
 ----
 
 In Toolkit apps, use `Element.renderedArea()` after a frame is rendered to get an element's last rendered rect, then crop to that rect to export just that element:
@@ -235,7 +237,7 @@ In Toolkit apps, use `Element.renderedArea()` after a frame is rendered to get a
 // After rendering (e.g. in an action handler with access to buffer and element)
 Rect area = myPanel.renderedArea();
 if (area != null && !area.isEmpty()) {
-    buffer.export().crop(area).svg().toFile(Path.of("panel.svg"));
+    export(buffer).crop(area).svg().toFile(Path.of("panel.svg"));
 }
 ----
 
@@ -252,11 +254,11 @@ import dev.tamboui.style.Color;
 import dev.tamboui.style.StylePropertyResolver;
 
 // Use property defaults (dark theme) — no resolver
-buffer.export().svg().toFile(path);
+export(buffer).svg().toFile(path);
 
 // Custom defaults via a resolver (e.g. from toolkit StyleEngine)
 StylePropertyResolver myResolver = ...;  // e.g. styleEngine.resolver()
-buffer.export().svg().options(o -> o.styles(myResolver)).toFile(path);
+export(buffer).svg().options(o -> o.styles(myResolver)).toFile(path);
 ----
 
 === SVG Export
@@ -273,7 +275,7 @@ Options (`SvgOptions`), via `.options(o -> ...)`:
 
 [source,java]
 ----
-buffer.export().svg()
+export(buffer).svg()
     .options(o -> o.title("Dashboard"))
     .toFile(Path.of("dashboard.svg"));
 ----
@@ -290,10 +292,10 @@ Options (`HtmlOptions`):
 [source,java]
 ----
 // One file with external stylesheet (default)
-buffer.export().html().toFile(Path.of("output.html"));
+export(buffer).html().toFile(Path.of("output.html"));
 
 // Inline styles (self-contained, no separate CSS)
-buffer.export().html()
+export(buffer).html()
     .options(o -> o.inlineStyles(true))
     .toFile(Path.of("output_inline.html"));
 ----
@@ -309,12 +311,12 @@ Options (`TextOptions`):
 [source,java]
 ----
 // Plain text
-String plain = buffer.export().text().toString();
-buffer.export().text().toFile(Path.of("dump.txt"));
+String plain = export(buffer).text().toString();
+export(buffer).text().toFile(Path.of("dump.txt"));
 
 // ANSI-styled (e.g. for .ansi files or terminal paste)
-String ansi = buffer.export().text().options(o -> o.styles(true)).toString();
-buffer.export().text().options(o -> o.styles(true)).toFile(Path.of("styled.ansi"));
+String ansi = export(buffer).text().options(o -> o.styles(true)).toString();
+export(buffer).text().options(o -> o.styles(true)).toFile(Path.of("styled.ansi"));
 ----
 
 == Creating Toolkit Components

@@ -16,9 +16,11 @@ import dev.tamboui.export.text.TextOptions;
  * or the shorthands {@link ExportRequest#svg()}, {@link ExportRequest#html()}, {@link ExportRequest#text()}:
  *
  * <pre>{@code
- * buffer.export().svg().options(o -> o.title("App")).toString();
- * buffer.export().html().options(o -> o.inlineStyles(true)).toFile(path);
- * buffer.export().text().options(o -> o.styles(true)).toString();
+ * import static dev.tamboui.export.ExportRequest.export;
+ *
+ * export(buffer).svg().options(o -> o.title("App")).toString();
+ * export(buffer).html().options(o -> o.inlineStyles(true)).toFile(path);
+ * export(buffer).text().options(o -> o.styles(true)).toString();
  * }</pre>
  */
 public final class Formats {
