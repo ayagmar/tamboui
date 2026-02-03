@@ -32,7 +32,7 @@ jobs:
       - name: Update jbang-catalog.json to include new demos
         run: |
           ./gradlew publishToMavenLocal
-          ./gradlew updateJBangCatalog --verify-builds --parallel
+          ./gradlew updateJBangCatalog --verify-builds --verify-parallel
 
       - name: Check jbang-catalog.json is up to date
         run: |
