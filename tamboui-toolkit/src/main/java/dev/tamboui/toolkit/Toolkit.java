@@ -4,23 +4,38 @@
  */
 package dev.tamboui.toolkit;
 
+import java.time.LocalDate;
+import java.util.Collection;
+import java.util.List;
+import java.util.function.Supplier;
+
+import dev.tamboui.layout.Constraint;
+import dev.tamboui.style.Color;
+import dev.tamboui.text.Text;
 import dev.tamboui.toolkit.element.Element;
+import dev.tamboui.toolkit.element.StyledElement;
 import dev.tamboui.toolkit.elements.BarChartElement;
 import dev.tamboui.toolkit.elements.CalendarElement;
 import dev.tamboui.toolkit.elements.CanvasElement;
 import dev.tamboui.toolkit.elements.ChartElement;
-import dev.tamboui.toolkit.elements.GenericWidgetElement;
-import dev.tamboui.toolkit.elements.DockElement;
-import dev.tamboui.toolkit.elements.FlowElement;
-import dev.tamboui.toolkit.elements.GridElement;
 import dev.tamboui.toolkit.elements.Column;
 import dev.tamboui.toolkit.elements.ColumnsElement;
 import dev.tamboui.toolkit.elements.DialogElement;
+import dev.tamboui.toolkit.elements.DockElement;
+import dev.tamboui.toolkit.elements.FlowElement;
+import dev.tamboui.toolkit.elements.FormElement;
+import dev.tamboui.toolkit.elements.FormFieldElement;
 import dev.tamboui.toolkit.elements.GaugeElement;
+import dev.tamboui.toolkit.elements.GenericWidgetElement;
+import dev.tamboui.toolkit.elements.GridElement;
 import dev.tamboui.toolkit.elements.LazyElement;
 import dev.tamboui.toolkit.elements.LineGaugeElement;
 import dev.tamboui.toolkit.elements.ListElement;
+import dev.tamboui.toolkit.elements.MarkupTextAreaElement;
+import dev.tamboui.toolkit.elements.MarkupTextElement;
 import dev.tamboui.toolkit.elements.Panel;
+import dev.tamboui.toolkit.elements.RichTextAreaElement;
+import dev.tamboui.toolkit.elements.RichTextElement;
 import dev.tamboui.toolkit.elements.Row;
 import dev.tamboui.toolkit.elements.ScrollbarElement;
 import dev.tamboui.toolkit.elements.Spacer;
@@ -29,29 +44,22 @@ import dev.tamboui.toolkit.elements.SpinnerElement;
 import dev.tamboui.toolkit.elements.StackElement;
 import dev.tamboui.toolkit.elements.TableElement;
 import dev.tamboui.toolkit.elements.TabsElement;
-import dev.tamboui.toolkit.elements.TextElement;
 import dev.tamboui.toolkit.elements.TextAreaElement;
+import dev.tamboui.toolkit.elements.TextElement;
 import dev.tamboui.toolkit.elements.TextInputElement;
+import dev.tamboui.toolkit.elements.TreeElement;
 import dev.tamboui.toolkit.elements.WaveTextElement;
-import dev.tamboui.toolkit.elements.RichTextElement;
-import dev.tamboui.toolkit.elements.RichTextAreaElement;
-import dev.tamboui.toolkit.elements.MarkupTextElement;
-import dev.tamboui.toolkit.elements.MarkupTextAreaElement;
-import dev.tamboui.text.Text;
-import dev.tamboui.layout.Constraint;
-import dev.tamboui.style.Color;
-import dev.tamboui.toolkit.element.StyledElement;
+import dev.tamboui.tui.event.KeyEvent;
+import dev.tamboui.widget.Widget;
+import dev.tamboui.widgets.form.BooleanFieldState;
+import dev.tamboui.widgets.form.FieldType;
+import dev.tamboui.widgets.form.FormState;
+import dev.tamboui.widgets.form.SelectFieldState;
 import dev.tamboui.widgets.input.TextAreaState;
 import dev.tamboui.widgets.input.TextInputState;
 import dev.tamboui.widgets.scrollbar.ScrollbarState;
 import dev.tamboui.widgets.spinner.SpinnerStyle;
-import dev.tamboui.widget.Widget;
-import dev.tamboui.tui.event.KeyEvent;
-
-import java.time.LocalDate;
-import java.util.Collection;
-import java.util.List;
-import java.util.function.Supplier;
+import dev.tamboui.widgets.tree.TreeNode;
 
 /**
  * Static factory methods for building UI elements with the DSL.
@@ -943,6 +951,100 @@ public final class Toolkit {
         return new TextAreaElement();
     }
 
+    // ==================== Form Field ====================
+
+    /**
+     * Creates a form field with a label and text input state.
+     * <p>
+     * Form fields combine a label and input into a single element with
+     * consistent layout and styling.
+     * <pre>{@code
+     * formField("Full name", nameState)
+     *     .labelWidth(14)
+     *     .rounded()
+     *     .borderColor(Color.DARK_GRAY)
+     *     .focusedBorderColor(Color.CYAN)
+     * }</pre>
+     *
+     * @param label the field label
+     * @param state the text input state
+     * @return a new form field element
+     */
+    public static FormFieldElement formField(String label, TextInputState state) {
+        return new FormFieldElement(label, state);
+    }
+
+    /**
+     * Creates a form field with a label and new text input state.
+     *
+     * @param label the field label
+     * @return a new form field element
+     */
+    public static FormFieldElement formField(String label) {
+        return new FormFieldElement(label);
+    }
+
+    /**
+     * Creates a form field with a label and boolean state (checkbox).
+     * <p>
+     * Use {@link FormFieldElement#type(FieldType)} to change to TOGGLE.
+     *
+     * @param label the field label
+     * @param state the boolean field state
+     * @return a new form field element
+     */
+    public static FormFieldElement formField(String label, BooleanFieldState state) {
+        return new FormFieldElement(label, state, FieldType.CHECKBOX);
+    }
+
+    /**
+     * Creates a form field with a label, boolean state, and field type.
+     *
+     * @param label the field label
+     * @param state the boolean field state
+     * @param type the field type (CHECKBOX or TOGGLE)
+     * @return a new form field element
+     */
+    public static FormFieldElement formField(String label, BooleanFieldState state, FieldType type) {
+        return new FormFieldElement(label, state, type);
+    }
+
+    /**
+     * Creates a form field with a label and select state.
+     *
+     * @param label the field label
+     * @param state the select field state
+     * @return a new form field element
+     */
+    public static FormFieldElement formField(String label, SelectFieldState state) {
+        return new FormFieldElement(label, state);
+    }
+
+    // ==================== Form Container ====================
+
+    /**
+     * Creates a form container with the given state.
+     * <p>
+     * Form containers manage multiple fields with consistent styling
+     * and optional grouping.
+     * <pre>{@code
+     * form(formState)
+     *     .field("fullName", "Full name")
+     *     .field("email", "Email", Validators.email())
+     *     .group("Preferences")
+     *         .field("newsletter", "Newsletter", FieldType.CHECKBOX)
+     *     .labelWidth(14)
+     *     .rounded()
+     *     .onSubmit(state -> saveUser(state))
+     * }</pre>
+     *
+     * @param formState the form state
+     * @return a new form element
+     */
+    public static FormElement form(FormState formState) {
+        return new FormElement(formState);
+    }
+
     // ==================== Bar Chart ====================
 
     /**
@@ -1051,6 +1153,40 @@ public final class Toolkit {
      */
     public static ScrollbarElement scrollbar() {
         return new ScrollbarElement();
+    }
+
+
+    // ==================== Tree ====================
+
+    /**
+     * Creates a tree with the given root nodes.
+     * <pre>{@code
+     * tree(
+     *     TreeNode.of("src",
+     *         TreeNode.of("main"),
+     *         TreeNode.of("test")).expanded(),
+     *     TreeNode.of("README.md").leaf()
+     * ).title("Project").rounded()
+     * }</pre>
+     *
+     * @param roots the root nodes
+     * @param <T> the data type
+     * @return a new tree element
+     */
+    @SafeVarargs
+    @SuppressWarnings("varargs")
+    public static <T> TreeElement<T> tree(TreeNode<T>... roots) {
+        return new TreeElement<>(roots);
+    }
+
+    /**
+     * Creates an empty tree.
+     *
+     * @param <T> the data type
+     * @return a new empty tree element
+     */
+    public static <T> TreeElement<T> tree() {
+        return new TreeElement<>();
     }
 
     // ==================== Spinner ====================

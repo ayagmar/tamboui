@@ -7,10 +7,19 @@
  */
 package dev.tamboui.demo;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
+
+import dev.tamboui.buffer.Buffer;
 import dev.tamboui.css.engine.StyleEngine;
 import dev.tamboui.css.parser.CssParseException;
-import dev.tamboui.export.BufferSvgExporter;
-import dev.tamboui.buffer.Buffer;
+import dev.tamboui.export.Formats;
 import dev.tamboui.layout.Constraint;
 import dev.tamboui.layout.Rect;
 import dev.tamboui.terminal.Frame;
@@ -26,16 +35,7 @@ import dev.tamboui.tui.bindings.KeyTrigger;
 import dev.tamboui.tui.event.KeyEvent;
 import dev.tamboui.widgets.input.TextAreaState;
 
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
-
+import static dev.tamboui.export.ExportRequest.export;
 import static dev.tamboui.toolkit.Toolkit.*;
 
 /**
@@ -437,14 +437,9 @@ public class CustomComponentDemo implements Element {
                 .format(Instant.now());
             Path outFile = outDir.resolve("snapshot-" + timestamp + ".svg");
 
-            String svg = BufferSvgExporter.exportSvg(
-                snapshot,
-                new BufferSvgExporter.Options()
-                    .title("TamboUI")
-                    .uniqueId("snapshot-" + timestamp)
-            );
-
-            Files.write(outFile, svg.getBytes(StandardCharsets.UTF_8));
+            export(snapshot).as(Formats.SVG)
+                .options(o -> o.title("TamboUI").uniqueId("snapshot-" + timestamp))
+                .toFile(outFile);
             lastSvgExportMessage = "Saved " + outFile.toString();
         } catch (Exception e) {
             lastSvgExportMessage = "SVG export failed: " + e.getMessage();
