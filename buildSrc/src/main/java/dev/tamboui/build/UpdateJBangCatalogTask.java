@@ -259,7 +259,6 @@ public abstract class UpdateJBangCatalogTask extends DefaultTask {
     private boolean buildAlias(String aliasName) {
         try {
             ExecResult result = getExecOperations().exec(execSpec -> {
-                execSpec.environment("JBANG_CACHE_DIR", getTemporaryDir().toPath().resolve("jbang-cache/" + aliasName).toString());
                 execSpec.commandLine(
                         "jbang", "build",
                         "-C=-Xdiags:compact",

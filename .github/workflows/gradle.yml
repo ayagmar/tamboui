@@ -15,6 +15,7 @@ on:
 
 jobs:
   format-check:
+    name: Static Code Format Check
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
@@ -23,6 +24,7 @@ jobs:
         id: check-formatting
         run: ./gradlew spotlessCheck
   jbang-catalog-check:
+    name: Verify JBang Demos
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
@@ -39,10 +41,11 @@ jobs:
             exit 1
           fi
   build:
+    name: Full Gradle Build (excluding distributions)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
       - uses: ./.github/actions/shared-build-setup
 
-      - name: Execute Gradle build (excluding distributions)
+      - name: Execute Gradle
         run: ./gradlew build -x spotlessCheck -x distTar -x distZip
