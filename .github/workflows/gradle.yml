@@ -21,7 +21,7 @@ jobs:
       - uses: ./.github/actions/shared-build-setup
       - name: check formatting and comment on PR if failed
         id: check-formatting
-        run: ./gradlew --no-daemon spotlessCheck
+        run: ./gradlew spotlessCheck
   build:
     runs-on: ubuntu-latest
     steps:
@@ -29,9 +29,9 @@ jobs:
       - uses: ./.github/actions/shared-build-setup
 
       - name: Formatting check
-        run: ./gradlew --no-daemon spotlessCheck
+        run: ./gradlew spotlessCheck
       - name: Execute Gradle build
-        run: ./gradlew build -x spotlessCheck
+        run: ./gradlew build
       - name: Update jbang-catalog.json to include new demos
         run: |
          ./gradlew publishToMavenLocal
