@@ -56,8 +56,8 @@ public class CssDemo implements Element {
         styleEngine = StyleEngine.create();
         try {
             // Load both themes
-            styleEngine.loadStylesheet("dark", "/themes/dark.tcss");
-            styleEngine.loadStylesheet("light", "/themes/light.tcss");
+            styleEngine.loadStylesheet("dark", "/themes-css/dark.tcss");
+            styleEngine.loadStylesheet("light", "/themes-css/light.tcss");
             styleEngine.setActiveStylesheet(currentTheme);
         } catch (IOException e) {
             throw new UncheckedIOException("Failed to load CSS themes", e);

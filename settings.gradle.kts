@@ -15,6 +15,7 @@ val modules = listOf(
     "tamboui-tfx",
     "tamboui-tfx-tui",
     "tamboui-tfx-toolkit",
+    "tamboui-demos",
     "docs"
 )
 
