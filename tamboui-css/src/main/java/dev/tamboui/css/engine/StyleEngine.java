@@ -159,7 +159,7 @@ public final class StyleEngine {
             try {
                 return new String(Files.readAllBytes(path), StandardCharsets.UTF_8);
             } catch (IOException e) {
-                throw new UncheckedIOException(e);
+                throw new UncheckedIOException("Failed to read stylesheet from file: " + path, e);
             }
         };
         Stylesheet stylesheet = CssParser.parse(source.get());

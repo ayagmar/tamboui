@@ -31,7 +31,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class CssRenderingTest {
 
     // Path to the demo's theme resources (single source of truth)
-    private static final Path THEMES_DIR = Paths.get("../tamboui-css/demos/css-demo/src/main/resources/themes");
+    private static final Path THEMES_DIR = Paths.get("../tamboui-css/demos/css-demo/src/main/resources/themes-css");
 
     private StyleEngine styleEngine;
     private DefaultRenderContext context;

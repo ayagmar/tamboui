@@ -34,7 +34,7 @@ class CssDemoIntegrationTest {
     private StyleEngine styleEngine;
 
     // Path to the demo's theme resources (single source of truth)
-    private static final Path THEMES_DIR = Paths.get("demos/css-demo/src/main/resources/themes");
+    private static final Path THEMES_DIR = Paths.get("demos/css-demo/src/main/resources/themes-css");
 
     @BeforeEach
     void setUp() throws IOException {
