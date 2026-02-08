@@ -12,6 +12,7 @@ import dev.tamboui.layout.Size;
 import dev.tamboui.terminal.TestBackend;
 import dev.tamboui.toolkit.element.Element;
 import dev.tamboui.tui.TuiConfig;
+import dev.tamboui.tui.error.TuiException;
 import dev.tamboui.tui.pilot.Pilot;
 import dev.tamboui.tui.pilot.TestRunner;
 
@@ -39,7 +40,7 @@ public final class ToolkitTestRunner implements TestRunner {
             try {
                 runner.run(elementSupplier);
             } catch (Exception e) {
-                throw new RuntimeException("ToolkitTestRunner failed", e);
+                throw new TuiException("ToolkitTestRunner failed", e);
             }
         }, "toolkit-test-runner");
         this.runnerThread.setDaemon(true);
