@@ -18,6 +18,7 @@ import dev.tamboui.style.Style;
 import dev.tamboui.terminal.Frame;
 import dev.tamboui.toolkit.element.ContainerElement;
 import dev.tamboui.toolkit.element.Element;
+import dev.tamboui.toolkit.element.PreferredSize;
 import dev.tamboui.toolkit.element.RenderContext;
 
 /**
@@ -122,39 +123,19 @@ public final class StackElement extends ContainerElement<StackElement> {
     }
 
     @Override
-    public int preferredWidth() {
+    public PreferredSize preferredSize(int availableWidth, int availableHeight, RenderContext context) {
         int maxWidth = 0;
+        int maxHeight = 0;
         for (Element child : children) {
-            maxWidth = Math.max(maxWidth, child.preferredWidth());
+            PreferredSize childSize = child.preferredSize(availableWidth, availableHeight, context);
+            maxWidth = Math.max(maxWidth, childSize.widthOr(0));
+            maxHeight = Math.max(maxHeight, childSize.heightOr(0));
         }
         if (margin != null) {
             maxWidth += margin.left() + margin.right();
-        }
-        return maxWidth;
-    }
-
-    @Override
-    public int preferredHeight() {
-        int maxHeight = 0;
-        for (Element child : children) {
-            maxHeight = Math.max(maxHeight, child.preferredHeight());
-        }
-        if (margin != null) {
             maxHeight += margin.verticalTotal();
         }
-        return maxHeight;
-    }
-
-    @Override
-    public int preferredHeight(int availableWidth, RenderContext context) {
-        int maxHeight = 0;
-        for (Element child : children) {
-            maxHeight = Math.max(maxHeight, child.preferredHeight(availableWidth, context));
-        }
-        if (margin != null) {
-            maxHeight += margin.verticalTotal();
-        }
-        return maxHeight;
+        return PreferredSize.of(maxWidth, maxHeight);
     }
 
     @Override
@@ -201,8 +182,9 @@ public final class StackElement extends ContainerElement<StackElement> {
             if (effectiveAlignment == ContentAlignment.STRETCH) {
                 childArea = effectiveArea;
             } else {
-                int childWidth = child.preferredWidth();
-                int childHeight = child.preferredHeight(effectiveArea.width(), context);
+                PreferredSize childSize = child.preferredSize(effectiveArea.width(), -1, context);
+                int childWidth = childSize.widthOr(effectiveArea.width());
+                int childHeight = childSize.heightOr(effectiveArea.height());
                 childArea = effectiveAlignment.align(effectiveArea, childWidth, childHeight);
             }
             if (!childArea.isEmpty()) {

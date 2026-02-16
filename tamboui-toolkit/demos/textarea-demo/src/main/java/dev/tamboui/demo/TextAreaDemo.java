@@ -14,6 +14,7 @@ import dev.tamboui.style.Style;
 import dev.tamboui.terminal.Frame;
 import dev.tamboui.toolkit.app.ToolkitRunner;
 import dev.tamboui.toolkit.element.Element;
+import dev.tamboui.toolkit.element.PreferredSize;
 import dev.tamboui.toolkit.element.RenderContext;
 import dev.tamboui.tui.TuiConfig;
 import dev.tamboui.widgets.input.TextAreaState;
@@ -184,13 +185,8 @@ public class TextAreaDemo implements Element {
     }
 
     @Override
-    public int preferredWidth() {
-        return 0;
-    }
-
-    @Override
-    public int preferredHeight() {
-        return 0;
+    public PreferredSize preferredSize(int availableWidth, int availableHeight, RenderContext context) {
+        return PreferredSize.UNKNOWN;
     }
 
     @Override

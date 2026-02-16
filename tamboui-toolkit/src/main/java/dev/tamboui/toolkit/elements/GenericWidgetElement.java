@@ -6,6 +6,7 @@ package dev.tamboui.toolkit.elements;
 
 import dev.tamboui.layout.Rect;
 import dev.tamboui.terminal.Frame;
+import dev.tamboui.toolkit.element.PreferredSize;
 import dev.tamboui.toolkit.element.RenderContext;
 import dev.tamboui.toolkit.element.StyledElement;
 import dev.tamboui.widget.Widget;
@@ -98,13 +99,9 @@ public final class GenericWidgetElement<T extends Widget> extends StyledElement<
     }
 
     @Override
-    public int preferredWidth() {
-        return 0;
-    }
-
-    @Override
-    public int preferredHeight() {
-        return 0;
+    public PreferredSize preferredSize(int availableWidth, int availableHeight, RenderContext context) {
+        // Widget's size requirements are unknown
+        return PreferredSize.UNKNOWN;
     }
 
     @Override

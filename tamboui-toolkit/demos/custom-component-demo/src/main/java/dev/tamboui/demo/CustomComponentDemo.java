@@ -25,6 +25,7 @@ import dev.tamboui.layout.Rect;
 import dev.tamboui.terminal.Frame;
 import dev.tamboui.toolkit.app.ToolkitRunner;
 import dev.tamboui.toolkit.element.Element;
+import dev.tamboui.toolkit.element.PreferredSize;
 import dev.tamboui.toolkit.element.RenderContext;
 import dev.tamboui.toolkit.event.EventResult;
 import dev.tamboui.tui.TuiConfig;
@@ -370,7 +371,7 @@ public class CustomComponentDemo implements Element {
                 text("  spacing: <number>"),
                 spacer(1),
                 text("[Esc] Close").addClass("dim")
-            ).width(50).height(17).onCancel(() -> showHelp = false)
+            ).width(50).length(17).onCancel(() -> showHelp = false)
              .render(frame, area, context);
         }
     }
@@ -393,13 +394,8 @@ public class CustomComponentDemo implements Element {
     }
 
     @Override
-    public int preferredWidth() {
-        return 0;
-    }
-
-    @Override
-    public int preferredHeight() {
-        return 0;
+    public PreferredSize preferredSize(int availableWidth, int availableHeight, RenderContext context) {
+        return PreferredSize.UNKNOWN;
     }
 
     @Override

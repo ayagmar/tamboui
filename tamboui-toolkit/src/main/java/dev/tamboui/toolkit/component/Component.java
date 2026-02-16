@@ -8,6 +8,7 @@ import dev.tamboui.layout.Rect;
 import dev.tamboui.terminal.Frame;
 import dev.tamboui.toolkit.element.DefaultRenderContext;
 import dev.tamboui.toolkit.element.Element;
+import dev.tamboui.toolkit.element.PreferredSize;
 import dev.tamboui.toolkit.element.RenderContext;
 import dev.tamboui.toolkit.element.StyledElement;
 import dev.tamboui.toolkit.event.EventResult;
@@ -51,13 +52,8 @@ public abstract class Component<T extends Component<T>> extends StyledElement<T>
     }
 
     @Override
-    public int preferredWidth() {
-        return 0;
-    }
-
-    @Override
-    public int preferredHeight() {
-        return 0;
+    public PreferredSize preferredSize(int availableWidth, int availableHeight, RenderContext context) {
+        return PreferredSize.ZERO;
     }
 
     private ActionHandler actionHandler;

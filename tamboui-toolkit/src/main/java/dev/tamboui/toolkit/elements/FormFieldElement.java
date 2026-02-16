@@ -12,6 +12,7 @@ import dev.tamboui.layout.Rect;
 import dev.tamboui.style.Color;
 import dev.tamboui.style.Style;
 import dev.tamboui.terminal.Frame;
+import dev.tamboui.toolkit.element.PreferredSize;
 import dev.tamboui.toolkit.element.RenderContext;
 import dev.tamboui.toolkit.element.StyledElement;
 import dev.tamboui.toolkit.event.EventResult;
@@ -563,19 +564,18 @@ public final class FormFieldElement extends StyledElement<FormFieldElement> {
     // ==================== Sizing ====================
 
     @Override
-    public int preferredWidth() {
+    public PreferredSize preferredSize(int availableWidth, int availableHeight, RenderContext context) {
         // Label width + spacing + minimum input width + border
         int inputWidth = Math.max(10, placeholder.length());
         int borderWidth = borderType != null ? 2 : 0;
-        return labelWidth + spacing + inputWidth + borderWidth;
-    }
+        int width = labelWidth + spacing + inputWidth + borderWidth;
 
-    @Override
-    public int preferredHeight() {
         // For bordered inputs: 3 rows; for non-bordered: 1 row
         // Add 1 row if showing inline errors
         int baseHeight = borderType != null ? 3 : 1;
-        return showInlineErrors && !lastValidation().isValid() ? baseHeight + 1 : baseHeight;
+        int height = showInlineErrors && !lastValidation().isValid() ? baseHeight + 1 : baseHeight;
+
+        return PreferredSize.of(width, height);
     }
 
     // ==================== Event Handling ====================

@@ -17,6 +17,7 @@ import dev.tamboui.style.StyledAreaInfo;
 import dev.tamboui.style.StyledAreaRegistry;
 import dev.tamboui.style.Tags;
 import dev.tamboui.terminal.Frame;
+import dev.tamboui.toolkit.element.PreferredSize;
 import dev.tamboui.toolkit.event.EventRouter;
 import dev.tamboui.toolkit.focus.FocusManager;
 
@@ -166,13 +167,8 @@ class FaultTolerantRenderingTest {
             }
 
             @Override
-            public int preferredWidth() {
-                return 0;
-            }
-
-            @Override
-            public int preferredHeight() {
-                return 0;
+            public PreferredSize preferredSize(int availableWidth, int availableHeight, RenderContext context) {
+                return PreferredSize.ZERO;
             }
 
             @Override
@@ -190,13 +186,8 @@ class FaultTolerantRenderingTest {
             }
 
             @Override
-            public int preferredWidth() {
-                return 0;
-            }
-
-            @Override
-            public int preferredHeight() {
-                return 0;
+            public PreferredSize preferredSize(int availableWidth, int availableHeight, RenderContext context) {
+                return PreferredSize.ZERO;
             }
 
             @Override

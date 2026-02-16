@@ -8,6 +8,7 @@ import dev.tamboui.layout.Rect;
 import dev.tamboui.style.StylePropertyResolver;
 import dev.tamboui.terminal.Frame;
 import dev.tamboui.text.CharWidth;
+import dev.tamboui.toolkit.element.PreferredSize;
 import dev.tamboui.toolkit.element.RenderContext;
 import dev.tamboui.toolkit.element.StyledElement;
 import dev.tamboui.widgets.spinner.Spinner;
@@ -176,17 +177,12 @@ public final class SpinnerElement extends StyledElement<SpinnerElement> {
     }
 
     @Override
-    public int preferredWidth() {
+    public PreferredSize preferredSize(int availableWidth, int availableHeight, RenderContext context) {
         int width = computeMaxFrameWidth();
         if (label != null && !label.isEmpty()) {
             width += 1 + CharWidth.of(label); // space + label
         }
-        return width;
-    }
-
-    @Override
-    public int preferredHeight() {
-        return 1;
+        return PreferredSize.of(width, 1);
     }
 
     @Override

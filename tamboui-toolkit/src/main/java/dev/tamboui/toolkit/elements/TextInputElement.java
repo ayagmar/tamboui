@@ -12,6 +12,7 @@ import dev.tamboui.layout.Rect;
 import dev.tamboui.style.Color;
 import dev.tamboui.style.Style;
 import dev.tamboui.terminal.Frame;
+import dev.tamboui.toolkit.element.PreferredSize;
 import dev.tamboui.toolkit.element.RenderContext;
 import dev.tamboui.toolkit.element.StyledElement;
 import dev.tamboui.toolkit.event.EventResult;
@@ -257,20 +258,17 @@ public final class TextInputElement extends StyledElement<TextInputElement> {
     }
 
     @Override
-    public int preferredWidth() {
+    public PreferredSize preferredSize(int availableWidth, int availableHeight, RenderContext context) {
         // Use max of placeholder width and current value width, plus border
         int valueWidth = state != null ? state.text().length() : 0;
         int placeholderWidth = placeholder != null ? placeholder.length() : 0;
         int contentWidth = Math.max(valueWidth, placeholderWidth);
         // Add minimum width for usability and border if present
         int borderWidth = (title != null || borderType != null) ? 2 : 0;
-        return Math.max(contentWidth, 10) + borderWidth;
-    }
-
-    @Override
-    public int preferredHeight() {
+        int width = Math.max(contentWidth, 10) + borderWidth;
         // Single-line input: 1 row, or 3 if bordered
-        return (title != null || borderType != null) ? 3 : 1;
+        int height = (title != null || borderType != null) ? 3 : 1;
+        return PreferredSize.of(width, height);
     }
 
     @Override

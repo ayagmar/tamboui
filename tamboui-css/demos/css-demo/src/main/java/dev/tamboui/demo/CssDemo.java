@@ -18,6 +18,7 @@ import dev.tamboui.layout.Rect;
 import dev.tamboui.terminal.Frame;
 import dev.tamboui.toolkit.app.ToolkitRunner;
 import dev.tamboui.toolkit.element.Element;
+import dev.tamboui.toolkit.element.PreferredSize;
 import dev.tamboui.toolkit.element.RenderContext;
 import dev.tamboui.toolkit.elements.ListElement;
 import dev.tamboui.toolkit.event.EventResult;
@@ -149,13 +150,8 @@ public class CssDemo implements Element {
     }
 
     @Override
-    public int preferredWidth() {
-        return 0;
-    }
-
-    @Override
-    public int preferredHeight() {
-        return 0;
+    public PreferredSize preferredSize(int availableWidth, int availableHeight, RenderContext context) {
+        return PreferredSize.UNKNOWN;
     }
 
     @Override

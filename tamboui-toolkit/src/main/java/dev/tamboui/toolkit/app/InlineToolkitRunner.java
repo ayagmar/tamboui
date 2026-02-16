@@ -18,6 +18,7 @@ import dev.tamboui.text.Text;
 import dev.tamboui.toolkit.element.DefaultRenderContext;
 import dev.tamboui.toolkit.element.Element;
 import dev.tamboui.toolkit.element.ElementRegistry;
+import dev.tamboui.toolkit.element.PreferredSize;
 import dev.tamboui.toolkit.element.RenderContext;
 import dev.tamboui.toolkit.event.EventResult;
 import dev.tamboui.toolkit.event.EventRouter;
@@ -145,7 +146,8 @@ public final class InlineToolkitRunner implements AutoCloseable {
                 // A preferredHeight of 0 means the element doesn't report a known
                 // height (e.g. TableElement), so keep the configured viewport height.
                 if (root != null) {
-                    int preferredHeight = root.preferredHeight(frame.area().width(), renderContext);
+                    PreferredSize size = root.preferredSize(frame.area().width(), -1, renderContext);
+                    int preferredHeight = size.heightOr(0);
                     if (preferredHeight > 0) {
                         tuiRunner.setContentHeight(preferredHeight);
                     }
@@ -202,7 +204,7 @@ public final class InlineToolkitRunner implements AutoCloseable {
      */
     public void println(Element element) {
         int width = tuiRunner.width();
-        int height = Math.max(1, element.preferredHeight(width, RenderContext.empty()));
+        int height = Math.max(1, element.preferredSize(width, -1, RenderContext.empty()).heightOr(1));
         Buffer buf = Buffer.empty(Rect.of(width, height));
         Frame frame = Frame.forTesting(buf);
         element.render(frame, frame.area(), RenderContext.empty());
