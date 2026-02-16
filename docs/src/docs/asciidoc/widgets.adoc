@@ -75,6 +75,38 @@ include::_attributes.adoc[]
 |Stateful
 |Single-line text input
 
+|<<textarea,TextArea>>
+|Stateful
+|Multi-line text input
+
+|<<checkbox,Checkbox>>
+|Stateful
+|Toggleable checkbox
+
+|<<toggle,Toggle>>
+|Stateful
+|On/off toggle switch
+
+|<<select,Select>>
+|Stateful
+|Inline select with navigation indicators
+
+|<<tree,Tree>>
+|Stateful
+|Hierarchical tree view with expand/collapse
+
+|<<wavetext,WaveText>>
+|Stateful
+|Animated wave brightness text effect
+
+|<<logo,Logo>>
+|Stateless
+|Renders the Tamboui logo
+
+|<<errordisplay,ErrorDisplay>>
+|Stateless
+|Displays error information with stack trace
+
 |<<clear,Clear>>
 |Stateless
 |Clears an area (for widget layering)
@@ -88,19 +120,7 @@ A `Block` is the most fundamental container widget. It can have borders, titles,
 
 [source,java]
 ----
-Block block = Block.builder()
-    .title("My Title")
-    .borders(Borders.ALL)
-    .borderType(BorderType.ROUNDED)
-    .borderStyle(Style.EMPTY.fg(Color.CYAN))
-    .padding(new Padding(1, 2, 1, 2))  // top, right, bottom, left
-    .build();
-
-// Render the block
-block.render(area, buffer);
-
-// Get the inner area (after borders and padding)
-Rect inner = block.inner(area);
+include::{snippets-dir}/dev/tamboui/docs/snippets/WidgetsSnippets.java[tags=block]
 ----
 
 Border types:
@@ -116,8 +136,7 @@ Clears an area by filling it with spaces. Useful before rendering overlays:
 
 [source,java]
 ----
-Clear.INSTANCE.render(dialogArea, buffer);
-// Then render your dialog on top
+include::{snippets-dir}/dev/tamboui/docs/snippets/WidgetsSnippets.java[tags=clear]
 ----
 
 For layout widgets (Columns, Grid, Dock, Stack, Flow), see link:layouts.html[Layouts Reference].
@@ -130,17 +149,7 @@ Displays multi-line text with wrapping and alignment:
 
 [source,java]
 ----
-Paragraph paragraph = Paragraph.builder()
-    .text(Text.from("This is a paragraph of text that can wrap across multiple lines."))
-    .wrap(Wrap.WORD)
-    .alignment(Alignment.LEFT)
-    .block(Block.builder()
-        .title("Description")
-        .borders(Borders.ALL)
-        .build())
-    .build();
-
-paragraph.render(area, buffer);
+include::{snippets-dir}/dev/tamboui/docs/snippets/WidgetsSnippets.java[tags=paragraph]
 ----
 
 Wrap modes:
@@ -159,29 +168,7 @@ NOTE: **For Toolkit DSL users**: Use `ListElement` instead (via `list()` factory
 
 [source,java]
 ----
-// Create items
-List<ListItem> items = List.of(
-    ListItem.from("First item"),
-    ListItem.from("Second item"),
-    ListItem.styled("Styled item", Style.EMPTY.bold())
-);
-
-// Create state
-ListState state = new ListState();
-state.select(0);  // Select first item
-
-// Build and render
-ListWidget list = ListWidget.builder()
-    .items(items)
-    .highlightStyle(Style.EMPTY.reversed())
-    .highlightSymbol(">> ")
-    .block(Block.builder()
-        .title("Select an Item")
-        .borders(Borders.ALL)
-        .build())
-    .build();
-
-list.render(area, buffer, state);
+include::{snippets-dir}/dev/tamboui/docs/snippets/WidgetsSnippets.java[tags=list-widget]
 ----
 
 State methods:
@@ -229,13 +216,7 @@ TamboUI provides two list implementations at different API levels:
 
 [source,java]
 ----
-// Toolkit DSL - ListElement with rich content
-list()
-    .add(row(text("⭐").yellow(), text(" Featured Item")))
-    .add(text("Plain Item"))
-    .add(panel("Nested Panel", text("Content")).rounded())
-    .highlightColor(Color.CYAN)
-    .autoScroll()
+include::{snippets-dir}/dev/tamboui/docs/snippets/WidgetsSnippets.java[tags=list-element]
 ----
 
 === Table
@@ -244,30 +225,7 @@ A data table with rows and columns:
 
 [source,java]
 ----
-// Create table
-Table table = Table.builder()
-    .header(Row.from("Name", "Age", "City"))
-    .rows(
-        Row.from("Alice", "30", "NYC"),
-        Row.from("Bob", "25", "LA"),
-        Row.from("Charlie", "35", "Chicago")
-    )
-    .widths(
-        Constraint.percentage(40),
-        Constraint.length(10),
-        Constraint.fill()
-    )
-    .highlightStyle(Style.EMPTY.bg(Color.DARK_GRAY))
-    .block(Block.builder()
-        .title("Users")
-        .borders(Borders.ALL)
-        .build())
-    .build();
-
-// Create and use state
-TableState state = new TableState();
-state.select(0);
-table.render(area, buffer, state);
+include::{snippets-dir}/dev/tamboui/docs/snippets/WidgetsSnippets.java[tags=table]
 ----
 
 === Tabs
@@ -276,18 +234,7 @@ A tab bar for navigation:
 
 [source,java]
 ----
-Tabs tabs = Tabs.builder()
-    .titles("Home", "Settings", "About")
-    .highlightStyle(Style.EMPTY.bold().fg(Color.CYAN))
-    .divider(" | ")
-    .block(Block.builder()
-        .borders(Borders.BOTTOM)
-        .build())
-    .build();
-
-TabsState state = new TabsState();
-state.select(0);
-tabs.render(area, buffer, state);
+include::{snippets-dir}/dev/tamboui/docs/snippets/WidgetsSnippets.java[tags=tabs]
 ----
 
 === Tree
@@ -296,25 +243,7 @@ A hierarchical tree view with expand/collapse, keyboard navigation, and support 
 
 [source,java]
 ----
-// Create tree nodes with data model
-TreeNode<FileInfo> src = TreeNode.of("src", new FileInfo("src", FileType.DIRECTORY))
-    .add(TreeNode.of("main", new FileInfo("main", FileType.DIRECTORY))
-        .add(TreeNode.of("App.java", new FileInfo("App.java", FileType.JAVA, 2048)).leaf())
-        .expanded())
-    .expanded();
-
-// Create tree with custom node renderer
-tree(src, docs, build)
-    .title("Project Files")
-    .rounded()
-    .highlightColor(Color.CYAN)
-    .scrollbar()
-    .nodeRenderer(node -> row(
-        text(node.data().icon() + " "),
-        text(node.label()).bold(),
-        spacer(),
-        text(node.data().formattedSize()).dim()
-    ))
+include::{snippets-dir}/dev/tamboui/docs/snippets/WidgetsSnippets.java[tags=tree]
 ----
 
 ==== Model/View Separation
@@ -324,29 +253,13 @@ TreeElement encourages clean separation between data and presentation:
 **Model (TreeNode + Data)**: Contains only data, no rendering logic.
 [source,java]
 ----
-// Pure data model - no view concerns
-record FileInfo(String name, FileType type, long size, Status status) {
-    String icon() { /* data-derived */ }
-    String formattedSize() { /* data formatting */ }
-}
-
-// TreeNode holds the data
-TreeNode<FileInfo> node = TreeNode.of("App.java", fileInfo).leaf();
+include::{snippets-dir}/dev/tamboui/docs/snippets/WidgetsSnippets.java[tags=tree-model]
 ----
 
 **View (nodeRenderer)**: Transforms data into styled elements.
 [source,java]
 ----
-// Rendering logic separated from model
-tree.nodeRenderer(node -> {
-    var info = node.data();
-    return row(
-        text(info.icon() + " "),
-        text(info.name()).fg(info.statusColor()),
-        spacer(),
-        text(info.formattedSize()).dim()
-    );
-});
+include::{snippets-dir}/dev/tamboui/docs/snippets/WidgetsSnippets.java[tags=tree-view]
 ----
 
 This separation allows:
@@ -375,8 +288,7 @@ Load children on-demand for large trees:
 
 [source,java]
 ----
-TreeNode.of("Large Directory", dirInfo)
-    .childrenLoader(() -> loadChildrenFromDisk(dirInfo.path()))
+include::{snippets-dir}/dev/tamboui/docs/snippets/WidgetsSnippets.java[tags=tree-lazy]
 ----
 
 The loader is called once when the node is first expanded.
@@ -422,17 +334,7 @@ A progress bar showing completion percentage:
 
 [source,java]
 ----
-Gauge gauge = Gauge.builder()
-    .ratio(0.75)  // 75% complete
-    .label("Loading...")
-    .gaugeStyle(Style.EMPTY.fg(Color.GREEN))
-    .block(Block.builder()
-        .title("Progress")
-        .borders(Borders.ALL)
-        .build())
-    .build();
-
-gauge.render(area, buffer);
+include::{snippets-dir}/dev/tamboui/docs/snippets/WidgetsSnippets.java[tags=gauge]
 ----
 
 === LineGauge
@@ -441,15 +343,7 @@ A compact single-line progress indicator:
 
 [source,java]
 ----
-LineGauge lineGauge = LineGauge.builder()
-    .ratio(0.5)
-    .label("50%")
-    .lineSet(LineSet.THICK)
-    .filledStyle(Style.EMPTY.fg(Color.CYAN))
-    .unfilledStyle(Style.EMPTY.fg(Color.DARK_GRAY))
-    .build();
-
-lineGauge.render(area, buffer);
+include::{snippets-dir}/dev/tamboui/docs/snippets/WidgetsSnippets.java[tags=line-gauge]
 ----
 
 === Sparkline
@@ -458,18 +352,7 @@ A mini chart showing data trends:
 
 [source,java]
 ----
-int[] data = {1, 4, 2, 8, 5, 7, 3, 6};
-
-Sparkline sparkline = Sparkline.builder()
-    .data(data)
-    .barStyle(Style.EMPTY.fg(Color.CYAN))
-    .block(Block.builder()
-        .title("CPU Usage")
-        .borders(Borders.ALL)
-        .build())
-    .build();
-
-sparkline.render(area, buffer);
+include::{snippets-dir}/dev/tamboui/docs/snippets/WidgetsSnippets.java[tags=sparkline]
 ----
 
 === BarChart
@@ -478,25 +361,7 @@ Vertical bar chart for comparing values:
 
 [source,java]
 ----
-BarChart barChart = BarChart.builder()
-    .bars(
-        Bar.builder().value(80).label("Mon").build(),
-        Bar.builder().value(95).label("Tue").build(),
-        Bar.builder().value(60).label("Wed").build(),
-        Bar.builder().value(75).label("Thu").build(),
-        Bar.builder().value(90).label("Fri").build()
-    )
-    .barWidth(5)
-    .barGap(1)
-    .barStyle(Style.EMPTY.fg(Color.GREEN))
-    .labelStyle(Style.EMPTY.dim())
-    .block(Block.builder()
-        .title("Weekly Sales")
-        .borders(Borders.ALL)
-        .build())
-    .build();
-
-barChart.render(area, buffer);
+include::{snippets-dir}/dev/tamboui/docs/snippets/WidgetsSnippets.java[tags=bar-chart]
 ----
 
 === Chart
@@ -505,38 +370,7 @@ Line and scatter plots with axes:
 
 [source,java]
 ----
-// Create datasets
-Dataset dataset1 = Dataset.builder()
-    .name("Series A")
-    .data(List.of(
-        new Point(0, 0),
-        new Point(1, 2),
-        new Point(2, 1),
-        new Point(3, 4),
-        new Point(4, 3)
-    ))
-    .marker(Marker.BRAILLE)
-    .graphStyle(Style.EMPTY.fg(Color.CYAN))
-    .build();
-
-// Build chart
-Chart chart = Chart.builder()
-    .datasets(dataset1)
-    .xAxis(Axis.builder()
-        .title("X Axis")
-        .bounds(0, 5)
-        .build())
-    .yAxis(Axis.builder()
-        .title("Y Axis")
-        .bounds(0, 5)
-        .build())
-    .block(Block.builder()
-        .title("Line Chart")
-        .borders(Borders.ALL)
-        .build())
-    .build();
-
-chart.render(area, buffer);
+include::{snippets-dir}/dev/tamboui/docs/snippets/WidgetsSnippets.java[tags=chart]
 ----
 
 Marker types:
@@ -551,23 +385,7 @@ A drawing surface for custom graphics:
 
 [source,java]
 ----
-Canvas canvas = Canvas.builder()
-    .xBounds(-10, 10)
-    .yBounds(-10, 10)
-    .marker(Marker.BRAILLE)
-    .paint(ctx -> {
-        // Draw shapes
-        ctx.draw(new Circle(0, 0, 5, Color.RED));
-        ctx.draw(new Line(-5, -5, 5, 5, Color.GREEN));
-        ctx.draw(new Rectangle(-3, -3, 6, 6, Color.BLUE));
-    })
-    .block(Block.builder()
-        .title("Drawing")
-        .borders(Borders.ALL)
-        .build())
-    .build();
-
-canvas.render(area, buffer);
+include::{snippets-dir}/dev/tamboui/docs/snippets/WidgetsSnippets.java[tags=canvas]
 ----
 
 Available shapes:
@@ -583,22 +401,7 @@ A monthly calendar widget:
 
 [source,java]
 ----
-Calendar calendar = Calendar.builder()
-    .date(LocalDate.now())
-    .showSurroundingMonths(true)
-    .dateStyle(date -> {
-        if (date.equals(LocalDate.now())) {
-            return Style.EMPTY.bold().fg(Color.CYAN);
-        }
-        return Style.EMPTY;
-    })
-    .block(Block.builder()
-        .title("Calendar")
-        .borders(Borders.ALL)
-        .build())
-    .build();
-
-calendar.render(area, buffer);
+include::{snippets-dir}/dev/tamboui/docs/snippets/WidgetsSnippets.java[tags=calendar]
 ----
 
 == Animated Widgets
@@ -609,28 +412,7 @@ An animated loading indicator that cycles through frame characters:
 
 [source,java]
 ----
-// Create spinner with built-in style
-Spinner spinner = Spinner.builder()
-    .spinnerStyle(SpinnerStyle.DOTS)
-    .style(Style.EMPTY.fg(Color.CYAN))
-    .build();
-
-// Or with custom frames
-Spinner spinner = Spinner.builder()
-    .frames("*", "+", "x", "+")
-    .build();
-
-// Or with a custom frame set
-Spinner spinner = Spinner.builder()
-    .frameSet(SpinnerFrameSet.of("⠋", "⠙", "⠹", "⠸"))
-    .build();
-
-// Create state and render
-SpinnerState state = new SpinnerState();
-spinner.render(area, buffer, state);
-
-// Advance state on each tick
-state.advance();
+include::{snippets-dir}/dev/tamboui/docs/snippets/WidgetsSnippets.java[tags=spinner]
 ----
 
 Built-in styles:
@@ -678,6 +460,34 @@ NOTE: Programmatic styles set via `spinnerStyle()`, `frameSet()`, or `frames()` 
 
 NOTE: **For Toolkit DSL users**: Use `SpinnerElement` via `spinner()` factory methods. It manages state internally and advances automatically on each render. See <<toolkit-dsl>>.
 
+[[wavetext]]
+=== WaveText
+
+An animated text widget with a wave brightness effect:
+
+[source,java]
+----
+include::{snippets-dir}/dev/tamboui/docs/snippets/WidgetsSnippets.java[tags=wave-text]
+----
+
+Configuration options:
+
+* `color(Color)` - Base color of the text
+* `dimFactor(double)` - Brightness of dim portion (0.0-1.0, default 0.3)
+* `peakWidth(int)` - Width of the wave peak in characters (default 3)
+* `peakCount(int)` - Number of peaks in the wave (default 1)
+* `speed(double)` - Animation speed multiplier (default 1.0)
+* `mode(Mode)` - `LOOP` (continuous) or `OSCILLATE` (back-and-forth)
+* `inverted(boolean)` - If true, bright peak on dim text; if false, dark shadow on bright text
+
+CSS properties:
+
+* `color` - Base text color
+* `wave-dim-factor` - Brightness of dim portion
+* `wave-peak-width` - Width of wave peak
+* `wave-peak-count` - Number of peaks
+* `wave-speed` - Animation speed multiplier
+
 == Input Widgets
 
 === TextInput
@@ -686,36 +496,7 @@ A single-line text input field:
 
 [source,java]
 ----
-// Create state
-TextInputState state = new TextInputState();
-
-// Or with initial value
-TextInputState state = new TextInputState("initial text");
-
-// Build widget
-TextInput textInput = TextInput.builder()
-    .placeholder("Enter your name...")
-    .cursorStyle(Style.EMPTY.reversed())
-    .block(Block.builder()
-        .title("Name")
-        .borders(Borders.ALL)
-        .build())
-    .build();
-
-textInput.render(area, buffer, state);
-
-// Handle key events
-if (event.code() == KeyCode.CHAR) {
-    state.insert(event.character());
-} else if (event.code() == KeyCode.BACKSPACE) {
-    state.deleteBackward();
-} else if (event.code() == KeyCode.DELETE) {
-    state.deleteForward();
-} else if (event.code() == KeyCode.LEFT) {
-    state.moveCursorLeft();
-} else if (event.code() == KeyCode.RIGHT) {
-    state.moveCursorRight();
-}
+include::{snippets-dir}/dev/tamboui/docs/snippets/WidgetsSnippets.java[tags=text-input]
 ----
 
 State methods:
@@ -728,6 +509,117 @@ State methods:
 * `state.moveCursorLeft()` / `moveCursorRight()` - Move cursor
 * `state.clear()` - Clear all text
 
+[[textarea]]
+=== TextArea
+
+A multi-line text input field with scrolling and optional line numbers:
+
+[source,java]
+----
+include::{snippets-dir}/dev/tamboui/docs/snippets/WidgetsSnippets.java[tags=text-area]
+----
+
+State methods:
+
+* `state.text()` - Get full text content
+* `state.setText(text)` - Set text content
+* `state.lineCount()` - Get number of lines
+* `state.getLine(row)` - Get text of specific line
+* `state.insert(char)` / `state.insert(string)` - Insert at cursor
+* `state.deleteBackward()` / `state.deleteForward()` - Delete characters
+* `state.moveCursorUp()` / `moveCursorDown()` / `moveCursorLeft()` / `moveCursorRight()` - Move cursor
+* `state.moveCursorToLineStart()` / `moveCursorToLineEnd()` - Jump to line boundaries
+* `state.moveCursorToStart()` / `moveCursorToEnd()` - Jump to document boundaries
+* `state.scrollUp(amount)` / `state.scrollDown(amount, visibleRows)` - Manual scrolling
+* `state.clear()` - Clear all content
+
+CSS properties:
+
+* `cursor-color` - Cursor highlight color
+* `placeholder-color` - Placeholder text color
+* `line-number-color` - Line number gutter color
+
+[[checkbox]]
+=== Checkbox
+
+A toggleable checkbox widget displaying checked/unchecked state:
+
+[source,java]
+----
+include::{snippets-dir}/dev/tamboui/docs/snippets/WidgetsSnippets.java[tags=checkbox]
+----
+
+State methods:
+
+* `state.isChecked()` / `state.value()` - Get checked state
+* `state.setChecked(boolean)` / `state.setValue(boolean)` - Set state
+* `state.toggle()` - Toggle and return new value
+
+CSS properties:
+
+* `checkbox-checked-symbol` - Symbol when checked (default: "[x]")
+* `checkbox-unchecked-symbol` - Symbol when unchecked (default: "[ ]")
+* `checkbox-checked-color` - Foreground color when checked
+* `checkbox-unchecked-color` - Foreground color when unchecked
+
+[[toggle]]
+=== Toggle
+
+A toggle switch widget with two display modes:
+
+[source,java]
+----
+include::{snippets-dir}/dev/tamboui/docs/snippets/WidgetsSnippets.java[tags=toggle]
+----
+
+State methods:
+
+* `state.isOn()` / `state.value()` - Get on/off state
+* `state.setOn(boolean)` / `state.setValue(boolean)` - Set state
+* `state.toggle()` - Toggle and return new value
+
+CSS properties (single mode):
+
+* `toggle-on-symbol` - Symbol when on (default: "[ON ]")
+* `toggle-off-symbol` - Symbol when off (default: "[OFF]")
+* `toggle-on-color` - Foreground color when on
+* `toggle-off-color` - Foreground color when off
+
+CSS properties (inline choice mode):
+
+* `toggle-selected-indicator` - Selected option indicator (default: "●")
+* `toggle-unselected-indicator` - Unselected option indicator (default: "○")
+* `toggle-selected-color` - Color for selected option
+* `toggle-unselected-color` - Color for unselected option
+
+[[select]]
+=== Select
+
+An inline select widget showing the current selection with navigation indicators:
+
+[source,java]
+----
+include::{snippets-dir}/dev/tamboui/docs/snippets/WidgetsSnippets.java[tags=select]
+----
+
+State methods:
+
+* `state.selectedValue()` / `state.value()` - Get selected option text
+* `state.selectedIndex()` - Get selected index
+* `state.options()` - Get all options
+* `state.optionCount()` - Get number of options
+* `state.selectIndex(int)` - Select by index
+* `state.selectNext()` / `state.selectPrevious()` - Navigate (wraps)
+* `state.selectFirst()` / `state.selectLast()` - Jump to ends
+* `state.setOptions(...)` - Replace available options
+
+CSS properties:
+
+* `select-left-indicator` - Left navigation indicator (default: "< ")
+* `select-right-indicator` - Right navigation indicator (default: " >")
+* `select-selected-color` - Foreground color for selected value
+* `select-indicator-color` - Foreground color for indicators
+
 == Utility Widgets
 
 === Scrollbar
@@ -736,18 +628,49 @@ Visual indicator of scroll position:
 
 [source,java]
 ----
-Scrollbar scrollbar = Scrollbar.builder()
-    .orientation(ScrollbarOrientation.VERTICAL)
-    .thumbStyle(Style.EMPTY.fg(Color.CYAN))
-    .trackStyle(Style.EMPTY.fg(Color.DARK_GRAY))
-    .build();
+include::{snippets-dir}/dev/tamboui/docs/snippets/WidgetsSnippets.java[tags=scrollbar]
+----
 
-ScrollbarState state = new ScrollbarState();
-state.contentLength(100);
-state.viewportLength(20);
-state.position(scrollPosition);
+[[logo]]
+=== Logo
 
-scrollbar.render(area, buffer, state);
+Renders the Tamboui logo for use in help or about screens:
+
+[source,java]
+----
+include::{snippets-dir}/dev/tamboui/docs/snippets/WidgetsSnippets.java[tags=logo]
+----
+
+Available sizes:
+
+* `Logo.Size.TINY` - 2-line compact logo using braille characters
+* `Logo.Size.NORMAL` - 4-line logo using box-drawing characters
+
+[[errordisplay]]
+=== ErrorDisplay
+
+Displays exception information with a formatted stack trace:
+
+[source,java]
+----
+include::{snippets-dir}/dev/tamboui/docs/snippets/WidgetsSnippets.java[tags=error-display]
+----
+
+The widget displays:
+
+* Exception type in red and bold
+* Error message
+* Full stack trace (scrollable)
+* Footer with instructions
+
+[[clear]]
+=== Clear
+
+Clears an area by filling it with a style. Useful for widget layering:
+
+[source,java]
+----
+include::{snippets-dir}/dev/tamboui/docs/snippets/WidgetsSnippets.java[tags=clear-style]
 ----
 
 [[toolkit-dsl]]
@@ -757,46 +680,7 @@ The Toolkit DSL provides fluent factories for all widgets:
 
 [source,java]
 ----
-import static dev.tamboui.toolkit.Toolkit.*;
-
-// Text
-text("Hello").bold().cyan()
-
-// Panel (Block)
-panel("Title", child1, child2).rounded().borderColor(Color.CYAN)
-
-// List (manages its own state)
-list("Item 1", "Item 2", "Item 3").highlightColor(Color.YELLOW).autoScroll()
-
-// Table
-table()
-    .header("Name", "Age")
-    .row("Alice", "30")
-    .state(tableState)
-
-// Gauge
-gauge(0.75).label("Loading...").gaugeColor(Color.GREEN)
-
-// Sparkline
-sparkline(1, 4, 2, 8, 5).color(Color.CYAN)
-
-// Spinner (manages its own state, advances each render)
-spinner().cyan()
-spinner(SpinnerStyle.LINE, "Loading...").green()
-
-// Tree (expand/collapse, keyboard navigation, lazy loading)
-tree(
-    TreeNode.of("Root",
-        TreeNode.of("Child 1"),
-        TreeNode.of("Child 2"))
-).highlightColor(Color.CYAN).rounded().scrollbar()
-
-// TextInput
-textInput(inputState).placeholder("Enter name...")
-
-// Layout
-row(left, right).spacing(1)
-column(top, middle, bottom).spacing(1)
+include::{snippets-dir}/dev/tamboui/docs/snippets/WidgetsSnippets.java[tags=toolkit-dsl]
 ----
 
 For layout DSL examples (columns, grid, dock, stack, flow), see link:layouts.html[Layouts Reference].

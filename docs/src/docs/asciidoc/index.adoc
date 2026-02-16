@@ -24,7 +24,7 @@ Feedback, issues, and contributions are welcome!
 * *Immediate-mode rendering* - Redraw the entire UI each frame for simple state management
 * *Intermediate buffer system* - Widgets render to a buffer, enabling diff-based terminal updates
 * *Constraint-based layout* - Flexible layout system with percentage, fixed, ratio, and proportional sizing
-* *JLine 3 backend* - Cross-platform terminal support including Windows via Jansi
+* *Multiple backends* - JLine 3, Panama (FFM), and Aesh for cross-platform terminal support
 * *High-level TUI framework* - TuiRunner eliminates boilerplate with built-in event handling
 * *Declarative Toolkit DSL* - Fluent API for building UIs with components and focus management
 * *PicoCLI integration* - Optional module for CLI argument parsing
@@ -43,7 +43,13 @@ Feedback, issues, and contributions are welcome!
 |All widget implementations (Block, Paragraph, List, Table, Chart, etc.)
 
 |`{jline-module}`
-|JLine 3 terminal backend for cross-platform support
+|JLine 3 terminal backend
+
+|`tamboui-panama-backend`
+|Panama (FFM) terminal backend for modern JDKs
+
+|`tamboui-aesh-backend`
+|Aesh terminal backend
 
 |`{tui-module}`
 |High-level TUI framework with TuiRunner, event handling, bindings, and key helpers
@@ -67,40 +73,38 @@ Feedback, issues, and contributions are welcome!
 |Optional PicoCLI integration for CLI argument parsing
 |===
 
-== Documentation Sections
+== Where to Start
 
-=== link:getting-started.html[Getting Started]
-Installation, hello world examples, and running demos.
+**Building a full-screen TUI application?** Start with link:getting-started.html[Getting Started], then move to the link:api-levels.html#toolkit-dsl[Toolkit DSL] section. From there, explore link:forms.html[Forms], link:styling.html[CSS Styling], and link:bindings.html[Bindings] as needed.
 
-=== link:core-concepts.html[Core Concepts]
-Understanding the rendering model, buffer system, layout, and styling.
+**Building a CLI tool with progress output?** See link:api-levels.html#inline-toolkit[Inline Toolkit] for npm/Gradle-style progress displays.
 
-=== link:markup.html[Markup Text]
-BBCode-style markup for creating styled text with colors, modifiers, and custom tags.
+**Want to understand the internals?** Read link:core-concepts.html[Core Concepts] first, then explore link:api-levels.html#immediate-mode[Immediate Mode] or link:api-levels.html#tuirunner[TuiRunner].
 
-=== link:layouts.html[Layouts Reference]
-Layout widgets for arranging children: Columns, Grid, Dock, Stack, Flow.
+== Foundations
 
-=== link:widgets.html[Widgets Reference]
-Comprehensive guide to all available widgets with examples.
+* link:getting-started.html[Getting Started] - Installation and hello world
+* link:core-concepts.html[Core Concepts] - Architecture and primitives
+* link:api-levels.html[API Levels] - Immediate mode, TuiRunner, Toolkit DSL, Inline Display
 
-=== link:forms.html[Forms]
-Form abstractions with labels, validation, and centralized state management.
+== Building Blocks
 
-=== link:api-levels.html[API Levels]
-Detailed documentation for immediate mode, TuiRunner, Toolkit DSL, and inline display.
+These work at any API level:
 
-=== link:styling.html[CSS Styling]
-External stylesheets with TCSS format, selectors, and runtime theme switching.
+* link:widgets.html[Widgets Reference] - Block, Paragraph, List, Table, Chart, etc.
+* link:layouts.html[Layouts Reference] - Columns, Grid, Dock, Stack, Flow
+* link:markup.html[Markup Text] - BBCode-style text formatting
+* link:styling.html[CSS Styling] - External stylesheets and theming
 
-=== link:bindings.html[Bindings and Actions]
-Key and mouse bindings, action handlers, and the `@OnAction` annotation.
+== Toolkit DSL
 
-=== link:mvc-architecture.html[Application Structure]
-Architecture patterns for building maintainable TUI applications.
+* link:forms.html[Forms] - Form abstractions with validation
+* link:bindings.html[Bindings and Actions] - Input handling and @OnAction
+* link:mvc-architecture.html[Application Structure] - MVC patterns
 
-=== link:developer-guide.html[Developer Guide]
-Creating custom widgets and components.
+== Advanced
+
+* link:developer-guide.html[Developer Guide] - Creating custom widgets
 
 == Quick Example
 

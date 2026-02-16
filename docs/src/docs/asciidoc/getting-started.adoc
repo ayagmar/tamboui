@@ -116,7 +116,7 @@ The simplest way to build a TUI application:
 
 [source,java]
 ----
-include::code/getting-started/Hellodsl.java[lines=3..-1]
+include::{snippets-dir}/dev/tamboui/docs/snippets/GettingStartedSnippets.java[tags=hello-dsl]
 ----
 
 
@@ -124,7 +124,7 @@ For more control over the event loop:
 
 [source,java]
 ----
-include::code/getting-started/HelloTuiRunner.java[lines=3..-1]
+include::{snippets-dir}/dev/tamboui/docs/snippets/GettingStartedSnippets.java[tags=hello-tui-runner]
 ----
 
 === Using Immediate Mode
@@ -133,7 +133,7 @@ For maximum control over the terminal:
 
 [source,java]
 ----
-include::code/getting-started/HelloImmediate.java[lines=3..-1]
+include::{snippets-dir}/dev/tamboui/docs/snippets/GettingStartedSnippets.java[tags=hello-immediate]
 ----
 
 === Using Inline Display
@@ -142,16 +142,28 @@ For CLI tools that show progress while preserving terminal history:
 
 [source,java]
 ----
-include::code/getting-started/HelloInline.java[lines=3..-1]
+include::{snippets-dir}/dev/tamboui/docs/snippets/GettingStartedSnippets.java[tags=hello-inline]
 ----
 
 == Running the Demos
 
-The {project-name} repository includes many demo applications showcasing different features.
+{project-name} includes many demo applications showcasing different features.
 
-=== Using JBang
+=== Without Cloning the Repository
 
-If you have JBang installed:
+The easiest way to explore demos is with JBang (you don't need to clone the TamboUI repository):
+
+[source,bash]
+----
+# Launch the interactive demo selector
+jbang demos@tamboui
+----
+
+=== From TamboUI sources
+
+If you've cloned the {project-name} repository, you have more options.
+
+==== Using JBang
 
 [source,bash]
 ----
@@ -162,7 +174,7 @@ jbang alias list .
 jbang sparkline-demo
 ----
 
-=== Using the run-demo.sh Script
+==== Using the run-demo.sh Script
 
 [source,bash]
 ----
@@ -176,7 +188,7 @@ jbang sparkline-demo
 ./run-demo.sh sparkline-demo --native
 ----
 
-=== Manual Build and Run
+==== Manual Build and Run
 
 [source,bash]
 ----
@@ -187,7 +199,7 @@ jbang sparkline-demo
 ./demos/sparkline-demo/build/install/sparkline-demo/bin/sparkline-demo
 ----
 
-=== Compiling to Native Image
+==== Compiling to Native Image
 
 With GraalVM installed:
 
