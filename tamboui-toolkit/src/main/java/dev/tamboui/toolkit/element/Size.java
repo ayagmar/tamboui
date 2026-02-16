@@ -29,13 +29,13 @@ package dev.tamboui.toolkit.element;
  * return PreferredSize.ZERO;
  * }</pre>
  */
-public final class PreferredSize {
+public final class Size {
 
     /** Unknown size - element should fill available space in both dimensions. */
-    public static final PreferredSize UNKNOWN = new PreferredSize(-1, -1);
+    public static final Size UNKNOWN = new Size(-1, -1);
 
     /** Explicitly zero-sized - element should collapse in both dimensions. */
-    public static final PreferredSize ZERO = new PreferredSize(0, 0);
+    public static final Size ZERO = new Size(0, 0);
 
     private final int width;
     private final int height;
@@ -46,7 +46,7 @@ public final class PreferredSize {
      * @param width the preferred width (-1 for unknown, 0 for collapse, positive for known)
      * @param height the preferred height (-1 for unknown, 0 for collapse, positive for known)
      */
-    public PreferredSize(int width, int height) {
+    public Size(int width, int height) {
         this.width = width;
         this.height = height;
     }
@@ -114,14 +114,14 @@ public final class PreferredSize {
      * @param height the preferred height
      * @return a new PreferredSize instance
      */
-    public static PreferredSize of(int width, int height) {
+    public static Size of(int width, int height) {
         if (width == -1 && height == -1) {
             return UNKNOWN;
         }
         if (width == 0 && height == 0) {
             return ZERO;
         }
-        return new PreferredSize(width, height);
+        return new Size(width, height);
     }
 
     /**
@@ -130,8 +130,8 @@ public final class PreferredSize {
      * @param width the known width
      * @return a new PreferredSize with unknown height
      */
-    public static PreferredSize widthOnly(int width) {
-        return new PreferredSize(width, -1);
+    public static Size widthOnly(int width) {
+        return new Size(width, -1);
     }
 
     /**
@@ -140,8 +140,8 @@ public final class PreferredSize {
      * @param height the known height
      * @return a new PreferredSize with unknown width
      */
-    public static PreferredSize heightOnly(int height) {
-        return new PreferredSize(-1, height);
+    public static Size heightOnly(int height) {
+        return new Size(-1, height);
     }
 
     @Override
@@ -149,10 +149,10 @@ public final class PreferredSize {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof PreferredSize)) {
+        if (!(o instanceof Size)) {
             return false;
         }
-        PreferredSize that = (PreferredSize) o;
+        Size that = (Size) o;
         return width == that.width && height == that.height;
     }
 

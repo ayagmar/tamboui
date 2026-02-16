@@ -25,8 +25,8 @@ import dev.tamboui.style.PropertyRegistry;
 import dev.tamboui.style.StringConverter;
 import dev.tamboui.style.Style;
 import dev.tamboui.terminal.Frame;
-import dev.tamboui.toolkit.element.PreferredSize;
 import dev.tamboui.toolkit.element.RenderContext;
+import dev.tamboui.toolkit.element.Size;
 import dev.tamboui.toolkit.element.StyledElement;
 import dev.tamboui.toolkit.event.EventResult;
 import dev.tamboui.tui.bindings.Actions;
@@ -530,9 +530,9 @@ public final class TreeElement<T> extends StyledElement<TreeElement<T>> {
     }
 
     @Override
-    public PreferredSize preferredSize(int availableWidth, int availableHeight, RenderContext context) {
+    public Size preferredSize(int availableWidth, int availableHeight, RenderContext context) {
         if (roots.isEmpty()) {
-            return PreferredSize.of(0, 0);
+            return Size.of(0, 0);
         }
 
         // Calculate max label width across all visible nodes
@@ -561,7 +561,7 @@ public final class TreeElement<T> extends StyledElement<TreeElement<T>> {
             count += 2;
         }
 
-        return PreferredSize.of(maxWidth, count);
+        return Size.of(maxWidth, count);
     }
 
     private int computeMaxLabelWidth(TreeNode<T> node, int depth) {
@@ -709,7 +709,7 @@ public final class TreeElement<T> extends StyledElement<TreeElement<T>> {
         }
 
         int availableWidth = treeArea.width();
-        PreferredSize size = element.preferredSize(availableWidth, -1, context);
+        Size size = element.preferredSize(availableWidth, -1, context);
         int preferredWidth = size.widthOr(0);
         int preferredHeight = size.heightOr(0);
 

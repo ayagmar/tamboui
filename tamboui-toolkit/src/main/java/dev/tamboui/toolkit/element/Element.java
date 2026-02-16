@@ -67,14 +67,14 @@ public interface Element {
      * @param context the render context for CSS resolution, may be null
      * @return the preferred size
      */
-    PreferredSize preferredSize(int availableWidth, int availableHeight, RenderContext context);
+    Size preferredSize(int availableWidth, int availableHeight, RenderContext context);
 
     /**
      * Convenience method for unconstrained preferred size.
      *
      * @return the preferred size with no constraints
      */
-    default PreferredSize preferredSize() {
+    default Size preferredSize() {
         return preferredSize(-1, -1, null);
     }
 

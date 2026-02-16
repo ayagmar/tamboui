@@ -12,8 +12,8 @@ import java.util.function.Consumer;
 import dev.tamboui.layout.Rect;
 import dev.tamboui.style.Color;
 import dev.tamboui.terminal.Frame;
-import dev.tamboui.toolkit.element.PreferredSize;
 import dev.tamboui.toolkit.element.RenderContext;
+import dev.tamboui.toolkit.element.Size;
 import dev.tamboui.toolkit.element.StyledElement;
 import dev.tamboui.widgets.block.Block;
 import dev.tamboui.widgets.block.BorderType;
@@ -207,7 +207,7 @@ public final class CanvasElement extends StyledElement<CanvasElement> {
     }
 
     @Override
-    public PreferredSize preferredSize(int availableWidth, int availableHeight, RenderContext context) {
+    public Size preferredSize(int availableWidth, int availableHeight, RenderContext context) {
         // Canvas width based on x bounds range, scaled for marker resolution
         double xRange = xMax - xMin;
         double yRange = yMax - yMin;
@@ -226,7 +226,7 @@ public final class CanvasElement extends StyledElement<CanvasElement> {
             height = (int) Math.ceil(yRange);
         }
         int borderSize = (title != null || borderType != null) ? 2 : 0;
-        return PreferredSize.of(Math.max(width, 20) + borderSize, Math.max(height, 10) + borderSize);
+        return Size.of(Math.max(width, 20) + borderSize, Math.max(height, 10) + borderSize);
     }
 
     @Override

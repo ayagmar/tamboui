@@ -17,8 +17,8 @@ import dev.tamboui.layout.Rect;
 import dev.tamboui.style.Color;
 import dev.tamboui.style.Style;
 import dev.tamboui.terminal.Frame;
-import dev.tamboui.toolkit.element.PreferredSize;
 import dev.tamboui.toolkit.element.RenderContext;
+import dev.tamboui.toolkit.element.Size;
 import dev.tamboui.toolkit.element.StyledElement;
 import dev.tamboui.widgets.block.BorderType;
 import dev.tamboui.widgets.form.FieldType;
@@ -492,7 +492,7 @@ public final class FormElement extends StyledElement<FormElement> {
     // ==================== Sizing ====================
 
     @Override
-    public PreferredSize preferredSize(int availableWidth, int availableHeight, RenderContext context) {
+    public Size preferredSize(int availableWidth, int availableHeight, RenderContext context) {
         int inputWidth = 20; // Reasonable default
         int borderWidth = borderType != null ? 2 : 0;
         int width = labelWidth + spacing + inputWidth + borderWidth;
@@ -522,7 +522,7 @@ public final class FormElement extends StyledElement<FormElement> {
             height = totalHeight;
         }
 
-        return PreferredSize.of(width, height);
+        return Size.of(width, height);
     }
 
     // ==================== Rendering ====================

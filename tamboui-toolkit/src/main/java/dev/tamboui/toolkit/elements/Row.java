@@ -19,8 +19,8 @@ import dev.tamboui.style.Style;
 import dev.tamboui.terminal.Frame;
 import dev.tamboui.toolkit.element.ContainerElement;
 import dev.tamboui.toolkit.element.Element;
-import dev.tamboui.toolkit.element.PreferredSize;
 import dev.tamboui.toolkit.element.RenderContext;
+import dev.tamboui.toolkit.element.Size;
 
 /**
  * A horizontal layout container that arranges children in a row.
@@ -110,9 +110,9 @@ public final class Row extends ContainerElement<Row> {
     }
 
     @Override
-    public PreferredSize preferredSize(int availableWidth, int availableHeight, RenderContext context) {
+    public Size preferredSize(int availableWidth, int availableHeight, RenderContext context) {
         if (children.isEmpty()) {
-            return PreferredSize.of(0, 1);
+            return Size.of(0, 1);
         }
 
         int effectiveSpacing = this.spacing != null ? this.spacing : 0;
@@ -120,7 +120,7 @@ public final class Row extends ContainerElement<Row> {
         // Calculate width: sum of children widths + spacing
         int width = 0;
         for (Element child : children) {
-            PreferredSize childSize = child.preferredSize(availableWidth, availableHeight, context);
+            Size childSize = child.preferredSize(availableWidth, availableHeight, context);
             width += childSize.widthOr(0);
         }
         if (children.size() > 1) {
@@ -137,7 +137,7 @@ public final class Row extends ContainerElement<Row> {
 
         int maxHeight = 1;
         for (Element child : children) {
-            PreferredSize childSize = child.preferredSize(childWidth, availableHeight, context);
+            Size childSize = child.preferredSize(childWidth, availableHeight, context);
             maxHeight = Math.max(maxHeight, childSize.heightOr(1));
         }
 
@@ -146,7 +146,7 @@ public final class Row extends ContainerElement<Row> {
             maxHeight = Math.max(maxHeight, ((Constraint.Length) layoutConstraint).value());
         }
 
-        return PreferredSize.of(width, maxHeight);
+        return Size.of(width, maxHeight);
     }
 
     @Override
@@ -207,7 +207,7 @@ public final class Row extends ContainerElement<Row> {
             }
             // Handle null or Fit constraint by querying preferred width
             if (c == null || c instanceof Constraint.Fit) {
-                PreferredSize size = child.preferredSize(-1, -1, context);
+                Size size = child.preferredSize(-1, -1, context);
                 int preferred = size.width();
                 c = preferred >= 0 ? Constraint.length(preferred) : Constraint.fill();
             }

@@ -18,8 +18,8 @@ import dev.tamboui.style.Style;
 import dev.tamboui.terminal.Frame;
 import dev.tamboui.toolkit.element.ContainerElement;
 import dev.tamboui.toolkit.element.Element;
-import dev.tamboui.toolkit.element.PreferredSize;
 import dev.tamboui.toolkit.element.RenderContext;
+import dev.tamboui.toolkit.element.Size;
 
 /**
  * An overlapping layers layout element where children render on top of each
@@ -123,11 +123,11 @@ public final class StackElement extends ContainerElement<StackElement> {
     }
 
     @Override
-    public PreferredSize preferredSize(int availableWidth, int availableHeight, RenderContext context) {
+    public Size preferredSize(int availableWidth, int availableHeight, RenderContext context) {
         int maxWidth = 0;
         int maxHeight = 0;
         for (Element child : children) {
-            PreferredSize childSize = child.preferredSize(availableWidth, availableHeight, context);
+            Size childSize = child.preferredSize(availableWidth, availableHeight, context);
             maxWidth = Math.max(maxWidth, childSize.widthOr(0));
             maxHeight = Math.max(maxHeight, childSize.heightOr(0));
         }
@@ -135,7 +135,7 @@ public final class StackElement extends ContainerElement<StackElement> {
             maxWidth += margin.left() + margin.right();
             maxHeight += margin.verticalTotal();
         }
-        return PreferredSize.of(maxWidth, maxHeight);
+        return Size.of(maxWidth, maxHeight);
     }
 
     @Override
@@ -182,7 +182,7 @@ public final class StackElement extends ContainerElement<StackElement> {
             if (effectiveAlignment == ContentAlignment.STRETCH) {
                 childArea = effectiveArea;
             } else {
-                PreferredSize childSize = child.preferredSize(effectiveArea.width(), -1, context);
+                Size childSize = child.preferredSize(effectiveArea.width(), -1, context);
                 int childWidth = childSize.widthOr(effectiveArea.width());
                 int childHeight = childSize.heightOr(effectiveArea.height());
                 childArea = effectiveAlignment.align(effectiveArea, childWidth, childHeight);

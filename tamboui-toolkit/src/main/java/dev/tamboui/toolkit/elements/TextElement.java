@@ -16,8 +16,8 @@ import dev.tamboui.text.CharWidth;
 import dev.tamboui.text.Line;
 import dev.tamboui.text.Span;
 import dev.tamboui.text.Text;
-import dev.tamboui.toolkit.element.PreferredSize;
 import dev.tamboui.toolkit.element.RenderContext;
+import dev.tamboui.toolkit.element.Size;
 import dev.tamboui.toolkit.element.StyledElement;
 import dev.tamboui.widgets.paragraph.Paragraph;
 
@@ -227,7 +227,7 @@ public final class TextElement extends StyledElement<TextElement> {
     }
 
     @Override
-    public PreferredSize preferredSize(int availableWidth, int availableHeight, RenderContext context) {
+    public Size preferredSize(int availableWidth, int availableHeight, RenderContext context) {
         // Width: longest line by display width
         int maxWidth = 0;
         int lineStart = 0;
@@ -249,7 +249,7 @@ public final class TextElement extends StyledElement<TextElement> {
             height = countLines();
         }
 
-        return PreferredSize.of(maxWidth, height);
+        return Size.of(maxWidth, height);
     }
 
     /**

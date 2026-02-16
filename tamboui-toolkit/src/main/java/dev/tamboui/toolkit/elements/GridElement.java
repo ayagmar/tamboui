@@ -25,8 +25,8 @@ import dev.tamboui.style.Style;
 import dev.tamboui.terminal.Frame;
 import dev.tamboui.toolkit.element.ContainerElement;
 import dev.tamboui.toolkit.element.Element;
-import dev.tamboui.toolkit.element.PreferredSize;
 import dev.tamboui.toolkit.element.RenderContext;
+import dev.tamboui.toolkit.element.Size;
 import dev.tamboui.widget.Widget;
 
 /**
@@ -304,9 +304,9 @@ public final class GridElement extends ContainerElement<GridElement> {
     }
 
     @Override
-    public PreferredSize preferredSize(int availableWidth, int availableHeight, RenderContext context) {
+    public Size preferredSize(int availableWidth, int availableHeight, RenderContext context) {
         if (children.isEmpty()) {
-            return PreferredSize.ZERO;
+            return Size.ZERO;
         }
 
         int cols = resolveColumns(children.size());
@@ -380,7 +380,7 @@ public final class GridElement extends ContainerElement<GridElement> {
             totalHeight += margin.verticalTotal();
         }
 
-        return PreferredSize.of(width, totalHeight);
+        return Size.of(width, totalHeight);
     }
 
     /**

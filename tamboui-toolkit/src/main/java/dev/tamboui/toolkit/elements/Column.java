@@ -19,8 +19,8 @@ import dev.tamboui.style.Style;
 import dev.tamboui.terminal.Frame;
 import dev.tamboui.toolkit.element.ContainerElement;
 import dev.tamboui.toolkit.element.Element;
-import dev.tamboui.toolkit.element.PreferredSize;
 import dev.tamboui.toolkit.element.RenderContext;
+import dev.tamboui.toolkit.element.Size;
 
 /**
  * A vertical layout container that arranges children in a column.
@@ -112,9 +112,9 @@ public final class Column extends ContainerElement<Column> {
     }
 
     @Override
-    public PreferredSize preferredSize(int availableWidth, int availableHeight, RenderContext context) {
+    public Size preferredSize(int availableWidth, int availableHeight, RenderContext context) {
         if (children.isEmpty()) {
-            return PreferredSize.of(0, 0);
+            return Size.of(0, 0);
         }
 
         int effectiveSpacing = this.spacing != null ? this.spacing : 0;
@@ -123,7 +123,7 @@ public final class Column extends ContainerElement<Column> {
         // Calculate width: max of children widths
         int maxWidth = 0;
         for (Element child : children) {
-            PreferredSize childSize = child.preferredSize(availableWidth, availableHeight, context);
+            Size childSize = child.preferredSize(availableWidth, availableHeight, context);
             maxWidth = Math.max(maxWidth, childSize.widthOr(0));
         }
         if (margin != null) {
@@ -133,7 +133,7 @@ public final class Column extends ContainerElement<Column> {
         // Calculate height: sum of children heights + spacing
         int totalHeight = 0;
         for (Element child : children) {
-            PreferredSize childSize = child.preferredSize(availableWidth, -1, context);
+            Size childSize = child.preferredSize(availableWidth, -1, context);
             totalHeight += childSize.heightOr(1);
         }
         totalHeight += totalSpacing;
@@ -143,7 +143,7 @@ public final class Column extends ContainerElement<Column> {
             totalHeight = Math.max(totalHeight, ((Constraint.Length) layoutConstraint).value());
         }
 
-        return PreferredSize.of(maxWidth, totalHeight);
+        return Size.of(maxWidth, totalHeight);
     }
 
     @Override
@@ -205,12 +205,12 @@ public final class Column extends ContainerElement<Column> {
                 // First try text element special case
                 c = calculateDefaultConstraint(child);
                 if (c == null) {
-                    PreferredSize size = child.preferredSize(-1, -1, context);
+                    Size size = child.preferredSize(-1, -1, context);
                     int preferred = size.height();
                     c = preferred >= 0 ? Constraint.length(preferred) : Constraint.fill();
                 }
             } else if (c instanceof Constraint.Fit) {
-                PreferredSize size = child.preferredSize(-1, -1, context);
+                Size size = child.preferredSize(-1, -1, context);
                 int preferred = size.height();
                 c = preferred >= 0 ? Constraint.length(preferred) : Constraint.fill();
             }

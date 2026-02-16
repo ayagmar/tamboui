@@ -288,7 +288,7 @@ class GenericWidgetElementTest {
 
     @Nested
     @DisplayName("Preferred size")
-    class PreferredSizeTests {
+    class SizeTests {
 
         @Test
         @DisplayName("preferredWidth returns 0 (widget size unknown)")

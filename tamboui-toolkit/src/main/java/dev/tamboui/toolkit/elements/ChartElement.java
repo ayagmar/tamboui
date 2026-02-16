@@ -14,8 +14,8 @@ import java.util.Map;
 import dev.tamboui.layout.Rect;
 import dev.tamboui.style.Color;
 import dev.tamboui.terminal.Frame;
-import dev.tamboui.toolkit.element.PreferredSize;
 import dev.tamboui.toolkit.element.RenderContext;
+import dev.tamboui.toolkit.element.Size;
 import dev.tamboui.toolkit.element.StyledElement;
 import dev.tamboui.widgets.block.Block;
 import dev.tamboui.widgets.block.BorderType;
@@ -184,9 +184,9 @@ public final class ChartElement extends StyledElement<ChartElement> {
     }
 
     @Override
-    public PreferredSize preferredSize(int availableWidth, int availableHeight, RenderContext context) {
+    public Size preferredSize(int availableWidth, int availableHeight, RenderContext context) {
         int borderSize = (title != null || borderType != null) ? 2 : 0;
-        return PreferredSize.of(40 + borderSize, 10 + borderSize);
+        return Size.of(40 + borderSize, 10 + borderSize);
     }
 
     @Override

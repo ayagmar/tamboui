@@ -12,8 +12,8 @@ import java.util.Map;
 import dev.tamboui.layout.Rect;
 import dev.tamboui.style.Color;
 import dev.tamboui.terminal.Frame;
-import dev.tamboui.toolkit.element.PreferredSize;
 import dev.tamboui.toolkit.element.RenderContext;
+import dev.tamboui.toolkit.element.Size;
 import dev.tamboui.toolkit.element.StyledElement;
 import dev.tamboui.widgets.block.Block;
 import dev.tamboui.widgets.block.BorderType;
@@ -226,14 +226,14 @@ public final class SparklineElement extends StyledElement<SparklineElement> {
     }
 
     @Override
-    public PreferredSize preferredSize(int availableWidth, int availableHeight, RenderContext context) {
+    public Size preferredSize(int availableWidth, int availableHeight, RenderContext context) {
         // Sparkline width is typically the data point count
         int width = data != null ? data.length : 10;
         int borderWidth = (title != null || borderType != null) ? 2 : 0;
         width = Math.max(width, 10) + borderWidth;
         // Sparkline is typically 1 row, or 3 if bordered
         int height = (title != null || borderType != null) ? 3 : 1;
-        return PreferredSize.of(width, height);
+        return Size.of(width, height);
     }
 
     @Override

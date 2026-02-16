@@ -17,8 +17,8 @@ import dev.tamboui.layout.Rect;
 import dev.tamboui.style.Color;
 import dev.tamboui.style.Style;
 import dev.tamboui.terminal.Frame;
-import dev.tamboui.toolkit.element.PreferredSize;
 import dev.tamboui.toolkit.element.RenderContext;
+import dev.tamboui.toolkit.element.Size;
 import dev.tamboui.toolkit.element.StyledElement;
 import dev.tamboui.widgets.block.Block;
 import dev.tamboui.widgets.block.BorderType;
@@ -268,7 +268,7 @@ public final class TableElement extends StyledElement<TableElement> {
     }
 
     @Override
-    public PreferredSize preferredSize(int availableWidth, int availableHeight, RenderContext context) {
+    public Size preferredSize(int availableWidth, int availableHeight, RenderContext context) {
         // Sum of column widths from constraints + column spacing
         int totalWidth = 0;
         int numCols = 0;
@@ -329,7 +329,7 @@ public final class TableElement extends StyledElement<TableElement> {
             height += 2;
         }
 
-        return PreferredSize.of(totalWidth, height);
+        return Size.of(totalWidth, height);
     }
 
     @Override

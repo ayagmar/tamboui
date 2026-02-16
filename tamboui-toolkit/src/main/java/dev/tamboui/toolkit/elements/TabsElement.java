@@ -18,8 +18,8 @@ import dev.tamboui.style.Style;
 import dev.tamboui.terminal.Frame;
 import dev.tamboui.text.CharWidth;
 import dev.tamboui.text.Span;
-import dev.tamboui.toolkit.element.PreferredSize;
 import dev.tamboui.toolkit.element.RenderContext;
+import dev.tamboui.toolkit.element.Size;
 import dev.tamboui.toolkit.element.StyledElement;
 import dev.tamboui.widgets.block.Block;
 import dev.tamboui.widgets.block.BorderType;
@@ -220,9 +220,9 @@ public final class TabsElement extends StyledElement<TabsElement> {
     }
 
     @Override
-    public PreferredSize preferredSize(int availableWidth, int availableHeight, RenderContext context) {
+    public Size preferredSize(int availableWidth, int availableHeight, RenderContext context) {
         if (titles.isEmpty()) {
-            return PreferredSize.of(0, 1);
+            return Size.of(0, 1);
         }
 
         int width = 0;
@@ -250,7 +250,7 @@ public final class TabsElement extends StyledElement<TabsElement> {
         // Tabs are 1 row, or 3 with borders (top + content + bottom)
         int height = (borderType != null || title != null) ? 3 : 1;
 
-        return PreferredSize.of(width, height);
+        return Size.of(width, height);
     }
 
     @Override

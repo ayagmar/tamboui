@@ -19,8 +19,8 @@ import dev.tamboui.style.Color;
 import dev.tamboui.style.Style;
 import dev.tamboui.terminal.Frame;
 import dev.tamboui.toolkit.element.ChildPosition;
-import dev.tamboui.toolkit.element.PreferredSize;
 import dev.tamboui.toolkit.element.RenderContext;
+import dev.tamboui.toolkit.element.Size;
 import dev.tamboui.toolkit.element.StyledElement;
 import dev.tamboui.toolkit.event.EventResult;
 import dev.tamboui.tui.bindings.Actions;
@@ -517,7 +517,7 @@ public final class ListElement<T> extends StyledElement<ListElement<T>> {
     }
 
     @Override
-    public PreferredSize preferredSize(int availableWidth, int availableHeight, RenderContext context) {
+    public Size preferredSize(int availableWidth, int availableHeight, RenderContext context) {
         // Calculate max width from items
         int maxWidth = 0;
         List<StyledElement<?>> effectiveItems;
@@ -531,7 +531,7 @@ public final class ListElement<T> extends StyledElement<ListElement<T>> {
         }
 
         for (StyledElement<?> item : effectiveItems) {
-            PreferredSize itemSize = item.preferredSize(availableWidth, availableHeight, context);
+            Size itemSize = item.preferredSize(availableWidth, availableHeight, context);
             maxWidth = Math.max(maxWidth, itemSize.widthOr(0));
         }
 
@@ -551,7 +551,7 @@ public final class ListElement<T> extends StyledElement<ListElement<T>> {
         int borderHeight = (title != null || borderType != null) ? 2 : 0;
         int height = itemCount + borderHeight;
 
-        return PreferredSize.of(width, height);
+        return Size.of(width, height);
     }
 
     @Override
@@ -804,7 +804,7 @@ public final class ListElement<T> extends StyledElement<ListElement<T>> {
             return ((Constraint.Length) c).value();
         }
         // Use width-aware preferred height with context for CSS property resolution
-        PreferredSize size = item.preferredSize(contentWidth, -1, context);
+        Size size = item.preferredSize(contentWidth, -1, context);
         int preferred = size.height();
         return preferred >= 0 ? preferred : 1;
     }

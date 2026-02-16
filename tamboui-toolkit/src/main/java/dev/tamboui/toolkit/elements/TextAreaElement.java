@@ -12,8 +12,8 @@ import dev.tamboui.layout.Rect;
 import dev.tamboui.style.Color;
 import dev.tamboui.style.Style;
 import dev.tamboui.terminal.Frame;
-import dev.tamboui.toolkit.element.PreferredSize;
 import dev.tamboui.toolkit.element.RenderContext;
+import dev.tamboui.toolkit.element.Size;
 import dev.tamboui.toolkit.element.StyledElement;
 import dev.tamboui.toolkit.event.EventResult;
 import dev.tamboui.tui.event.KeyEvent;
@@ -253,7 +253,7 @@ public final class TextAreaElement extends StyledElement<TextAreaElement> {
     }
 
     @Override
-    public PreferredSize preferredSize(int availableWidth, int availableHeight, RenderContext context) {
+    public Size preferredSize(int availableWidth, int availableHeight, RenderContext context) {
         // Calculate max line width from content
         int maxWidth = 0;
         int lineCount = 1;
@@ -271,7 +271,7 @@ public final class TextAreaElement extends StyledElement<TextAreaElement> {
         // Add border height
         int borderHeight = (title != null || borderType != null) ? 2 : 0;
         int height = lineCount + borderHeight;
-        return PreferredSize.of(width, height);
+        return Size.of(width, height);
     }
 
     @Override

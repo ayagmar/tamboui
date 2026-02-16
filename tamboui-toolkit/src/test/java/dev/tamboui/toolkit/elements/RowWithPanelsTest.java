@@ -7,8 +7,8 @@ package dev.tamboui.toolkit.elements;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import dev.tamboui.toolkit.element.PreferredSize;
 import dev.tamboui.toolkit.element.RenderContext;
+import dev.tamboui.toolkit.element.Size;
 
 import static dev.tamboui.toolkit.Toolkit.*;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -27,7 +27,7 @@ class RowWithPanelsTest {
             panel(() -> text("B")).rounded().length(10)
         ).length(4);  // Height constraint
 
-        PreferredSize size = r.preferredSize(-1, -1, RenderContext.empty());
+        Size size = r.preferredSize(-1, -1, RenderContext.empty());
 
         // Row should return height=4 (from its .length(4) constraint),
         // not height=3 (max of panels' preferred heights)
@@ -45,7 +45,7 @@ class RowWithPanelsTest {
             text("B")
         ).length(5);  // Height constraint
 
-        PreferredSize size = c.preferredSize(-1, -1, RenderContext.empty());
+        Size size = c.preferredSize(-1, -1, RenderContext.empty());
 
         // Column should return height=5 (from its .length(5) constraint),
         // not height=2 (sum of children heights)

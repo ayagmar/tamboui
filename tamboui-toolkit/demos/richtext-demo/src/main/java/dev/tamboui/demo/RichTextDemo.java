@@ -16,8 +16,8 @@ import dev.tamboui.terminal.Frame;
 import dev.tamboui.text.MarkupParser;
 import dev.tamboui.toolkit.app.ToolkitRunner;
 import dev.tamboui.toolkit.element.Element;
-import dev.tamboui.toolkit.element.PreferredSize;
 import dev.tamboui.toolkit.element.RenderContext;
+import dev.tamboui.toolkit.element.Size;
 import dev.tamboui.toolkit.elements.MarkupTextAreaElement;
 import dev.tamboui.toolkit.elements.RichTextAreaElement;
 import dev.tamboui.tui.TuiConfig;
@@ -270,8 +270,8 @@ public class RichTextDemo implements Element {
     }
 
     @Override
-    public PreferredSize preferredSize(int availableWidth, int availableHeight, RenderContext context) {
-        return PreferredSize.UNKNOWN;
+    public Size preferredSize(int availableWidth, int availableHeight, RenderContext context) {
+        return Size.UNKNOWN;
     }
 
     @Override

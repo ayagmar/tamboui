@@ -24,8 +24,8 @@ import dev.tamboui.text.Line;
 import dev.tamboui.text.Span;
 import dev.tamboui.toolkit.element.ContainerElement;
 import dev.tamboui.toolkit.element.Element;
-import dev.tamboui.toolkit.element.PreferredSize;
 import dev.tamboui.toolkit.element.RenderContext;
+import dev.tamboui.toolkit.element.Size;
 import dev.tamboui.toolkit.event.EventResult;
 import dev.tamboui.tui.event.KeyCode;
 import dev.tamboui.tui.event.KeyEvent;
@@ -321,7 +321,7 @@ public final class DialogElement extends ContainerElement<DialogElement> {
     }
 
     @Override
-    public PreferredSize preferredSize(int availableWidth, int availableHeight, RenderContext context) {
+    public Size preferredSize(int availableWidth, int availableHeight, RenderContext context) {
         // Calculate width
         int width;
         if (fixedWidth != null) {
@@ -362,7 +362,7 @@ public final class DialogElement extends ContainerElement<DialogElement> {
         // Calculate height
         int height = calculateHeight();
 
-        return PreferredSize.of(width, height);
+        return Size.of(width, height);
     }
 
     @Override
@@ -463,7 +463,7 @@ public final class DialogElement extends ContainerElement<DialogElement> {
             }
             if (c == null) {
                 // Use child's preferred size when no constraint is specified
-                PreferredSize childSize = child.preferredSize(-1, -1, context);
+                Size childSize = child.preferredSize(-1, -1, context);
                 int preferredSizeValue = isHorizontal ? childSize.widthOr(1) : childSize.heightOr(1);
                 c = Constraint.length(Math.max(1, preferredSizeValue));
             }

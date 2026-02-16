@@ -8,8 +8,8 @@ import dev.tamboui.layout.Rect;
 import dev.tamboui.style.Color;
 import dev.tamboui.style.Style;
 import dev.tamboui.terminal.Frame;
-import dev.tamboui.toolkit.element.PreferredSize;
 import dev.tamboui.toolkit.element.RenderContext;
+import dev.tamboui.toolkit.element.Size;
 import dev.tamboui.toolkit.element.StyledElement;
 import dev.tamboui.widgets.scrollbar.Scrollbar;
 import dev.tamboui.widgets.scrollbar.ScrollbarOrientation;
@@ -292,7 +292,7 @@ public final class ScrollbarElement extends StyledElement<ScrollbarElement> {
     }
 
     @Override
-    public PreferredSize preferredSize(int availableWidth, int availableHeight, RenderContext context) {
+    public Size preferredSize(int availableWidth, int availableHeight, RenderContext context) {
         int width;
         int height;
         if (orientation.isVertical()) {
@@ -308,7 +308,7 @@ public final class ScrollbarElement extends StyledElement<ScrollbarElement> {
             // Scrollbar is 1 cell tall for horizontal orientation
             height = 1;
         }
-        return PreferredSize.of(width, height);
+        return Size.of(width, height);
     }
 
     @Override

@@ -15,8 +15,8 @@ import dev.tamboui.terminal.Frame;
 import dev.tamboui.text.Line;
 import dev.tamboui.text.Span;
 import dev.tamboui.text.Text;
-import dev.tamboui.toolkit.element.PreferredSize;
 import dev.tamboui.toolkit.element.RenderContext;
+import dev.tamboui.toolkit.element.Size;
 import dev.tamboui.toolkit.element.StyledElement;
 import dev.tamboui.toolkit.event.EventResult;
 import dev.tamboui.tui.bindings.Actions;
@@ -409,7 +409,7 @@ public final class RichTextAreaElement extends StyledElement<RichTextAreaElement
     }
 
     @Override
-    public PreferredSize preferredSize(int availableWidth, int availableHeight, RenderContext context) {
+    public Size preferredSize(int availableWidth, int availableHeight, RenderContext context) {
         // Calculate width: max line width from text
         int maxWidth = 0;
         for (Line line : text.lines()) {
@@ -439,7 +439,7 @@ public final class RichTextAreaElement extends StyledElement<RichTextAreaElement
             height = text.height();
         }
 
-        return PreferredSize.of(width, height);
+        return Size.of(width, height);
     }
 
     @Override

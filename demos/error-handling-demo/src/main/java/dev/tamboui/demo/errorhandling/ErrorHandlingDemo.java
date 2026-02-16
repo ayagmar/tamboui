@@ -13,8 +13,8 @@ import dev.tamboui.style.Color;
 import dev.tamboui.terminal.Frame;
 import dev.tamboui.toolkit.app.ToolkitRunner;
 import dev.tamboui.toolkit.element.Element;
-import dev.tamboui.toolkit.element.PreferredSize;
 import dev.tamboui.toolkit.element.RenderContext;
+import dev.tamboui.toolkit.element.Size;
 import dev.tamboui.toolkit.event.EventResult;
 import dev.tamboui.tui.TuiConfig;
 import dev.tamboui.tui.event.KeyEvent;
@@ -127,8 +127,8 @@ public class ErrorHandlingDemo {
             }
 
             @Override
-            public PreferredSize preferredSize(int availableWidth, int availableHeight, RenderContext context) {
-                return PreferredSize.UNKNOWN;
+            public Size preferredSize(int availableWidth, int availableHeight, RenderContext context) {
+                return Size.UNKNOWN;
             }
 
             @Override

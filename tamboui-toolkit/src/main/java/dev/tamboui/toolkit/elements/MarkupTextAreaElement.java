@@ -18,8 +18,8 @@ import dev.tamboui.terminal.Frame;
 import dev.tamboui.text.Line;
 import dev.tamboui.text.MarkupParser;
 import dev.tamboui.text.Text;
-import dev.tamboui.toolkit.element.PreferredSize;
 import dev.tamboui.toolkit.element.RenderContext;
+import dev.tamboui.toolkit.element.Size;
 import dev.tamboui.toolkit.element.StyledElement;
 import dev.tamboui.toolkit.event.EventResult;
 import dev.tamboui.tui.bindings.Actions;
@@ -447,7 +447,7 @@ public final class MarkupTextAreaElement extends StyledElement<MarkupTextAreaEle
     }
 
     @Override
-    public PreferredSize preferredSize(int availableWidth, int availableHeight, RenderContext context) {
+    public Size preferredSize(int availableWidth, int availableHeight, RenderContext context) {
         ensureTextParsed();
 
         // Calculate width: max line width from parsed text
@@ -479,7 +479,7 @@ public final class MarkupTextAreaElement extends StyledElement<MarkupTextAreaEle
             height = parsedText.height();
         }
 
-        return PreferredSize.of(width, height);
+        return Size.of(width, height);
     }
 
     @Override

@@ -16,8 +16,8 @@ import dev.tamboui.layout.Rect;
 import dev.tamboui.style.Color;
 import dev.tamboui.style.Style;
 import dev.tamboui.terminal.Frame;
-import dev.tamboui.toolkit.element.PreferredSize;
 import dev.tamboui.toolkit.element.RenderContext;
+import dev.tamboui.toolkit.element.Size;
 import dev.tamboui.toolkit.element.StyledElement;
 import dev.tamboui.widgets.barchart.Bar;
 import dev.tamboui.widgets.barchart.BarChart;
@@ -304,7 +304,7 @@ public final class BarChartElement extends StyledElement<BarChartElement> {
     }
 
     @Override
-    public PreferredSize preferredSize(int availableWidth, int availableHeight, RenderContext context) {
+    public Size preferredSize(int availableWidth, int availableHeight, RenderContext context) {
         // Calculate based on bar count, bar width, and gaps
         int barCount = 0;
         for (BarGroup group : groups) {
@@ -330,7 +330,7 @@ public final class BarChartElement extends StyledElement<BarChartElement> {
 
         // Add border if present
         int borderSize = (title != null || borderType != null) ? 2 : 0;
-        return PreferredSize.of(Math.max(width, 10) + borderSize, height + borderSize);
+        return Size.of(Math.max(width, 10) + borderSize, height + borderSize);
     }
 
     @Override

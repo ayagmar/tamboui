@@ -29,8 +29,8 @@ import dev.tamboui.terminal.Frame;
 import dev.tamboui.text.Line;
 import dev.tamboui.toolkit.element.ContainerElement;
 import dev.tamboui.toolkit.element.Element;
-import dev.tamboui.toolkit.element.PreferredSize;
 import dev.tamboui.toolkit.element.RenderContext;
+import dev.tamboui.toolkit.element.Size;
 import dev.tamboui.widgets.block.Block;
 import dev.tamboui.widgets.block.BorderSet;
 import dev.tamboui.widgets.block.BorderType;
@@ -400,7 +400,7 @@ public final class Panel extends ContainerElement<Panel> {
     }
 
     @Override
-    public PreferredSize preferredSize(int availableWidth, int availableHeight, RenderContext context) {
+    public Size preferredSize(int availableWidth, int availableHeight, RenderContext context) {
         Direction effectiveDirection = this.direction != null ? this.direction : Direction.VERTICAL;
         int effectiveSpacing = this.spacing != null ? this.spacing : 0;
 
@@ -410,7 +410,7 @@ public final class Panel extends ContainerElement<Panel> {
             if (effectiveDirection == Direction.HORIZONTAL) {
                 // Horizontal: sum widths of all children
                 for (Element child : children) {
-                    PreferredSize childSize = child.preferredSize(availableWidth, availableHeight, context);
+                    Size childSize = child.preferredSize(availableWidth, availableHeight, context);
                     childrenWidth += childSize.widthOr(0);
                 }
                 // Add spacing between children (n-1 spacings)
@@ -420,7 +420,7 @@ public final class Panel extends ContainerElement<Panel> {
             } else {
                 // Vertical: max width of all children
                 for (Element child : children) {
-                    PreferredSize childSize = child.preferredSize(availableWidth, availableHeight, context);
+                    Size childSize = child.preferredSize(availableWidth, availableHeight, context);
                     childrenWidth = Math.max(childrenWidth, childSize.widthOr(0));
                 }
             }
@@ -449,7 +449,7 @@ public final class Panel extends ContainerElement<Panel> {
             if (effectiveDirection == Direction.VERTICAL) {
                 int totalSpacing = effectiveSpacing * Math.max(0, children.size() - 1);
                 for (Element child : children) {
-                    PreferredSize childSize = child.preferredSize(contentWidth, -1, context);
+                    Size childSize = child.preferredSize(contentWidth, -1, context);
                     height += childSize.heightOr(1);
                 }
                 height += totalSpacing;
@@ -460,14 +460,14 @@ public final class Panel extends ContainerElement<Panel> {
                         : -1;
                 int maxChildHeight = 1;
                 for (Element child : children) {
-                    PreferredSize childSize = child.preferredSize(childWidth, -1, context);
+                    Size childSize = child.preferredSize(childWidth, -1, context);
                     maxChildHeight = Math.max(maxChildHeight, childSize.heightOr(1));
                 }
                 height += maxChildHeight;
             }
         }
 
-        return PreferredSize.of(width, height);
+        return Size.of(width, height);
     }
 
     /**
@@ -494,7 +494,7 @@ public final class Panel extends ContainerElement<Panel> {
                 height += ((Constraint.Length) c).value();
             } else {
                 // Use preferredSize for proper calculation
-                PreferredSize size = child.preferredSize(estimatedWidth, -1, RenderContext.empty());
+                Size size = child.preferredSize(estimatedWidth, -1, RenderContext.empty());
                 height += size.heightOr(1);
             }
         }
@@ -618,7 +618,7 @@ public final class Panel extends ContainerElement<Panel> {
             }
             // Handle null constraint by querying preferred size
             if (c == null) {
-                PreferredSize size = child.preferredSize(-1, -1, context);
+                Size size = child.preferredSize(-1, -1, context);
                 int preferred = isHorizontal ? size.width() : size.height();
                 c = preferred >= 0 ? Constraint.length(preferred) : Constraint.fill();
             }

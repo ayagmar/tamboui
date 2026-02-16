@@ -13,8 +13,8 @@ import dev.tamboui.style.Color;
 import dev.tamboui.style.Style;
 import dev.tamboui.terminal.Frame;
 import dev.tamboui.text.CharWidth;
-import dev.tamboui.toolkit.element.PreferredSize;
 import dev.tamboui.toolkit.element.RenderContext;
+import dev.tamboui.toolkit.element.Size;
 import dev.tamboui.toolkit.element.StyledElement;
 import dev.tamboui.widgets.block.Block;
 import dev.tamboui.widgets.block.BorderType;
@@ -180,13 +180,13 @@ public final class GaugeElement extends StyledElement<GaugeElement> {
     }
 
     @Override
-    public PreferredSize preferredSize(int availableWidth, int availableHeight, RenderContext context) {
+    public Size preferredSize(int availableWidth, int availableHeight, RenderContext context) {
         // Label width + some space for the gauge bar
         int labelWidth = label != null ? CharWidth.of(label) : 4; // "75%" default
         int width = labelWidth + 10;
         // Gauge is typically 1 row, 3 if bordered (top + content + bottom)
         int height = (title != null || borderType != null) ? 3 : 1;
-        return PreferredSize.of(width, height);
+        return Size.of(width, height);
     }
 
     @Override

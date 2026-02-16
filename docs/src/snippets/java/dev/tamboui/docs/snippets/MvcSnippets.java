@@ -11,7 +11,7 @@ import dev.tamboui.tui.event.KeyEvent;
 import dev.tamboui.layout.Rect;
 import dev.tamboui.widgets.Clear;
 import dev.tamboui.widgets.input.TextInputState;
-import dev.tamboui.toolkit.element.PreferredSize;
+import dev.tamboui.toolkit.element.Size;
 import dev.tamboui.toolkit.element.RenderContext;
 
 import java.util.ArrayList;
@@ -336,8 +336,8 @@ public class MvcSnippets {
         }
 
         @Override
-        public PreferredSize preferredSize(int availableWidth, int availableHeight, RenderContext context) {
-            return PreferredSize.UNKNOWN;
+        public Size preferredSize(int availableWidth, int availableHeight, RenderContext context) {
+            return Size.UNKNOWN;
         }
 
         private Element header() { return text("Header"); }

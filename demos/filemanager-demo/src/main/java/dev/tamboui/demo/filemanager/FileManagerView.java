@@ -20,8 +20,8 @@ import dev.tamboui.style.Overflow;
 import dev.tamboui.terminal.Frame;
 import dev.tamboui.text.Text;
 import dev.tamboui.toolkit.element.Element;
-import dev.tamboui.toolkit.element.PreferredSize;
 import dev.tamboui.toolkit.element.RenderContext;
+import dev.tamboui.toolkit.element.Size;
 import dev.tamboui.toolkit.elements.DialogElement;
 import dev.tamboui.toolkit.event.EventResult;
 import dev.tamboui.tui.event.KeyEvent;
@@ -160,8 +160,8 @@ public class FileManagerView implements Element {
     }
 
     @Override
-    public PreferredSize preferredSize(int availableWidth, int availableHeight, RenderContext context) {
-        return PreferredSize.UNKNOWN;
+    public Size preferredSize(int availableWidth, int availableHeight, RenderContext context) {
+        return Size.UNKNOWN;
     }
 
     /**
@@ -238,8 +238,8 @@ public class FileManagerView implements Element {
             }
 
             @Override
-            public PreferredSize preferredSize(int availableWidth, int availableHeight, RenderContext context) {
-                return PreferredSize.UNKNOWN;
+            public Size preferredSize(int availableWidth, int availableHeight, RenderContext context) {
+                return Size.UNKNOWN;
             }
 
             @Override
@@ -376,8 +376,8 @@ public class FileManagerView implements Element {
             }
 
             @Override
-            public PreferredSize preferredSize(int availableWidth, int availableHeight, RenderContext context) {
-                return PreferredSize.UNKNOWN;
+            public Size preferredSize(int availableWidth, int availableHeight, RenderContext context) {
+                return Size.UNKNOWN;
             }
 
             @Override

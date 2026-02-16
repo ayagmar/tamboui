@@ -14,8 +14,8 @@ import dev.tamboui.layout.Rect;
 import dev.tamboui.style.Color;
 import dev.tamboui.style.Style;
 import dev.tamboui.terminal.Frame;
-import dev.tamboui.toolkit.element.PreferredSize;
 import dev.tamboui.toolkit.element.RenderContext;
+import dev.tamboui.toolkit.element.Size;
 import dev.tamboui.toolkit.element.StyledElement;
 import dev.tamboui.widgets.block.Block;
 import dev.tamboui.widgets.block.BorderType;
@@ -238,7 +238,7 @@ public final class CalendarElement extends StyledElement<CalendarElement> {
     }
 
     @Override
-    public PreferredSize preferredSize(int availableWidth, int availableHeight, RenderContext context) {
+    public Size preferredSize(int availableWidth, int availableHeight, RenderContext context) {
         // Width: 7 days * 3 chars each (day number + spaces) = 21 chars
         int width = 7 * 3;
         int borderWidth = (title != null || borderType != null) ? 2 : 0;
@@ -255,7 +255,7 @@ public final class CalendarElement extends StyledElement<CalendarElement> {
         int borderHeight = (title != null || borderType != null) ? 2 : 0;
         height += borderHeight;
 
-        return PreferredSize.of(width, height);
+        return Size.of(width, height);
     }
 
     @Override

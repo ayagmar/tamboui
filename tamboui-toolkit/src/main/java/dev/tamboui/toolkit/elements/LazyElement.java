@@ -10,8 +10,8 @@ import dev.tamboui.layout.Constraint;
 import dev.tamboui.layout.Rect;
 import dev.tamboui.terminal.Frame;
 import dev.tamboui.toolkit.element.Element;
-import dev.tamboui.toolkit.element.PreferredSize;
 import dev.tamboui.toolkit.element.RenderContext;
+import dev.tamboui.toolkit.element.Size;
 import dev.tamboui.toolkit.event.EventResult;
 import dev.tamboui.toolkit.event.KeyEventHandler;
 import dev.tamboui.toolkit.event.MouseEventHandler;
@@ -51,14 +51,14 @@ public final class LazyElement implements Element {
     }
 
     @Override
-    public PreferredSize preferredSize(int availableWidth, int availableHeight, RenderContext context) {
+    public Size preferredSize(int availableWidth, int availableHeight, RenderContext context) {
         // Evaluate to get preferred size if not yet rendered
         if (lastElement == null) {
             lastElement = supplier.get();
         }
         return lastElement != null
             ? lastElement.preferredSize(availableWidth, availableHeight, context)
-            : PreferredSize.UNKNOWN;
+            : Size.UNKNOWN;
     }
 
     @Override

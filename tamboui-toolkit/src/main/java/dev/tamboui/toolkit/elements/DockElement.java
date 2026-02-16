@@ -16,8 +16,8 @@ import dev.tamboui.style.Style;
 import dev.tamboui.style.StylePropertyResolver;
 import dev.tamboui.terminal.Frame;
 import dev.tamboui.toolkit.element.Element;
-import dev.tamboui.toolkit.element.PreferredSize;
 import dev.tamboui.toolkit.element.RenderContext;
+import dev.tamboui.toolkit.element.Size;
 import dev.tamboui.toolkit.element.StyledElement;
 import dev.tamboui.toolkit.event.EventResult;
 import dev.tamboui.tui.event.MouseEvent;
@@ -276,7 +276,7 @@ public final class DockElement extends StyledElement<DockElement> {
     }
 
     @Override
-    public PreferredSize preferredSize(int availableWidth, int availableHeight, RenderContext context) {
+    public Size preferredSize(int availableWidth, int availableHeight, RenderContext context) {
         StylePropertyResolver resolver = StylePropertyResolver.empty();
 
         // Calculate width
@@ -326,7 +326,7 @@ public final class DockElement extends StyledElement<DockElement> {
             height += margin.verticalTotal();
         }
 
-        return PreferredSize.of(width, height);
+        return Size.of(width, height);
     }
 
     @Override

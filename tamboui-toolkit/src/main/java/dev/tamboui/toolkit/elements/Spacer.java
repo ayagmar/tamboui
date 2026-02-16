@@ -8,8 +8,8 @@ import dev.tamboui.layout.Constraint;
 import dev.tamboui.layout.Rect;
 import dev.tamboui.terminal.Frame;
 import dev.tamboui.toolkit.element.Element;
-import dev.tamboui.toolkit.element.PreferredSize;
 import dev.tamboui.toolkit.element.RenderContext;
+import dev.tamboui.toolkit.element.Size;
 
 /**
  * An empty element that takes up space in layouts.
@@ -79,14 +79,14 @@ public final class Spacer implements Element {
     }
 
     @Override
-    public PreferredSize preferredSize(int availableWidth, int availableHeight, RenderContext context) {
+    public Size preferredSize(int availableWidth, int availableHeight, RenderContext context) {
         // If spacer has a fixed length constraint, return it for both dimensions
         if (layoutConstraint instanceof Constraint.Length) {
             int value = ((Constraint.Length) layoutConstraint).value();
-            return PreferredSize.of(value, value);
+            return Size.of(value, value);
         }
         // For fill() and other constraints, return UNKNOWN (will expand during layout)
-        return PreferredSize.UNKNOWN;
+        return Size.UNKNOWN;
     }
 
     @Override
