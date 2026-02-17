@@ -5,21 +5,14 @@
 package dev.tamboui.backend.panama;
 
 import java.io.IOException;
-import java.util.EnumSet;
 import java.util.Objects;
 
 import dev.tamboui.backend.panama.unix.PlatformConstants;
 import dev.tamboui.backend.panama.unix.UnixTerminal;
 import dev.tamboui.backend.panama.windows.WindowsTerminal;
-import dev.tamboui.buffer.Cell;
-import dev.tamboui.buffer.CellUpdate;
 import dev.tamboui.layout.Position;
 import dev.tamboui.layout.Size;
-import dev.tamboui.style.Hyperlink;
-import dev.tamboui.style.Modifier;
-import dev.tamboui.style.Style;
-import dev.tamboui.terminal.AnsiStringBuilder;
-import dev.tamboui.terminal.Backend;
+import dev.tamboui.terminal.AbstractBackend;
 import dev.tamboui.terminal.Mode2027Status;
 import dev.tamboui.terminal.Mode2027Support;
 
@@ -33,7 +26,7 @@ import dev.tamboui.terminal.Mode2027Support;
  * <p>
  * Supports Unix-like systems (Linux and macOS) and Windows.
  */
-public class PanamaBackend implements Backend {
+public class PanamaBackend extends AbstractBackend {
 
     private static final int INITIAL_BUFFER_SIZE = 8192;
 
@@ -76,52 +69,6 @@ public class PanamaBackend implements Backend {
     }
 
     @Override
-    public void draw(Iterable<CellUpdate> updates) throws IOException {
-        Style lastStyle = null;
-        Hyperlink lastHyperlink = null;
-
-        for (CellUpdate update : updates) {
-            Cell cell = update.cell();
-
-            // Skip continuation cells - the terminal fills them automatically
-            // when printing a wide character
-            if (cell.isContinuation()) {
-                continue;
-            }
-
-            // Move cursor
-            moveCursor(update.x(), update.y());
-
-            // Apply style if changed
-            if (!cell.style().equals(lastStyle)) {
-                Hyperlink currentHyperlink = cell.style().hyperlink().orElse(null);
-                if (!Objects.equals(currentHyperlink, lastHyperlink)) {
-                    if (lastHyperlink != null) {
-                        outputBuffer.appendUtf8(AnsiStringBuilder.hyperlinkEnd());
-                    }
-                    if (currentHyperlink != null) {
-                        outputBuffer.appendUtf8(AnsiStringBuilder.hyperlinkStart(currentHyperlink));
-                    }
-                    lastHyperlink = currentHyperlink;
-                }
-
-                applyStyle(cell.style());
-                lastStyle = cell.style();
-            }
-
-            // Write symbol (may contain UTF-8 multi-byte characters)
-            outputBuffer.appendUtf8(cell.symbol());
-        }
-
-        if (lastHyperlink != null) {
-            outputBuffer.appendUtf8(AnsiStringBuilder.hyperlinkEnd());
-        }
-
-        // Reset style after drawing
-        outputBuffer.csi().appendAscii("0m");
-    }
-
-    @Override
     public void flush() throws IOException {
         if (outputBuffer.length() > 0) {
             terminal.write(outputBuffer.buffer(), 0, outputBuffer.length());
@@ -158,12 +105,6 @@ public class PanamaBackend implements Backend {
         // Getting cursor position requires sending a query and parsing the response
         // This is complex to implement reliably, so we return origin as fallback
         return Position.ORIGIN;
-    }
-
-    @Override
-    public void setCursorPosition(Position position) throws IOException {
-        moveCursor(position.x(), position.y());
-        flush();
     }
 
     @Override
@@ -339,48 +280,6 @@ public class PanamaBackend implements Backend {
         } finally {
             terminal.close();
         }
-    }
-
-    private void moveCursor(int x, int y) {
-        // ANSI uses 1-based coordinates
-        outputBuffer.csi()
-                .appendInt(y + 1)
-                .append((byte) ';')
-                .appendInt(x + 1)
-                .append((byte) 'H');
-    }
-
-    private void applyStyle(Style style) {
-        outputBuffer.csi().append((byte) '0');  // Reset first
-
-        // Foreground color
-        style.fg().ifPresent(color -> {
-            outputBuffer.append((byte) ';');
-            outputBuffer.appendAscii(color.toAnsiForeground());
-        });
-
-        // Background color
-        style.bg().ifPresent(color -> {
-            outputBuffer.append((byte) ';');
-            outputBuffer.appendAscii(color.toAnsiBackground());
-        });
-
-        // Modifiers
-        EnumSet<Modifier> modifiers = style.effectiveModifiers();
-        for (Modifier mod : modifiers) {
-            outputBuffer.append((byte) ';').appendInt(mod.code());
-        }
-
-        // Underline color (if supported)
-        style.underlineColor().ifPresent(color -> {
-            String s = color.toAnsiUnderline();
-            if (!s.isEmpty()) {
-                outputBuffer.append((byte) ';');
-                outputBuffer.appendAscii(s);
-            }
-        });
-
-        outputBuffer.append((byte) 'm');
     }
 
     /**

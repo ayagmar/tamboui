@@ -6,7 +6,6 @@ package dev.tamboui.backend.aesh;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.EnumSet;
 import java.util.Objects;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -16,15 +15,9 @@ import org.aesh.terminal.Connection;
 import org.aesh.terminal.tty.Point;
 import org.aesh.terminal.tty.TerminalConnection;
 
-import dev.tamboui.buffer.Cell;
-import dev.tamboui.buffer.CellUpdate;
 import dev.tamboui.layout.Position;
 import dev.tamboui.layout.Size;
-import dev.tamboui.style.Hyperlink;
-import dev.tamboui.style.Modifier;
-import dev.tamboui.style.Style;
-import dev.tamboui.terminal.AnsiStringBuilder;
-import dev.tamboui.terminal.Backend;
+import dev.tamboui.terminal.AbstractBackend;
 import dev.tamboui.terminal.Mode2027Status;
 import dev.tamboui.terminal.Mode2027Support;
 
@@ -34,7 +27,7 @@ import dev.tamboui.terminal.Mode2027Support;
  * This backend uses the aesh-readline library's TerminalConnection abstraction
  * for terminal I/O operations.
  */
-public class AeshBackend implements Backend {
+public class AeshBackend extends AbstractBackend {
 
     private static final String ESC = "\033";
     private static final String CSI = ESC + "[";
@@ -89,56 +82,6 @@ public class AeshBackend implements Backend {
     }
 
     @Override
-    public void draw(Iterable<CellUpdate> updates) throws IOException {
-        Style lastStyle = null;
-        Hyperlink lastHyperlink = null;
-
-        for (CellUpdate update : updates) {
-            Cell cell = update.cell();
-
-            // Skip continuation cells - the terminal fills them automatically
-            // when printing a wide character
-            if (cell.isContinuation()) {
-                continue;
-            }
-
-            // Move cursor
-            moveCursor(update.x(), update.y());
-
-            // Apply style if changed
-            if (!cell.style().equals(lastStyle)) {
-                // Check if hyperlink changed
-                Hyperlink currentHyperlink = cell.style().hyperlink().orElse(null);
-                if (!Objects.equals(currentHyperlink, lastHyperlink)) {
-                    // End previous hyperlink if any
-                    if (lastHyperlink != null) {
-                        outputBuffer.append(AnsiStringBuilder.hyperlinkEnd());
-                    }
-                    // Start new hyperlink if any
-                    if (currentHyperlink != null) {
-                        outputBuffer.append(AnsiStringBuilder.hyperlinkStart(currentHyperlink));
-                    }
-                    lastHyperlink = currentHyperlink;
-                }
-
-                applyStyle(cell.style());
-                lastStyle = cell.style();
-            }
-
-            // Write symbol
-            outputBuffer.append(cell.symbol());
-        }
-
-        // End any active hyperlink
-        if (lastHyperlink != null) {
-            outputBuffer.append(AnsiStringBuilder.hyperlinkEnd());
-        }
-
-        // Reset style after drawing
-        outputBuffer.append(CSI).append("0m");
-    }
-
-    @Override
     public void flush() throws IOException {
         if (outputBuffer.length() > 0) {
             connection.write(outputBuffer.toString());
@@ -186,12 +129,6 @@ public class AeshBackend implements Backend {
             // Fall through to return origin
         }
         return Position.ORIGIN;
-    }
-
-    @Override
-    public void setCursorPosition(Position position) throws IOException {
-        moveCursor(position.x(), position.y());
-        flush();
     }
 
     @Override
@@ -324,13 +261,12 @@ public class AeshBackend implements Backend {
 
     @Override
     public void writeRaw(byte[] data) throws IOException {
-        String str = new String(data, StandardCharsets.UTF_8);
-        connection.write(str);
+        outputBuffer.append(new String(data, StandardCharsets.UTF_8));
     }
 
     @Override
     public void writeRaw(String data) throws IOException {
-        connection.write(data);
+        outputBuffer.append(data);
     }
 
     @Override
@@ -390,41 +326,6 @@ public class AeshBackend implements Backend {
         } finally {
             connection.close();
         }
-    }
-
-    private void moveCursor(int x, int y) {
-        // ANSI uses 1-based coordinates
-        outputBuffer.append(CSI).append(y + 1).append(";").append(x + 1).append("H");
-    }
-
-    private void applyStyle(Style style) {
-        outputBuffer.append(CSI).append("0");  // Reset first
-
-        // Foreground color
-        style.fg().ifPresent(color -> {
-            outputBuffer.append(";");
-            outputBuffer.append(color.toAnsiForeground());
-        });
-
-        // Background color
-        style.bg().ifPresent(color -> {
-            outputBuffer.append(";");
-            outputBuffer.append(color.toAnsiBackground());
-        });
-
-        // Modifiers
-        EnumSet<Modifier> modifiers = style.effectiveModifiers();
-        for (Modifier mod : modifiers) {
-            outputBuffer.append(";").append(mod.code());
-        }
-
-        // Underline color (if supported)
-        style.underlineColor().ifPresent(color -> {
-            outputBuffer.append(";");
-            outputBuffer.append(color.toAnsiUnderline());
-        });
-
-        outputBuffer.append("m");
     }
 
     /**
