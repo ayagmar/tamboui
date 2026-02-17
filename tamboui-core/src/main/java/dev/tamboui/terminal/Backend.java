@@ -22,6 +22,7 @@ public interface Backend extends AutoCloseable {
      *
      * @param updates the cell updates to draw
      * @throws IOException if drawing fails
+     * @see AbstractBackend
      */
     void draw(Iterable<CellUpdate> updates) throws IOException;
 

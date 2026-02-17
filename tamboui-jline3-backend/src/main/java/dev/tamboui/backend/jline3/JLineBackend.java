@@ -6,8 +6,6 @@ package dev.tamboui.backend.jline3;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.EnumSet;
-import java.util.Objects;
 
 import org.jline.terminal.Attributes;
 import org.jline.terminal.Terminal;
@@ -16,22 +14,16 @@ import org.jline.terminal.TerminalBuilder;
 import org.jline.utils.InfoCmp;
 import org.jline.utils.NonBlockingReader;
 
-import dev.tamboui.buffer.Cell;
-import dev.tamboui.buffer.CellUpdate;
 import dev.tamboui.layout.Position;
 import dev.tamboui.layout.Size;
-import dev.tamboui.style.Hyperlink;
-import dev.tamboui.style.Modifier;
-import dev.tamboui.style.Style;
-import dev.tamboui.terminal.AnsiStringBuilder;
-import dev.tamboui.terminal.Backend;
+import dev.tamboui.terminal.AbstractBackend;
 import dev.tamboui.terminal.Mode2027Status;
 import dev.tamboui.terminal.Mode2027Support;
 
 /**
  * JLine 3 based backend for terminal operations.
  */
-public class JLineBackend implements Backend {
+public class JLineBackend extends AbstractBackend {
 
     private static final String ESC = "\033";
     private static final String CSI = ESC + "[";
@@ -59,56 +51,6 @@ public class JLineBackend implements Backend {
         this.inAlternateScreen = false;
         this.mouseEnabled = false;
         this.mode2027Enabled = false;
-    }
-
-    @Override
-    public void draw(Iterable<CellUpdate> updates) throws IOException {
-        Style lastStyle = null;
-        Hyperlink lastHyperlink = null;
-
-        for (CellUpdate update : updates) {
-            Cell cell = update.cell();
-
-            // Skip continuation cells - the terminal fills them automatically
-            // when printing a wide character
-            if (cell.isContinuation()) {
-                continue;
-            }
-
-            // Move cursor
-            moveCursor(update.x(), update.y());
-
-            // Apply style if changed
-            if (!cell.style().equals(lastStyle)) {
-                // Check if hyperlink changed
-                Hyperlink currentHyperlink = cell.style().hyperlink().orElse(null);
-                if (!Objects.equals(currentHyperlink, lastHyperlink)) {
-                    // End previous hyperlink if any
-                    if (lastHyperlink != null) {
-                        writer.print(AnsiStringBuilder.hyperlinkEnd());
-                    }
-                    // Start new hyperlink if any
-                    if (currentHyperlink != null) {
-                        writer.print(AnsiStringBuilder.hyperlinkStart(currentHyperlink));
-                    }
-                    lastHyperlink = currentHyperlink;
-                }
-
-                applyStyle(cell.style());
-                lastStyle = cell.style();
-            }
-
-            // Write symbol
-            writer.print(cell.symbol());
-        }
-
-        // End any active hyperlink
-        if (lastHyperlink != null) {
-            writer.print(AnsiStringBuilder.hyperlinkEnd());
-        }
-
-        // Reset style after drawing
-        writer.print(CSI + "0m");
     }
 
     @Override
@@ -145,12 +87,6 @@ public class JLineBackend implements Backend {
         // JLine doesn't provide a direct way to query cursor position
         // Return origin as fallback
         return Position.ORIGIN;
-    }
-
-    @Override
-    public void setCursorPosition(Position position) throws IOException {
-        moveCursor(position.x(), position.y());
-        writer.flush();
     }
 
     @Override
@@ -333,43 +269,6 @@ public class JLineBackend implements Backend {
 
         writer.flush();
         terminal.close();
-    }
-
-    private void moveCursor(int x, int y) {
-        // ANSI uses 1-based coordinates
-        writer.print(CSI + (y + 1) + ";" + (x + 1) + "H");
-    }
-
-    private void applyStyle(Style style) {
-        StringBuilder sb = new StringBuilder();
-        sb.append(CSI).append("0");  // Reset first
-
-        // Foreground color
-        style.fg().ifPresent(color -> {
-            sb.append(";");
-            sb.append(color.toAnsiForeground());
-        });
-
-        // Background color
-        style.bg().ifPresent(color -> {
-            sb.append(";");
-            sb.append(color.toAnsiBackground());
-        });
-
-        // Modifiers
-        EnumSet<Modifier> modifiers = style.effectiveModifiers();
-        for (Modifier mod : modifiers) {
-            sb.append(";").append(mod.code());
-        }
-
-        // Underline color (if supported)
-        style.underlineColor().ifPresent(color -> {
-            sb.append(";");
-            sb.append(color.toAnsiUnderline());
-        });
-
-        sb.append("m");
-        writer.print(sb.toString());
     }
 
     /**

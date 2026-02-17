@@ -12,7 +12,7 @@ import java.util.function.BiConsumer;
 import dev.tamboui.layout.Position;
 import dev.tamboui.layout.Rect;
 import dev.tamboui.style.Style;
-import dev.tamboui.terminal.AnsiStringBuilder;
+import dev.tamboui.terminal.AnsiCellWriter;
 import dev.tamboui.text.CharWidth;
 import dev.tamboui.text.Line;
 import dev.tamboui.text.Span;
@@ -532,34 +532,20 @@ public final class Buffer {
      */
     public String toAnsiString() {
         StringBuilder result = new StringBuilder();
-        Style lastStyle = null;
-
-        for (int y = area.top(); y < area.bottom(); y++) {
-            if (y > area.top()) {
-                // Use \r\n to ensure the cursor returns to column 0 on each new line.
-                // A bare \n only moves the cursor down without a carriage return when
-                // the terminal has OPOST disabled (e.g. the Panama backend's raw mode).
-                result.append("\r\n");
-            }
-
-            for (int x = area.left(); x < area.right(); x++) {
-                Cell cell = get(x, y);
-                if (cell.isContinuation()) {
-                    continue;
+        try (AnsiCellWriter writer = new AnsiCellWriter(result::append)) {
+            for (int y = area.top(); y < area.bottom(); y++) {
+                if (y > area.top()) {
+                    // Use \r\n to ensure the cursor returns to column 0 on each new line.
+                    // A bare \n only moves the cursor down without a carriage return when
+                    // the terminal has OPOST disabled (e.g. the Panama backend's raw mode).
+                    result.append("\r\n");
                 }
 
-                // Apply style if changed
-                if (!cell.style().equals(lastStyle)) {
-                    result.append(AnsiStringBuilder.styleToAnsi(cell.style()));
-                    lastStyle = cell.style();
+                for (int x = area.left(); x < area.right(); x++) {
+                    writer.writeCell(get(x, y));
                 }
-
-                result.append(cell.symbol());
             }
         }
-
-        // Reset at end
-        result.append(AnsiStringBuilder.RESET);
         return result.toString();
     }
 
@@ -572,30 +558,16 @@ public final class Buffer {
      */
     public String toAnsiStringWithCursorPositioning() {
         StringBuilder result = new StringBuilder();
-        Style lastStyle = null;
+        try (AnsiCellWriter writer = new AnsiCellWriter(result::append)) {
+            for (int y = area.top(); y < area.bottom(); y++) {
+                // Position cursor at start of row (1-based coordinates)
+                result.append("\u001b[").append(y - area.top() + 1).append(";1H");
 
-        for (int y = area.top(); y < area.bottom(); y++) {
-            // Position cursor at start of row (1-based coordinates)
-            result.append("\u001b[").append(y - area.top() + 1).append(";1H");
-
-            for (int x = area.left(); x < area.right(); x++) {
-                Cell cell = get(x, y);
-                if (cell.isContinuation()) {
-                    continue;
+                for (int x = area.left(); x < area.right(); x++) {
+                    writer.writeCell(get(x, y));
                 }
-
-                // Apply style if changed
-                if (!cell.style().equals(lastStyle)) {
-                    result.append(AnsiStringBuilder.styleToAnsi(cell.style()));
-                    lastStyle = cell.style();
-                }
-
-                result.append(cell.symbol());
             }
         }
-
-        // Reset at end
-        result.append(AnsiStringBuilder.RESET);
         return result.toString();
     }
 
@@ -608,48 +580,34 @@ public final class Buffer {
      */
     public String toAnsiStringTrimmed() {
         StringBuilder result = new StringBuilder();
-        Style lastStyle = null;
-
-        for (int y = area.top(); y < area.bottom(); y++) {
-            if (y > area.top()) {
-                // Use \r\n to ensure the cursor returns to column 0 on each new line.
-                // A bare \n only moves the cursor down without a carriage return when
-                // the terminal has OPOST disabled (e.g. the Panama backend's raw mode).
-                result.append("\r\n");
-            }
-
-            // Find the last non-empty cell in this row (skip continuation cells)
-            int lastNonEmpty = area.left() - 1;
-            for (int x = area.right() - 1; x >= area.left(); x--) {
-                Cell cell = get(x, y);
-                if (cell.isContinuation()) {
-                    continue;
-                }
-                if (!cell.symbol().equals(" ") || !cell.style().equals(Style.EMPTY)) {
-                    lastNonEmpty = x;
-                    break;
-                }
-            }
-
-            // Render up to the last non-empty cell
-            for (int x = area.left(); x <= lastNonEmpty; x++) {
-                Cell cell = get(x, y);
-                if (cell.isContinuation()) {
-                    continue;
+        try (AnsiCellWriter writer = new AnsiCellWriter(result::append)) {
+            for (int y = area.top(); y < area.bottom(); y++) {
+                if (y > area.top()) {
+                    // Use \r\n to ensure the cursor returns to column 0 on each new line.
+                    // A bare \n only moves the cursor down without a carriage return when
+                    // the terminal has OPOST disabled (e.g. the Panama backend's raw mode).
+                    result.append("\r\n");
                 }
 
-                // Apply style if changed
-                if (!cell.style().equals(lastStyle)) {
-                    result.append(AnsiStringBuilder.styleToAnsi(cell.style()));
-                    lastStyle = cell.style();
+                // Find the last non-empty cell in this row (skip continuation cells)
+                int lastNonEmpty = area.left() - 1;
+                for (int x = area.right() - 1; x >= area.left(); x--) {
+                    Cell cell = get(x, y);
+                    if (cell.isContinuation()) {
+                        continue;
+                    }
+                    if (!cell.symbol().equals(" ") || !cell.style().equals(Style.EMPTY)) {
+                        lastNonEmpty = x;
+                        break;
+                    }
                 }
 
-                result.append(cell.symbol());
+                // Render up to the last non-empty cell
+                for (int x = area.left(); x <= lastNonEmpty; x++) {
+                    writer.writeCell(get(x, y));
+                }
             }
         }
-
-        // Reset at end
-        result.append(AnsiStringBuilder.RESET);
         return result.toString();
     }
 

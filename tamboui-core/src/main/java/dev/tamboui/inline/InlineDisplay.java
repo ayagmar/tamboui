@@ -14,6 +14,7 @@ import dev.tamboui.buffer.Cell;
 import dev.tamboui.layout.Rect;
 import dev.tamboui.layout.Size;
 import dev.tamboui.style.Style;
+import dev.tamboui.terminal.AnsiCellWriter;
 import dev.tamboui.terminal.AnsiStringBuilder;
 import dev.tamboui.terminal.Backend;
 import dev.tamboui.terminal.BackendFactory;
@@ -401,36 +402,24 @@ public final class InlineDisplay implements AutoCloseable {
             }
 
             // Render each line
-            for (int y = 0; y < currentHeight; y++) {
-                if (y > 0) {
-                    out.print("\n");
-                }
-                // Clear the line first (from col 0) to remove stale content.
-                // This avoids calling eraseToEndOfLine after rendering, which
-                // would interact badly with "pending wrap" state on some terminals.
-                backend.carriageReturn();
-                backend.eraseToEndOfLine();
-
-                int lineEnd = findLastContentPosition(y);
-
-                // Render the line from buffer up to last content position
-                Style lastStyle = null;
-                for (int x = 0; x < lineEnd; x++) {
-                    Cell cell = buffer.get(x, y);
-                    if (cell.isContinuation()) {
-                        continue;
+            try (AnsiCellWriter cellWriter = new AnsiCellWriter(out::print)) {
+                for (int y = 0; y < currentHeight; y++) {
+                    if (y > 0) {
+                        out.print("\n");
                     }
+                    // Clear the line first (from col 0) to remove stale content.
+                    // This avoids calling eraseToEndOfLine after rendering, which
+                    // would interact badly with "pending wrap" state on some terminals.
+                    backend.carriageReturn();
+                    backend.eraseToEndOfLine();
 
-                    if (!cell.style().equals(lastStyle)) {
-                        out.print(AnsiStringBuilder.styleToAnsi(cell.style()));
-                        lastStyle = cell.style();
+                    int lineEnd = findLastContentPosition(y);
+
+                    for (int x = 0; x < lineEnd; x++) {
+                        cellWriter.writeCell(buffer.get(x, y));
                     }
-                    out.print(cell.symbol());
                 }
             }
-
-            // Reset style and cancel any pending-wrap state from last line
-            out.print(AnsiStringBuilder.RESET);
             backend.carriageReturn();
 
             // Position cursor - go back to start of display area

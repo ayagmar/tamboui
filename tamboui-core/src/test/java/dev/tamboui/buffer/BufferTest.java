@@ -11,7 +11,9 @@ import org.junit.jupiter.api.Test;
 
 import dev.tamboui.layout.Rect;
 import dev.tamboui.style.Color;
+import dev.tamboui.style.Hyperlink;
 import dev.tamboui.style.Style;
+import dev.tamboui.terminal.AnsiStringBuilder;
 
 import static dev.tamboui.assertj.BufferAssertions.*;
 import static org.assertj.core.api.Assertions.*;
@@ -327,6 +329,34 @@ class BufferTest {
         // Should still have structure (spaces and newlines) with reset codes
         assertThat(result).contains("\n");
         assertThat(result).endsWith("\u001b[0m");
+    }
+
+    @Test
+    @DisplayName("toAnsiString includes hyperlink OSC8 sequences")
+    void toAnsiStringSupportsHyperlinks() {
+        Buffer buffer = Buffer.empty(Rect.of(10, 1));
+        Hyperlink link = Hyperlink.of("https://example.com");
+        buffer.setString(0, 0, "click", Style.EMPTY.hyperlink(link));
+
+        String result = buffer.toAnsiString();
+
+        assertThat(result).contains(AnsiStringBuilder.hyperlinkStart(link));
+        assertThat(result).contains(AnsiStringBuilder.hyperlinkEnd());
+        assertThat(result).contains("click");
+    }
+
+    @Test
+    @DisplayName("toAnsiStringTrimmed includes hyperlink OSC8 sequences")
+    void toAnsiStringTrimmedSupportsHyperlinks() {
+        Buffer buffer = Buffer.empty(Rect.of(10, 1));
+        Hyperlink link = Hyperlink.of("https://example.com");
+        buffer.setString(0, 0, "click", Style.EMPTY.hyperlink(link));
+
+        String result = buffer.toAnsiStringTrimmed();
+
+        assertThat(result).contains(AnsiStringBuilder.hyperlinkStart(link));
+        assertThat(result).contains(AnsiStringBuilder.hyperlinkEnd());
+        assertThat(result).contains("click");
     }
 
     private int countOccurrences(String str, String sub) {
