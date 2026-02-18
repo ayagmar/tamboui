@@ -162,7 +162,7 @@ Maven normally just works, i.e. if you can run `mvn exec:java` then you can run 
 
 === Gradle
 
-Gradle runs via a daemon that has no terminal. You may see errors like:
+Gradle runs Java via https://github.com/gradle/gradle/pull/1152[a daemon that has no terminal]. You may see errors like:
  
 [source,bash]
 ----
@@ -195,7 +195,7 @@ VSCode works well with Maven, Gradle, and JBang. Use Run & Debug as usual—the 
 
 === IntelliJ IDEA
 
-Run & Debug does not reliably get a real terminal (IntelliJ runs via Gradle/Maven in a limited environment). Workaround: build the app, then run it from the command line or IntelliJ’s built-in terminal with `java -jar` or `jbang run`.
+Run & Debug does not https://youtrack.jetbrains.com/issue/IJPL-11655/Add-option-to-run-configuration-to-launch-in-terminal[reliably get a real terminal] (IntelliJ runs via Gradle/Maven in a limited environment). Workaround: build the app, then run it from the command line or IntelliJ’s built-in terminal with `java -jar` or `jbang run`.
 
 === Apache NetBeans
 

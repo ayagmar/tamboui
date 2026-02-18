@@ -1,7 +1,0 @@
-*.class
-*.jar
-.jbang/
-.DS_Store
-.idea/
-*.iml
-.vscode/
