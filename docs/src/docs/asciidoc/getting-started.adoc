@@ -145,6 +145,66 @@ For CLI tools that show progress while preserving terminal history:
 include::{snippets-dir}/dev/tamboui/docs/snippets/GettingStartedSnippets.java[tags=hello-inline]
 ----
 
+== Running/Debugging
+
+Full color and input handling require a real terminal. Many build tools and IDEs do not attach one to the process, so you may see a "dumb terminal" warning or broken behavior.
+
+[NOTE]
+====
+If you know of better workarounds or can help advocate for improving terminal support in these tools, please let us know!
+====
+
+The following describes how to run and debug TamboUI apps per tool and known workarounds:
+
+=== Maven
+
+Maven normally just works, i.e. if you can run `mvn exec:java` then you can run TamboUI apps with no problems.
+
+=== Gradle
+
+Gradle runs Java via https://github.com/gradle/gradle/pull/1152[a daemon that has no terminal]. You may see errors like:
+ 
+[source,bash]
+----
+gradle run
+
+> Task :run
+Feb 17, 2026 5:56:38 PM org.jline.utils.Log logr
+WARNING: Unable to create a system terminal, creating a dumb terminal (enable debug logging for more information)
+
+<=========--<=========----> 75% EXECUTING [8s]
+> :run
+^[[?2027;0$y^C⏎         
+----
+
+==== Solution
+
+Build the app, then run it from a real terminal (or your IDE’s terminal) with `java -jar` or `jbang run`. For a single runnable JAR, use the Shadow plugin (or Application plugin’s `installDist`); then:
+
+[source,bash]
+----
+./gradlew build
+java -jar build/libs/my-app-1.0.0-SNAPSHOT-all.jar
+----
+
+With JBang you can attach a debugger: `jbang run --debug build/libs/my-app-1.0.0-SNAPSHOT-all.jar`
+
+=== Visual Studio Code (VSCode) variants
+
+VSCode works well with Maven, Gradle, and JBang. Use Run & Debug as usual—the easiest way to run and debug TamboUI apps.
+
+=== IntelliJ IDEA
+
+Run & Debug does not https://youtrack.jetbrains.com/issue/IJPL-11655/Add-option-to-run-configuration-to-launch-in-terminal[reliably get a real terminal] (IntelliJ runs via Gradle/Maven in a limited environment). Workaround: build the app, then run it from the command line or IntelliJ’s built-in terminal with `java -jar` or `jbang run`.
+
+=== Apache NetBeans
+
+NetBeans has similar issues (runs via Maven/Gradle, no real terminal) and its built-in terminal is not fully compliant. Use an external terminal and run the app with `java -jar` or `jbang run`.
+
+=== Eclipse
+
+Eclipse can run classes directly, but the console and built-in terminal are not full TTYs. Use an external terminal and run with `java -jar` or `jbang run`.
+
 == Running the Demos
 
 {project-name} includes many demo applications showcasing different features.
