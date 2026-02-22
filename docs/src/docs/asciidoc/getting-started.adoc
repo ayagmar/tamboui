@@ -21,25 +21,32 @@ Add the snapshot repository and dependencies to your `pom.xml`:
 
 [source,xml,subs="+attributes"]
 ----
-<repository>
-    <id>ossrh-snapshots</id>
-    <url>{maven-repo}</url>
-    <releases>
-        <enabled>false</enabled>
-    </releases>
-    <snapshots>
-        <enabled>true</enabled>
-    </snapshots>
-</repository>
+<repositories>
+    <repository>
+        <id>ossrh-snapshots</id>
+        <url>{maven-repo}</url>
+        <releases>
+            <enabled>false</enabled>
+        </releases>
+        <snapshots>
+            <enabled>true</enabled>
+        </snapshots>
+    </repository>
+</repositories>
+
+<dependencyManagement>
+    <dependencies>
+        <dependency>
+            <groupId>{maven-group}</groupId>
+            <artifactId>{bom-module}</artifactId>
+            <version>{project-version}</version>
+            <type>pom</type>
+            <scope>import</scope>
+        </dependency>
+    </dependencies>
+</dependencyManagement>
 
 <dependencies>
-    <dependencies>
-        <groupId>{maven-group}</groupId>
-        <artifactId>{bom-module}</artifactId>
-        <version>{project-version}</version>
-        <type>pom</type>
-        <scope>import</scope>
-    </dependencies>
     <!-- For Toolkit DSL (recommended) -->
     <dependency>
         <groupId>{maven-group}</groupId>
