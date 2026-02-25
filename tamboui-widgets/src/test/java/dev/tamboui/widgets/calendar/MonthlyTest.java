@@ -6,7 +6,9 @@ package dev.tamboui.widgets.calendar;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.util.Locale;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import dev.tamboui.buffer.Buffer;
@@ -19,6 +21,11 @@ import dev.tamboui.widgets.block.Block;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class MonthlyTest {
+
+    @BeforeEach
+    void setLocale() {
+        Locale.setDefault(Locale.US);
+    }
 
     @Test
     void ofCurrentMonthCreatesCalendar() {
