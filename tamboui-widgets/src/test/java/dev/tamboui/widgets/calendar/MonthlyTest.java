@@ -21,12 +21,6 @@ import dev.tamboui.widgets.block.Block;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class MonthlyTest {
-
-    @BeforeEach
-    void setLocale() {
-        Locale.setDefault(Locale.US);
-    }
-
     @Test
     void ofCurrentMonthCreatesCalendar() {
         Monthly calendar = Monthly.ofCurrentMonth();
@@ -79,7 +73,7 @@ class MonthlyTest {
     @Test
     void renderWithMonthHeader() {
         LocalDate date = LocalDate.of(2025, 6, 15);
-        Monthly calendar = Monthly.of(date, d -> Style.EMPTY)
+        Monthly calendar = Monthly.of(date, d -> Style.EMPTY, Locale.US)
             .showMonthHeader(Style.EMPTY.bold());
 
         Buffer buffer = Buffer.empty(new Rect(0, 0, 25, 10));
@@ -108,7 +102,7 @@ class MonthlyTest {
     @Test
     void renderWithBothHeaders() {
         LocalDate date = LocalDate.of(2025, 6, 15);
-        Monthly calendar = Monthly.of(date, d -> Style.EMPTY)
+        Monthly calendar = Monthly.of(date, d -> Style.EMPTY, Locale.US)
             .showMonthHeader(Style.EMPTY.bold())
             .showWeekdaysHeader(Style.EMPTY.fg(Color.CYAN));
 
